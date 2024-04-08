@@ -1,35 +1,50 @@
+# Teleop_twist_keyboard
+
+```
+cd /opt/ros/humble/lib/python3.10/site-packages
+```
+
+```
+sudo cp teleop_twist_keyboard.py teleop_twist_keyboard_copy.py
+```
+
+```
+sudo gedit teleop_twist_keyboard.py
+```
+
+Usuń całą zawartość przez ctrl + A -> Del, następnie wklej zawartość z pliku 
+Piper_Gui/ModyfikacajTopica/teleop_twist_keyboard.py i kliknij save w prawym górnym rogu okna Gedit i wyłącz terminal.
+
+
 # Download
 
-Na początku należy zainstalować wymagane programy.
+Na początku należy zainstalować wymagane programy (Ros2 humble itd.).
+
+Następnie należy pobrać repozytorium:
+```
+cd Desktop/
+
+git clone https://github.com/Dezinter8/Piper_Gui.git
+```
 
 Aby zainstalować aplikację, najlepiej stworzyć środowisko wirtualne (venv) przy użyciu programów takich jak pycharm lub bezpośrednio z konsoli powershell przy pomocy komendy:
 
 ```
+cd Piper_Gui/
+
 virtualenv venv
-```
 
-Aby wejść do środowiska wirtualnego używajać terminalu należy użyć komendy:
-
-```
 source venv/bin/activate
 ```
 
-Aby Pobrać wymagane biblioteki najszybciej użyć komendy z wbudowanej biblioteki freeze należy użyć komendy:
+Aby Pobrać wymagane biblioteki należy użyć komendy:
 
 ```
-python -m pip install -r requirements.txt
+pip install PyQt5 vtk opencv-python
 ```
 
 Aby uruchomić program należy użyć komendy:
 
 ```
 python main.py
-```
-
-# requirements.txt
-
-Aby wytworzyć plik zawierający potrzebne biblioteki najszybciej użyć komendy z wbudowanej biblioteki freeze
-
-```
-python -m pip freeze > requirements.txt
 ```

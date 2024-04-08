@@ -1,4 +1,10 @@
 import os
+
+# Sprawdzenie, czy sesja jest uruchomiona na Waylandzie
+if os.getenv('XDG_SESSION_TYPE') == 'wayland':
+    # Ustawienie platformy Qt na 'wayland'
+    os.environ['QT_QPA_PLATFORM'] = 'wayland'
+
 import sys
 import subprocess
 from PyQt5 import QtWidgets, QtCore, uic
