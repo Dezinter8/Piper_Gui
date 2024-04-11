@@ -7,7 +7,6 @@ from RosClient import LidarSubscriber
 class LidarVisualizer:
     def __init__(self, renderer):
         # Inicjalizacja renderera i aktora VTK
-        #self.renderer = renderer
         self.points = vtk.vtkPoints()  # Punkty do wyświetlenia
         self.vertices = vtk.vtkCellArray()  # Komórki dla punktów
         self.polyData = vtk.vtkPolyData()  # Struktura danych dla geometrii
@@ -28,28 +27,26 @@ class LidarVisualizer:
         self.actor = vtk.vtkActor()
         self.actor.SetMapper(self.mapper)
         
-        # Ustawienia wyglądu punktów.
+        # Ustawienia wyglądu punktów
         self.actor.GetProperty().SetPointSize(5)
         self.actor.GetProperty().SetColor(1.0, 0.0, 0.0)  # Czerwone punkty
-        #self.renderer.AddActor(self.actor)
 
     def update_points(self, ranges, angle_min, angle_increment):
         # Aktualizacja punktów na podstawie danych z lidaru
-        self.points.Reset()
+        """self.points.Reset()
         self.vertices.Reset()
-        self.colors.Reset()
+        self.colors.Reset()"""
 
-        # Indeks odpowiadający kątowi 0
-        zero_angle_index = round(abs(angle_min) / angle_increment)
+        # Indeks odpowiadający kątowi 180 (dla nas 0) na płaszczyźnie od 0 do 360 stopni
+        zero_angle_index = round((180 + angle_min) / angle_increment) % len(ranges)
 
         for i, range in enumerate(ranges):
             if range == float('inf') or range == 0.0:
                 continue  # Pomijanie nieprawidłowych danych
             angle = angle_min + i * angle_increment
-            # Przesunięcie punktów tak, aby kąt zero był na dole (oś X)
-            x = range * math.cos(angle - math.pi/2)  # Odejmujemy pi/2, aby obrócić kąt zero na oś X
-            y = range * math.sin(angle - math.pi/2)  # Odejmujemy pi/2, aby obrócić kąt zero na oś X
-            z = 0
+            x = 0
+            y = range * math.sin(angle - math.pi/2 + math.pi/2)  # Dodajemy pi/2, aby obrócić chmurę o 90 stopni
+            z = range * math.cos(angle - math.pi/2 + math.pi/2)  # Dodajemy pi/2, aby obrócić chmurę o 90 stopni
             pt_id = self.points.InsertNextPoint([x, y, z])
             self.vertices.InsertNextCell(1)
             self.vertices.InsertCellPoint(pt_id)
@@ -74,6 +71,10 @@ def main(args=None):
     renderWindow.SetSize(600, 500) # Rozmiar okna
     renderWindow.SetWindowName("Wizualizacja Liadru") # Nazwa okna renderu 
     renderWindow.AddRenderer(renderer)
+    # Ustawienie okna po prawo
+    screen_width = renderWindow.GetScreenSize()[0]
+    window_width = renderWindow.GetSize()[0]
+    renderWindow.SetPosition(screen_width - window_width, 0)
     # Tworzenie interaktora i ustawianie okna renderowania
     renderWindowInteractor = vtk.vtkRenderWindowInteractor()
     renderWindowInteractor.SetRenderWindow(renderWindow)

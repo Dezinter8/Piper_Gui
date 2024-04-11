@@ -8,7 +8,7 @@ if os.getenv('XDG_SESSION_TYPE') == 'wayland':
 import sys
 import subprocess
 from PyQt5 import QtWidgets, QtCore, uic
-from PyQt5.QtCore import QTimer, QThread, pyqtSignal
+from PyQt5.QtCore import QTimer, QThread, pyqtSignal, QProcess
 
 from Ui.MainWindow import Ui_MainWindow
 from RosClient import RosClient
@@ -56,12 +56,42 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
 
-        self.program_running = False
-        
-        self.vizualization_button.clicked.connect(self.openVTK)
-        self.vizualization_button.setText("Wizualizacja Lidaru")
+        self.vizualization_button.clicked.connect(self.openVTK) # Połączenie przycisku z metodą openVTK
+        self.vizualization_button.setText("Włącz Wizualizacje Lidaru")
+        # Inicjalizacja wątku teleoperacji i połączenie z metodą handle_key_pressed
         self.teleop_thread = TeleopThread()
         self.teleop_thread.key_pressed.connect(self.handle_key_pressed)
+
+        self.vtk_process = None
+        self.program_running = False
+
+    def openVTK(self): # Funkcja obsługująca uruchamianie i zatrzymywanie wizualizacji
+        if not self.program_running:
+            self.startVTK()
+        else:
+            self.stopVTK()
+    
+    def startVTK(self): # Funkcja uruchamiająca proces wizualizacji
+        self.program_running = True
+        self.vizualization_button.setText("Wyłącz Wizualizacje Lidaru")
+        self.vtk_process = QProcess()
+        self.vtk_process.finished.connect(self.vtk_finished)
+        self.vtk_process.start("python3 lidar_visualization.py")
+
+    def stopVTK(self): # Funkcja zatrzymująca proces wizualizacji
+        if self.vtk_process:
+            self.vtk_process.kill()
+            self.program_running = False
+            self.vizualization_button.setText("Wizualizacja Lidaru")
+
+    def handle_key_pressed(self, key):
+        # Funkcja obsługująca naciśnięcie klawisza w czasie działania wizualizacji
+        print("Pressed key:", key)  
+
+    def vtk_finished(self, exitCode, exitStatus):
+        # Funkcja wywoływana po zakończeniu procesu wizualizacji
+        self.program_running = False
+        self.vizualization_button.setText("Wizualizacja Lidaru")      
 
 
 
@@ -97,17 +127,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         super().closeEvent(event)
 
 
-
-
-    def openVTK(self):
-        if not self.program_running:
-            self.program_running = True
-            vtk_process = subprocess.Popen(["python3", "lidar_visualization.py"])
-            self.vizualization_button.setEnabled(False)
-            self.teleop_thread.start()
-
-    def handle_key_pressed(self, key):
-        print("Pressed key:", key)  
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
