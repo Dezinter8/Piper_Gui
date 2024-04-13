@@ -37,9 +37,6 @@ class LidarVisualizer:
         self.vertices.Reset()
         self.colors.Reset()"""
 
-        # Indeks odpowiadający kątowi 180 (dla nas 0) na płaszczyźnie od 0 do 360 stopni
-        zero_angle_index = round((180 + angle_min) / angle_increment) % len(ranges)
-
         for i, range in enumerate(ranges):
             if range == float('inf') or range == 0.0:
                 continue  # Pomijanie nieprawidłowych danych
@@ -51,9 +48,14 @@ class LidarVisualizer:
             self.vertices.InsertNextCell(1)
             self.vertices.InsertCellPoint(pt_id)
 
-            # Ustawienie koloru punktu na zielony, jeśli kąt odpowiada kątowi 0
-            if i == zero_angle_index:
-                self.colors.InsertNextTuple([0, 255, 0])  # Kolor zielony
+            if i == 0:
+                self.colors.InsertNextTuple([0, 255, 0])  # Zielony kolor dla punktu o kącie 0 stopni
+            elif i == 90:
+                self.colors.InsertNextTuple([255, 255, 0])  # Żółty kolor dla punktu o kącie 90 stopni
+            elif i == 180:
+                self.colors.InsertNextTuple([0, 255, 255])  # Cyan kolor dla punktu o kącie 180 stopni
+            elif i == 270:
+                self.colors.InsertNextTuple([255, 0, 255])  # Magenta kolor dla punktu o kącie 270 stopni
             else:
                 self.colors.InsertNextTuple([255, 0, 0])  # Domyślny kolor czerwony
         
