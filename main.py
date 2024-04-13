@@ -82,7 +82,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if self.vtk_process:
             self.vtk_process.kill()
             self.program_running = False
-            self.vizualization_button.setText("Wizualizacja Lidaru")
+            self.vizualization_button.setText("Włącz Wizualizacje Lidaru")
 
     def handle_key_pressed(self, key):
         # Funkcja obsługująca naciśnięcie klawisza w czasie działania wizualizacji
@@ -91,7 +91,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def vtk_finished(self, exitCode, exitStatus):
         # Funkcja wywoływana po zakończeniu procesu wizualizacji
         self.program_running = False
-        self.vizualization_button.setText("Wizualizacja Lidaru")      
+        self.vizualization_button.setText("Włącz Wizualizacje Lidaru")      
 
 
 

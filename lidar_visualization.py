@@ -94,28 +94,18 @@ def main(args=None):
     interactor_style = vtk.vtkInteractorStyleTrackballCamera()
     renderWindowInteractor.SetInteractorStyle(interactor_style)
     
-        # Function to handle keypress events
+    # Obsługa naciśniętych klawiszy
     def key_press(obj, event):
         key = obj.GetKeySym()
-        if key == "i":
-            camera.Elevation(5)
-        elif key == "k":
-            camera.Elevation(-5)
-        elif key == "j":
-            camera.Azimuth(5)
-        elif key == "l":
-            camera.Azimuth(-5)
-        elif key == "u" or key == "W":
-            camera.SetPosition(camera.GetPosition()[0] + 0.1 * camera.GetViewPlaneNormal()[0],
-                               camera.GetPosition()[1] + 0.1 * camera.GetViewPlaneNormal()[1],
-                               camera.GetPosition()[2] + 0.1 * camera.GetViewPlaneNormal()[2])
-        elif key == "o" or key == "S":
-            camera.SetPosition(camera.GetPosition()[0] - 0.1 * camera.GetViewPlaneNormal()[0],
-                               camera.GetPosition()[1] - 0.1 * camera.GetViewPlaneNormal()[1],
-                               camera.GetPosition()[2] - 0.1 * camera.GetViewPlaneNormal()[2])
+        if key == "r": # Resetowanie pozycji kamery do stanu początkowego
+            camera.SetPosition(0, 0, 10)
+            camera.SetFocalPoint(0, 0, 0)
+            camera.SetViewUp(0, 1, 0)
+            
         renderWindow.Render()
 
     renderWindowInteractor.AddObserver("KeyPressEvent", key_press)
+
     
     def updateVTK(_obj, _event): # Funkcja aktualizująca obraz VTK
         renderWindow.Render()
