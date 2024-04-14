@@ -1,4 +1,5 @@
 import math
+import time
 import vtk
 import rclpy
 from threading import Thread
@@ -31,19 +32,37 @@ class LidarVisualizer:
         self.actor.GetProperty().SetPointSize(5)
         self.actor.GetProperty().SetColor(1.0, 0.0, 0.0)  # Czerwone punkty
 
+        # Inicjalizacja zmiennej przechowującej offset na osi Z
+        self.z_offset = 0
+
+        # Inicjalizacja zmiennej przechowującej czas ostatniej aktualizacji
+        self.last_update_time = time.time()
+
     def update_points(self, ranges, angle_min, angle_increment):
         # Aktualizacja punktów na podstawie danych z lidaru
         """self.points.Reset()
         self.vertices.Reset()
         self.colors.Reset()"""
 
+        current_time = time.time()
+        elapsed_time = current_time - self.last_update_time
+
+        if elapsed_time >= 0.5:  # Aktualizacja co 0.5 sekundy
+            self.last_update_time = current_time
+            self.z_offset += 0.01  # Zwiększanie wartości na osi Z o 0.1 jednostkę
+        
         for i, range in enumerate(ranges):
             if range == float('inf') or range == 0.0:
                 continue  # Pomijanie nieprawidłowych danych
             angle = angle_min + i * angle_increment
+            x = range * math.sin(angle)  
+            y = range * math.cos(angle)  
+            z = self.z_offset
+            """
             x = 0
             y = range * math.sin(angle - math.pi/2 + math.pi/2)  # Dodajemy pi/2, aby obrócić chmurę o 90 stopni
             z = range * math.cos(angle - math.pi/2 + math.pi/2)  # Dodajemy pi/2, aby obrócić chmurę o 90 stopni
+            """
             pt_id = self.points.InsertNextPoint([x, y, z])
             self.vertices.InsertNextCell(1)
             self.vertices.InsertCellPoint(pt_id)
@@ -101,7 +120,7 @@ def main(args=None):
             camera.SetPosition(0, 0, 10)
             camera.SetFocalPoint(0, 0, 0)
             camera.SetViewUp(0, 1, 0)
-            
+
         renderWindow.Render()
 
     renderWindowInteractor.AddObserver("KeyPressEvent", key_press)
