@@ -62,7 +62,7 @@ class LidarVisualizer:
             point_key = (x, y, z)
             if point_key in self.added_points:
                 # Aktualizacja koloru punktu
-                self.colors.SetTuple(self.added_points[point_key], [255, 0, 0])  # Aktualizujemy kolor na czerwony
+                self.colors.SetTuple(self.added_points[point_key], [0, 0, 255])  # Aktualizujemy kolor na czerwony
             else:
                 # Dodanie nowego punktu
                 pt_id = self.points.InsertNextPoint([x, y, z])
