@@ -1,4 +1,5 @@
 import math
+import time
 import vtk
 import rclpy
 from threading import Thread
@@ -7,7 +8,6 @@ from RosClient import LidarSubscriber
 class LidarVisualizer:
     def __init__(self, renderer):
         # Inicjalizacja renderera i aktora VTK
-        #self.renderer = renderer
         self.points = vtk.vtkPoints()  # Punkty do wyświetlenia
         self.vertices = vtk.vtkCellArray()  # Komórki dla punktów
         self.polyData = vtk.vtkPolyData()  # Struktura danych dla geometrii
@@ -28,50 +28,32 @@ class LidarVisualizer:
         self.actor = vtk.vtkActor()
         self.actor.SetMapper(self.mapper)
         
-        # Ustawienia wyglądu punktów.
+        # Ustawienia wyglądu punktów
         self.actor.GetProperty().SetPointSize(5)
         self.actor.GetProperty().SetColor(1.0, 0.0, 0.0)  # Czerwone punkty
-        #self.renderer.AddActor(self.actor)
+
+        # Inicjalizacja zmiennej przechowującej offset na osi Z
+        self.z_offset = 0
+
+        # Inicjalizacja zmiennej przechowującej czas ostatniej aktualizacji
+        self.last_update_time = time.time()
 
         # Dodatkowo inicjalizujemy słownik do przechowywania już dodanych punktów
         self.added_points = {}
 
     def update_points(self, ranges, angle_min, angle_increment):
         # Aktualizacja punktów na podstawie danych z lidaru
-<<<<<<< Updated upstream
-        self.points.Reset()
-        self.vertices.Reset()
-        self.colors.Reset()
-
-        # Indeks odpowiadający kątowi 0
-        zero_angle_index = round(abs(angle_min) / angle_increment)
-
-=======
         current_time = time.time()
         elapsed_time = current_time - self.last_update_time
 
-        if elapsed_time >= 0.75:  # Aktualizacja co 0.5 sekundy
+        if elapsed_time >= 0.5:  # Aktualizacja co 0.5 sekundy
             self.last_update_time = current_time
             self.z_offset += 0.01  # Zwiększanie wartości na osi Z o 0.1 jednostkę
         
->>>>>>> Stashed changes
         for i, range in enumerate(ranges):
             if range == float('inf') or range == 0.0:
                 continue  # Pomijanie nieprawidłowych danych
             angle = angle_min + i * angle_increment
-<<<<<<< Updated upstream
-            # Przesunięcie punktów tak, aby kąt zero był na dole (oś X)
-            x = range * math.cos(angle - math.pi/2)  # Odejmujemy pi/2, aby obrócić kąt zero na oś X
-            y = range * math.sin(angle - math.pi/2)  # Odejmujemy pi/2, aby obrócić kąt zero na oś X
-            z = 0
-            pt_id = self.points.InsertNextPoint([x, y, z])
-            self.vertices.InsertNextCell(1)
-            self.vertices.InsertCellPoint(pt_id)
-
-            # Ustawienie koloru punktu na zielony, jeśli kąt odpowiada kątowi 0
-            if i == zero_angle_index:
-                self.colors.InsertNextTuple([0, 255, 0])  # Kolor zielony
-=======
             x = range * math.sin(angle)  
             y = range * math.cos(angle)  
             z = - self.z_offset
@@ -80,8 +62,7 @@ class LidarVisualizer:
             point_key = (x, y, z)
             if point_key in self.added_points:
                 # Aktualizacja koloru punktu
-                self.colors.SetTuple(self.added_points[point_key], [0, 0, 255])  # Aktualizujemy kolor na niebieski
->>>>>>> Stashed changes
+                self.colors.SetTuple(self.added_points[point_key], [255, 0, 0])  # Aktualizujemy kolor na czerwony
             else:
                 # Dodanie nowego punktu
                 pt_id = self.points.InsertNextPoint([x, y, z])
@@ -106,6 +87,12 @@ class LidarVisualizer:
         self.vertices.Modified()
         self.polyData.Modified()
 
+        # Export punktów
+        writer = vtk.vtkPLYWriter()
+        writer.SetFileName("output.ply")
+        writer.SetInputData(self.polyData)
+        writer.Write()
+
 def main(args=None):
     rclpy.init(args=args)
 
@@ -115,6 +102,10 @@ def main(args=None):
     renderWindow.SetSize(600, 500) # Rozmiar okna
     renderWindow.SetWindowName("Wizualizacja Liadru") # Nazwa okna renderu 
     renderWindow.AddRenderer(renderer)
+    # Ustawienie okna po prawo
+    screen_width = renderWindow.GetScreenSize()[0]
+    window_width = renderWindow.GetSize()[0]
+    renderWindow.SetPosition(screen_width - window_width, 0)
     # Tworzenie interaktora i ustawianie okna renderowania
     renderWindowInteractor = vtk.vtkRenderWindowInteractor()
     renderWindowInteractor.SetRenderWindow(renderWindow)
@@ -132,29 +123,18 @@ def main(args=None):
     interactor_style = vtk.vtkInteractorStyleTrackballCamera()
     renderWindowInteractor.SetInteractorStyle(interactor_style)
     
-        # Function to handle keypress events
+    # Obsługa naciśniętych klawiszy
     def key_press(obj, event):
         key = obj.GetKeySym()
-        if key == "i":
-            camera.Elevation(5)
-        elif key == "k":
-            camera.Elevation(-5)
-        elif key == "j":
-            camera.Azimuth(5)
-        elif key == "l":
-            camera.Azimuth(-5)
-        elif key == "u" or key == "W":
-            camera.SetPosition(camera.GetPosition()[0] + 0.1 * camera.GetViewPlaneNormal()[0],
-                               camera.GetPosition()[1] + 0.1 * camera.GetViewPlaneNormal()[1],
-                               camera.GetPosition()[2] + 0.1 * camera.GetViewPlaneNormal()[2])
-        elif key == "o" or key == "S":
-            camera.SetPosition(camera.GetPosition()[0] - 0.1 * camera.GetViewPlaneNormal()[0],
-                               camera.GetPosition()[1] - 0.1 * camera.GetViewPlaneNormal()[1],
-                               camera.GetPosition()[2] - 0.1 * camera.GetViewPlaneNormal()[2])
+        if key == "r": # Resetowanie pozycji kamery do stanu początkowego
+            camera.SetPosition(0, 0, 10)
+            camera.SetFocalPoint(0, 0, 0)
+            camera.SetViewUp(0, 1, 0)
+
         renderWindow.Render()
 
     renderWindowInteractor.AddObserver("KeyPressEvent", key_press)
-    
+
     def updateVTK(_obj, _event): # Funkcja aktualizująca obraz VTK
         renderWindow.Render()
 
@@ -162,8 +142,8 @@ def main(args=None):
     renderWindowInteractor.CreateRepeatingTimer(100)
 
     rclpy_thread = Thread(target=rclpy.spin, args=(lidar_subscriber,), daemon=True)
-    rclpy_thread.start()
-
+    rclpy_thread.start() 
+    
     renderWindow.Render() # Renderowanie sceny VTK
     renderWindowInteractor.Start() # Rozpoczęcie obsługi interakcji z oknem
 
