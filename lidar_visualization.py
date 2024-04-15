@@ -33,8 +33,12 @@ class LidarVisualizer:
         self.actor.GetProperty().SetColor(1.0, 0.0, 0.0)  # Czerwone punkty
         #self.renderer.AddActor(self.actor)
 
+        # Dodatkowo inicjalizujemy słownik do przechowywania już dodanych punktów
+        self.added_points = {}
+
     def update_points(self, ranges, angle_min, angle_increment):
         # Aktualizacja punktów na podstawie danych z lidaru
+<<<<<<< Updated upstream
         self.points.Reset()
         self.vertices.Reset()
         self.colors.Reset()
@@ -42,10 +46,20 @@ class LidarVisualizer:
         # Indeks odpowiadający kątowi 0
         zero_angle_index = round(abs(angle_min) / angle_increment)
 
+=======
+        current_time = time.time()
+        elapsed_time = current_time - self.last_update_time
+
+        if elapsed_time >= 0.75:  # Aktualizacja co 0.5 sekundy
+            self.last_update_time = current_time
+            self.z_offset += 0.01  # Zwiększanie wartości na osi Z o 0.1 jednostkę
+        
+>>>>>>> Stashed changes
         for i, range in enumerate(ranges):
             if range == float('inf') or range == 0.0:
                 continue  # Pomijanie nieprawidłowych danych
             angle = angle_min + i * angle_increment
+<<<<<<< Updated upstream
             # Przesunięcie punktów tak, aby kąt zero był na dole (oś X)
             x = range * math.cos(angle - math.pi/2)  # Odejmujemy pi/2, aby obrócić kąt zero na oś X
             y = range * math.sin(angle - math.pi/2)  # Odejmujemy pi/2, aby obrócić kąt zero na oś X
@@ -57,8 +71,35 @@ class LidarVisualizer:
             # Ustawienie koloru punktu na zielony, jeśli kąt odpowiada kątowi 0
             if i == zero_angle_index:
                 self.colors.InsertNextTuple([0, 255, 0])  # Kolor zielony
+=======
+            x = range * math.sin(angle)  
+            y = range * math.cos(angle)  
+            z = - self.z_offset
+            
+            # Sprawdzenie, czy punkt o tych współrzędnych już istnieje
+            point_key = (x, y, z)
+            if point_key in self.added_points:
+                # Aktualizacja koloru punktu
+                self.colors.SetTuple(self.added_points[point_key], [0, 0, 255])  # Aktualizujemy kolor na niebieski
+>>>>>>> Stashed changes
             else:
-                self.colors.InsertNextTuple([255, 0, 0])  # Domyślny kolor czerwony
+                # Dodanie nowego punktu
+                pt_id = self.points.InsertNextPoint([x, y, z])
+                self.vertices.InsertNextCell(1)
+                self.vertices.InsertCellPoint(pt_id)
+                self.added_points[point_key] = pt_id  # Dodanie punktu do słownika
+
+                # Wybór koloru punktu na podstawie kąta
+                if i == 0:
+                    self.colors.InsertNextTuple([0, 255, 0])  # Zielony kolor dla punktu o kącie 0 stopni
+                elif i == 90:
+                    self.colors.InsertNextTuple([255, 255, 0])  # Żółty kolor dla punktu o kącie 90 stopni
+                elif i == 180:
+                    self.colors.InsertNextTuple([0, 255, 255])  # Cyan kolor dla punktu o kącie 180 stopni
+                elif i == 270:
+                    self.colors.InsertNextTuple([255, 0, 255])  # Magenta kolor dla punktu o kącie 270 stopni
+                else:
+                    self.colors.InsertNextTuple([255, 0, 0])  # Domyślny kolor czerwony
         
         # Oznaczanie zmian w danych, aby odświeżyć wizualizację
         self.points.Modified()
