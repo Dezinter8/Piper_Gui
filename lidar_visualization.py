@@ -57,7 +57,7 @@ class LidarVisualizer:
             angle = angle_min + i * angle_increment
             x = range * math.sin(angle)  
             y = range * math.cos(angle)  
-            z = self.z_offset
+            z = - self.z_offset
             """
             x = 0
             y = range * math.sin(angle - math.pi/2 + math.pi/2)  # Dodajemy pi/2, aby obrócić chmurę o 90 stopni
@@ -82,6 +82,12 @@ class LidarVisualizer:
         self.points.Modified()
         self.vertices.Modified()
         self.polyData.Modified()
+
+        # Export punktów
+        writer = vtk.vtkPLYWriter()
+        writer.SetFileName("output.ply")
+        writer.SetInputData(self.polyData)
+        writer.Write()
 
 def main(args=None):
     rclpy.init(args=args)
@@ -125,7 +131,6 @@ def main(args=None):
 
     renderWindowInteractor.AddObserver("KeyPressEvent", key_press)
 
-    
     def updateVTK(_obj, _event): # Funkcja aktualizująca obraz VTK
         renderWindow.Render()
 
@@ -133,8 +138,8 @@ def main(args=None):
     renderWindowInteractor.CreateRepeatingTimer(100)
 
     rclpy_thread = Thread(target=rclpy.spin, args=(lidar_subscriber,), daemon=True)
-    rclpy_thread.start()
-
+    rclpy_thread.start() 
+    
     renderWindow.Render() # Renderowanie sceny VTK
     renderWindowInteractor.Start() # Rozpoczęcie obsługi interakcji z oknem
 
