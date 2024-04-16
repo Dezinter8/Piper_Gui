@@ -46,7 +46,7 @@ class LidarVisualizer:
         current_time = time.time()
         elapsed_time = current_time - self.last_update_time
 
-        if elapsed_time >= 0.5:  # Aktualizacja co 0.5 sekundy
+        if elapsed_time >= 0.75:  # Aktualizacja co 0.75 sekundy
             self.last_update_time = current_time
             self.z_offset += 0.01  # Zwiększanie wartości na osi Z o 0.1 jednostkę
         
@@ -62,7 +62,7 @@ class LidarVisualizer:
             point_key = (x, y, z)
             if point_key in self.added_points:
                 # Aktualizacja koloru punktu
-                self.colors.SetTuple(self.added_points[point_key], [0, 0, 255])  # Aktualizujemy kolor na czerwony
+                self.colors.SetTuple(self.added_points[point_key], [0, 0, 255])  # Aktualizujemy kolor na niebieski
             else:
                 # Dodanie nowego punktu
                 pt_id = self.points.InsertNextPoint([x, y, z])
