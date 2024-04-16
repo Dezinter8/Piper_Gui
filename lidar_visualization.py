@@ -5,7 +5,7 @@ import rclpy
 from threading import Thread
 from RosClient import LidarSubscriber
 
-class LidarVisualizer:
+class LidarVisualizerA:
     def __init__(self, renderer):
         # Inicjalizacja renderera i aktora VTK
         self.points = vtk.vtkPoints()  # Punkty do wyświetlenia
@@ -92,63 +92,84 @@ class LidarVisualizer:
         writer.SetFileName("output.ply")
         writer.SetInputData(self.polyData)
         writer.Write()
+        
+class LidarVisualizerB:
+    def __init__(self, renderer):
+        self.renderer = renderer
+
+        self.textActor = vtk.vtkTextActor()
+        self.textActor.GetTextProperty().SetFontSize(24)
+        self.textActor.GetTextProperty().SetColor(1.0, 1.0, 1.0)
+        self.textActor.SetPosition(20, 20)
+        self.textActor.SetInput("Brak danych")
+
+        self.renderer.AddActor(self.textActor)
+        self.actor = self.textActor 
 
 def main(args=None):
     rclpy.init(args=args)
 
-    renderer = vtk.vtkRenderer() # Tworzenie renderu
-    # Tworzenie okna renderowania i dodawanie do niego renderu
+    renderer = vtk.vtkRenderer()
     renderWindow = vtk.vtkRenderWindow()
-    renderWindow.SetSize(600, 500) # Rozmiar okna
-    renderWindow.SetWindowName("Wizualizacja Liadru") # Nazwa okna renderu 
+    renderWindow.SetSize(600, 500)
+    renderWindow.SetWindowName("Wizualizacja Liadru")
     renderWindow.AddRenderer(renderer)
-    # Ustawienie okna po prawo
     screen_width = renderWindow.GetScreenSize()[0]
     window_width = renderWindow.GetSize()[0]
     renderWindow.SetPosition(screen_width - window_width, 0)
-    # Tworzenie interaktora i ustawianie okna renderowania
     renderWindowInteractor = vtk.vtkRenderWindowInteractor()
     renderWindowInteractor.SetRenderWindow(renderWindow)
 
-    visualizer = LidarVisualizer(renderer)  # Przekazanie renderer jako argumentu
+    # Inicjalizacja lidar_subscriber przed użyciem w warunku if
+    lidar_subscriber = LidarSubscriber(None)
+
+    if lidar_subscriber.ConectionStatus == 'LiDAR OK':
+        visualizer = LidarVisualizerA(renderer)
+    else:
+        visualizer = LidarVisualizerB(renderer)
+
     lidar_subscriber = LidarSubscriber(visualizer)
 
-    renderer.AddActor(visualizer.actor) # Dodanie aktora (punktów)
+    renderer.AddActor(visualizer.actor)
 
     camera = renderer.GetActiveCamera()
-    camera.Zoom(0.5)  
+    camera.Zoom(0.5)
     camera.SetPosition(0, 0, 10)
 
-    # Ustawienie interactor style na vtkInteractorStyleTrackballCamera 
     interactor_style = vtk.vtkInteractorStyleTrackballCamera()
     renderWindowInteractor.SetInteractorStyle(interactor_style)
-    
-    # Obsługa naciśniętych klawiszy
+
     def key_press(obj, event):
         key = obj.GetKeySym()
-        if key == "r": # Resetowanie pozycji kamery do stanu początkowego
+        if key == "r":
             camera.SetPosition(0, 0, 10)
             camera.SetFocalPoint(0, 0, 0)
             camera.SetViewUp(0, 1, 0)
-
         renderWindow.Render()
 
     renderWindowInteractor.AddObserver("KeyPressEvent", key_press)
 
-    def updateVTK(_obj, _event): # Funkcja aktualizująca obraz VTK
+    def updateVTK(_obj, _event):
         renderWindow.Render()
 
     renderWindowInteractor.AddObserver('TimerEvent', updateVTK)
     renderWindowInteractor.CreateRepeatingTimer(100)
 
     rclpy_thread = Thread(target=rclpy.spin, args=(lidar_subscriber,), daemon=True)
-    rclpy_thread.start() 
-    
-    renderWindow.Render() # Renderowanie sceny VTK
-    renderWindowInteractor.Start() # Rozpoczęcie obsługi interakcji z oknem
+    rclpy_thread.start()
 
-    rclpy.shutdown() # Poprawne zamknięcie ROS2
+    print(lidar_subscriber.ConectionStatus)
 
+    if lidar_subscriber.ConectionStatus == 'LiDAR OK':
+        print(lidar_subscriber.ConectionStatus)
+        renderWindow.Render()
+        renderWindowInteractor.Start()
+    else:
+        print(lidar_subscriber.ConectionStatus)
+        renderWindow.Render()
+        renderWindowInteractor.Start()
+
+    rclpy.shutdown()
 
 
 if __name__ == '__main__':

@@ -42,6 +42,8 @@ class RosClient(QObject):
         rclpy.spin_once(self.node, timeout_sec=0)
 
 class LidarSubscriber(Node):
+    ConectionStatus = None  # Przesunięcie tego atrybutu na poziom klasy
+
     def __init__(self, visualizer):
         super().__init__('lidar_subscriber')
         self.visualizer = visualizer
@@ -54,8 +56,11 @@ class LidarSubscriber(Node):
                 self.listener_callback,
                 10)
             self.get_logger().info('Subscriber initialized')
+            LidarSubscriber.ConectionStatus = 'LiDAR OK'  # Ustawienie atrybutu klasy
         else:
             self.get_logger().error('Failed to connect to LiDAR. Topic not found.')
+            LidarSubscriber.ConectionStatus = 'LiDAR ERROR'  # Ustawienie atrybutu klasy
 
     def listener_callback(self, msg):
         self.visualizer.update_points(msg.ranges, msg.angle_min, msg.angle_increment)
+
