@@ -5,7 +5,7 @@ import rclpy
 from threading import Thread
 from RosClient import LidarSubscriber
 
-class LidarVisualizer:
+class LidarVisualizerA:
     def __init__(self, renderer):
         # Inicjalizacja renderera i aktora VTK
         self.points = vtk.vtkPoints()  # Punkty do wyświetlenia
@@ -38,16 +38,19 @@ class LidarVisualizer:
         # Inicjalizacja zmiennej przechowującej czas ostatniej aktualizacji
         self.last_update_time = time.time()
 
+        # Dodatkowo inicjalizujemy słownik do przechowywania już dodanych punktów
+        self.added_points = {}
+
     def update_points(self, ranges, angle_min, angle_increment):
         # Aktualizacja punktów na podstawie danych z lidaru
         """self.points.Reset()
         self.vertices.Reset()
         self.colors.Reset()"""
-
+        
         current_time = time.time()
         elapsed_time = current_time - self.last_update_time
 
-        if elapsed_time >= 0.5:  # Aktualizacja co 0.5 sekundy
+        if elapsed_time >= 0.5:  # Aktualizacja co 0.75 sekundy
             self.last_update_time = current_time
             self.z_offset += 0.01  # Zwiększanie wartości na osi Z o 0.1 jednostkę
         
@@ -58,25 +61,30 @@ class LidarVisualizer:
             x = range * math.sin(angle)  
             y = range * math.cos(angle)  
             z = - self.z_offset
-            """
-            x = 0
-            y = range * math.sin(angle - math.pi/2 + math.pi/2)  # Dodajemy pi/2, aby obrócić chmurę o 90 stopni
-            z = range * math.cos(angle - math.pi/2 + math.pi/2)  # Dodajemy pi/2, aby obrócić chmurę o 90 stopni
-            """
-            pt_id = self.points.InsertNextPoint([x, y, z])
-            self.vertices.InsertNextCell(1)
-            self.vertices.InsertCellPoint(pt_id)
-
-            if i == 0:
-                self.colors.InsertNextTuple([0, 255, 0])  # Zielony kolor dla punktu o kącie 0 stopni
-            elif i == 90:
-                self.colors.InsertNextTuple([255, 255, 0])  # Żółty kolor dla punktu o kącie 90 stopni
-            elif i == 180:
-                self.colors.InsertNextTuple([0, 255, 255])  # Cyan kolor dla punktu o kącie 180 stopni
-            elif i == 270:
-                self.colors.InsertNextTuple([255, 0, 255])  # Magenta kolor dla punktu o kącie 270 stopni
+            
+            # Sprawdzenie, czy punkt o tych współrzędnych już istnieje
+            point_key = (x, y, z)
+            if point_key in self.added_points:
+                # Aktualizacja koloru punktu
+                self.colors.SetTuple(self.added_points[point_key], [0, 0, 255])  # Aktualizujemy kolor na niebieski
             else:
-                self.colors.InsertNextTuple([255, 0, 0])  # Domyślny kolor czerwony
+                # Dodanie nowego punktu
+                pt_id = self.points.InsertNextPoint([x, y, z])
+                self.vertices.InsertNextCell(1)
+                self.vertices.InsertCellPoint(pt_id)
+                self.added_points[point_key] = pt_id  # Dodanie punktu do słownika
+
+                # Wybór koloru punktu na podstawie kąta
+                if i == 0:
+                    self.colors.InsertNextTuple([0, 255, 0])  # Zielony kolor dla punktu o kącie 0 stopni
+                elif i == 90:
+                    self.colors.InsertNextTuple([255, 255, 0])  # Żółty kolor dla punktu o kącie 90 stopni
+                elif i == 180:
+                    self.colors.InsertNextTuple([0, 255, 255])  # Cyan kolor dla punktu o kącie 180 stopni
+                elif i == 270:
+                    self.colors.InsertNextTuple([255, 0, 255])  # Magenta kolor dla punktu o kącie 270 stopni
+                else:
+                    self.colors.InsertNextTuple([255, 0, 0])  # Domyślny kolor czerwony
         
         # Oznaczanie zmian w danych, aby odświeżyć wizualizację
         self.points.Modified()
@@ -88,15 +96,27 @@ class LidarVisualizer:
         writer.SetFileName("output.ply")
         writer.SetInputData(self.polyData)
         writer.Write()
+        
+class LidarVisualizerB:
+    def __init__(self, renderer):
+        self.renderer = renderer
+
+        self.textActor = vtk.vtkTextActor()
+        self.textActor.GetTextProperty().SetFontSize(24)
+        self.textActor.GetTextProperty().SetColor(1.0, 1.0, 1.0)
+        self.textActor.SetPosition(20, 20)
+        self.textActor.SetInput("Brak danych")
+
+        self.renderer.AddActor(self.textActor)
+        self.actor = self.textActor 
 
 def main(args=None):
     rclpy.init(args=args)
 
-    renderer = vtk.vtkRenderer() # Tworzenie renderu
-    # Tworzenie okna renderowania i dodawanie do niego renderu
+    renderer = vtk.vtkRenderer()
     renderWindow = vtk.vtkRenderWindow()
-    renderWindow.SetSize(600, 500) # Rozmiar okna
-    renderWindow.SetWindowName("Wizualizacja Liadru") # Nazwa okna renderu 
+    renderWindow.SetSize(600, 500)
+    renderWindow.SetWindowName("Wizualizacja Liadru")
     renderWindow.AddRenderer(renderer)
     # Ustawienie okna po prawo
     screen_width = renderWindow.GetScreenSize()[0]
@@ -106,27 +126,32 @@ def main(args=None):
     renderWindowInteractor = vtk.vtkRenderWindowInteractor()
     renderWindowInteractor.SetRenderWindow(renderWindow)
 
-    visualizer = LidarVisualizer(renderer)  # Przekazanie renderer jako argumentu
+    # Inicjalizacja lidar_subscriber przed użyciem w warunku if
+    lidar_subscriber = LidarSubscriber(None)
+
+    if lidar_subscriber.ConectionStatus == 'LiDAR OK':
+        visualizer = LidarVisualizerA(renderer)
+    else:
+        visualizer = LidarVisualizerB(renderer)
+
     lidar_subscriber = LidarSubscriber(visualizer)
 
-    renderer.AddActor(visualizer.actor) # Dodanie aktora (punktów)
+    renderer.AddActor(visualizer.actor)
 
     camera = renderer.GetActiveCamera()
-    camera.Zoom(0.5)  
+    camera.Zoom(0.5)
     camera.SetPosition(0, 0, 10)
 
-    # Ustawienie interactor style na vtkInteractorStyleTrackballCamera 
     interactor_style = vtk.vtkInteractorStyleTrackballCamera()
     renderWindowInteractor.SetInteractorStyle(interactor_style)
-    
+
     # Obsługa naciśniętych klawiszy
     def key_press(obj, event):
         key = obj.GetKeySym()
-        if key == "r": # Resetowanie pozycji kamery do stanu początkowego
+        if key == "r":  # Resetowanie pozycji kamery do stanu początkowego
             camera.SetPosition(0, 0, 10)
             camera.SetFocalPoint(0, 0, 0)
             camera.SetViewUp(0, 1, 0)
-
         renderWindow.Render()
 
     renderWindowInteractor.AddObserver("KeyPressEvent", key_press)
@@ -138,13 +163,20 @@ def main(args=None):
     renderWindowInteractor.CreateRepeatingTimer(100)
 
     rclpy_thread = Thread(target=rclpy.spin, args=(lidar_subscriber,), daemon=True)
-    rclpy_thread.start() 
-    
-    renderWindow.Render() # Renderowanie sceny VTK
-    renderWindowInteractor.Start() # Rozpoczęcie obsługi interakcji z oknem
+    rclpy_thread.start()
 
-    rclpy.shutdown() # Poprawne zamknięcie ROS2
+    print(lidar_subscriber.ConectionStatus)
 
+    if lidar_subscriber.ConectionStatus == 'LiDAR OK':
+        print(lidar_subscriber.ConectionStatus)
+        renderWindow.Render()
+        renderWindowInteractor.Start()
+    else:
+        print(lidar_subscriber.ConectionStatus)
+        renderWindow.Render()
+        renderWindowInteractor.Start()
+
+    rclpy.shutdown()
 
 
 if __name__ == '__main__':
