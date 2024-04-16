@@ -1,12 +1,12 @@
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import CompressedImage
 from PyQt5.QtCore import pyqtSignal, QObject
 from cv_bridge import CvBridge
 from sensor_msgs.msg import LaserScan
 
 class RosClient(QObject):
-    image_received = pyqtSignal(Image)
+    image_received = pyqtSignal(CompressedImage)
 
     def __init__(self):
         super().__init__()
@@ -14,7 +14,7 @@ class RosClient(QObject):
         self.node = Node('image_viewer_node')
         self.bridge = CvBridge()
         self.subscription = self.node.create_subscription(
-            Image, '/image_raw', self.image_callback, 10)
+            CompressedImage, '/image_raw/compressed', self.image_callback, 10)
 
     def image_callback(self, msg):
         self.image_received.emit(msg)
