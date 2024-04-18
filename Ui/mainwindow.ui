@@ -569,9 +569,11 @@
  q w e
  a s d
  z x c
- Sterowanie kamera
- u i o
- j k l</string>
+
+ Resetowanie kamery
+wizualizacji &quot;r&quot; 
+
+ </string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>

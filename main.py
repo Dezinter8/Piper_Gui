@@ -7,6 +7,9 @@ if os.getenv('XDG_SESSION_TYPE') == 'wayland':
 
 import sys
 import subprocess
+import numpy as np
+import cv2
+
 from PyQt5 import QtWidgets, QtCore, uic
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal, QProcess
 
@@ -31,6 +34,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
 
         self.ros_client = RosClient()
+        self.image_format = None 
         self.image_processor = ImageProcessor()
 
         # Connect signal for ROS image reception to processing slot
@@ -82,7 +86,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if self.vtk_process:
             self.vtk_process.kill()
             self.program_running = False
-            self.vizualization_button.setText("Wizualizacja Lidaru")
+            self.vizualization_button.setText("Włącz Wizualizacje Lidaru")
 
     def handle_key_pressed(self, key):
         # Funkcja obsługująca naciśnięcie klawisza w czasie działania wizualizacji
@@ -91,7 +95,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def vtk_finished(self, exitCode, exitStatus):
         # Funkcja wywoływana po zakończeniu procesu wizualizacji
         self.program_running = False
-        self.vizualization_button.setText("Wizualizacja Lidaru")      
+        self.vizualization_button.setText("Włącz Wizualizacje Lidaru")      
 
 
 
@@ -106,10 +110,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.image_label.resize(self.camera_frame.size())
 
     def image_callback(self, msg):
-        cv_image = self.ros_client.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+        # Dekompresuj obraz
+        np_arr = np.frombuffer(msg.data, np.uint8)
+        cv_image = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
+        # Ustawienie formatu obrazu, jeśli nie jest jeszcze ustawiony
+        if self.image_format is None:
+            self.image_format = cv_image.shape[2]
+
+        # Konwersja obrazu do QImage i wyświetlenie
         qt_image = self.image_processor.convert_cv_to_pixmap(cv_image)
         self.display_image(qt_image)
         self.image_processor.write_frame(cv_image)
+
 
     def display_image(self, pixmap):
         self.image_label.setPixmap(pixmap.scaled(self.image_label.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
