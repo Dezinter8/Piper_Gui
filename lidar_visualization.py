@@ -5,7 +5,7 @@ import rclpy
 from threading import Thread
 from RosClient import LidarSubscriber
 
-class LidarVisualizerA:
+class LidarVisualizer:
     def __init__(self, renderer):
         # Inicjalizacja renderera i aktora VTK
         self.points = vtk.vtkPoints()  # Punkty do wyświetlenia
@@ -62,29 +62,23 @@ class LidarVisualizerA:
             y = range * math.cos(angle)  
             z = - self.z_offset
             
-            # Sprawdzenie, czy punkt o tych współrzędnych już istnieje
-            point_key = (x, y, z)
-            if point_key in self.added_points:
-                # Aktualizacja koloru punktu
-                self.colors.SetTuple(self.added_points[point_key], [0, 0, 255])  # Aktualizujemy kolor na niebieski
-            else:
-                # Dodanie nowego punktu
-                pt_id = self.points.InsertNextPoint([x, y, z])
-                self.vertices.InsertNextCell(1)
-                self.vertices.InsertCellPoint(pt_id)
-                self.added_points[point_key] = pt_id  # Dodanie punktu do słownika
+ 
+            # Dodanie nowego punktu
+            pt_id = self.points.InsertNextPoint([x, y, z])
+            self.vertices.InsertNextCell(1)
+            self.vertices.InsertCellPoint(pt_id)
 
-                # Wybór koloru punktu na podstawie kąta
-                if i == 0:
-                    self.colors.InsertNextTuple([0, 255, 0])  # Zielony kolor dla punktu o kącie 0 stopni
-                elif i == 90:
-                    self.colors.InsertNextTuple([255, 255, 0])  # Żółty kolor dla punktu o kącie 90 stopni
-                elif i == 180:
-                    self.colors.InsertNextTuple([0, 255, 255])  # Cyan kolor dla punktu o kącie 180 stopni
-                elif i == 270:
-                    self.colors.InsertNextTuple([255, 0, 255])  # Magenta kolor dla punktu o kącie 270 stopni
-                else:
-                    self.colors.InsertNextTuple([255, 0, 0])  # Domyślny kolor czerwony
+            # Wybór koloru punktu na podstawie kąta
+            if i == 0:
+                self.colors.InsertNextTuple([0, 255, 0])  # Zielony kolor dla punktu o kącie 0 stopni
+            elif i == 90:
+                self.colors.InsertNextTuple([255, 255, 0])  # Żółty kolor dla punktu o kącie 90 stopni
+            elif i == 180:
+                self.colors.InsertNextTuple([0, 255, 255])  # Cyan kolor dla punktu o kącie 180 stopni
+            elif i == 270:
+                self.colors.InsertNextTuple([255, 0, 255])  # Magenta kolor dla punktu o kącie 270 stopni
+            else:
+                self.colors.InsertNextTuple([255, 0, 0])  # Domyślny kolor czerwony
         
         # Oznaczanie zmian w danych, aby odświeżyć wizualizację
         self.points.Modified()
@@ -96,19 +90,6 @@ class LidarVisualizerA:
         writer.SetFileName("output.ply")
         writer.SetInputData(self.polyData)
         writer.Write()
-        
-class LidarVisualizerB:
-    def __init__(self, renderer):
-        self.renderer = renderer
-
-        self.textActor = vtk.vtkTextActor()
-        self.textActor.GetTextProperty().SetFontSize(24)
-        self.textActor.GetTextProperty().SetColor(1.0, 1.0, 1.0)
-        self.textActor.SetPosition(20, 20)
-        self.textActor.SetInput("Brak danych")
-
-        self.renderer.AddActor(self.textActor)
-        self.actor = self.textActor 
 
 def main(args=None):
     rclpy.init(args=args)
@@ -128,12 +109,7 @@ def main(args=None):
 
     # Inicjalizacja lidar_subscriber przed użyciem w warunku if
     lidar_subscriber = LidarSubscriber(None)
-
-    if lidar_subscriber.ConectionStatus == 'LiDAR OK':
-        visualizer = LidarVisualizerA(renderer)
-    else:
-        visualizer = LidarVisualizerB(renderer)
-
+    visualizer = LidarVisualizer(renderer)
     lidar_subscriber = LidarSubscriber(visualizer)
 
     renderer.AddActor(visualizer.actor)
@@ -167,14 +143,8 @@ def main(args=None):
 
     print(lidar_subscriber.ConectionStatus)
 
-    if lidar_subscriber.ConectionStatus == 'LiDAR OK':
-        print(lidar_subscriber.ConectionStatus)
-        renderWindow.Render()
-        renderWindowInteractor.Start()
-    else:
-        print(lidar_subscriber.ConectionStatus)
-        renderWindow.Render()
-        renderWindowInteractor.Start()
+    renderWindow.Render()
+    renderWindowInteractor.Start()
 
     rclpy.shutdown()
 

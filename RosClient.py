@@ -56,10 +56,10 @@ class LidarSubscriber(Node):
                 self.listener_callback,
                 10)
             self.get_logger().info('Subscriber initialized')
-            LidarSubscriber.ConectionStatus = 'LiDAR OK'  # Ustawienie atrybutu klasy
+            LidarSubscriber.ConectionStatus = 'Utowrzono połączenie z topikiem scan - LiDAR' 
         else:
             self.get_logger().error('Failed to connect to LiDAR. Topic not found.')
-            LidarSubscriber.ConectionStatus = 'LiDAR ERROR'  # Ustawienie atrybutu klasy
+            LidarSubscriber.ConectionStatus = 'Nie wykryto topiku scan - LiDAR'
 
     def listener_callback(self, msg):
         self.visualizer.update_points(msg.ranges, msg.angle_min, msg.angle_increment)
