@@ -256,12 +256,3 @@ class Ui_MainWindow(object):
         self.record_button.setText(_translate("MainWindow", "Start Recording"))
         self.label_2.setText(_translate("MainWindow", "Wizualizacja 3d"))
         self.vizualization_button.setText(_translate("MainWindow", "Włącz"))
-        self.label_3.setText(_translate("MainWindow", "Prędkość pojazdu:"))
-        self.label_4.setText(_translate("MainWindow", "135 km/h"))
-        self.info_label.setText(_translate("MainWindow", "Sterowanie PiPER\n"
-" q w e\n"
-" a s d\n"
-" z x c\n"
-" Sterowanie kamera\n"
-" u i o\n"
-" j k l"))

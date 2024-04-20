@@ -5,7 +5,7 @@ import rclpy
 from threading import Thread
 from RosClient import LidarSubscriber
 
-class LidarVisualizerA:
+class LidarVisualizer:
     def __init__(self, renderer):
         # Inicjalizacja renderera i aktora VTK
         self.points = vtk.vtkPoints()  # Punkty do wyświetlenia
@@ -93,52 +93,47 @@ class LidarVisualizerA:
         writer.SetInputData(self.polyData)
         writer.Write()
         
-class LidarVisualizerB:
-    def __init__(self, renderer):
-        self.renderer = renderer
-
-        self.textActor = vtk.vtkTextActor()
-        self.textActor.GetTextProperty().SetFontSize(24)
-        self.textActor.GetTextProperty().SetColor(1.0, 1.0, 1.0)
-        self.textActor.SetPosition(20, 20)
-        self.textActor.SetInput("Brak danych")
-
-        self.renderer.AddActor(self.textActor)
-        self.actor = self.textActor 
 
 def main(args=None):
+    # Inicjalizacja ROS 2
     rclpy.init(args=args)
 
+    # Inicjalizacja obiektu renderera i okna renderowania VTK
     renderer = vtk.vtkRenderer()
     renderWindow = vtk.vtkRenderWindow()
     renderWindow.SetSize(600, 500)
     renderWindow.SetWindowName("Wizualizacja Liadru")
     renderWindow.AddRenderer(renderer)
+    
+    # Ustawienie okna po prawej stronie ekranu
     screen_width = renderWindow.GetScreenSize()[0]
     window_width = renderWindow.GetSize()[0]
     renderWindow.SetPosition(screen_width - window_width, 0)
+    
+    # Tworzenie interaktora do obsługi zdarzeń
     renderWindowInteractor = vtk.vtkRenderWindowInteractor()
     renderWindowInteractor.SetRenderWindow(renderWindow)
 
-    # Inicjalizacja lidar_subscriber przed użyciem w warunku if
+    # Inicjalizacja subskrybenta lidaru
     lidar_subscriber = LidarSubscriber(None)
-
-    if lidar_subscriber.ConectionStatus == 'LiDAR OK':
-        visualizer = LidarVisualizerA(renderer)
-    else:
-        visualizer = LidarVisualizerB(renderer)
-
+    # Inicjalizacja wizualizatora lidaru
+    visualizer = LidarVisualizer(renderer)
+    # Przekazanie wizualizatora do subskrybenta
     lidar_subscriber = LidarSubscriber(visualizer)
 
+    # Dodanie aktora do renderera
     renderer.AddActor(visualizer.actor)
 
+    # Ustawienia kamery
     camera = renderer.GetActiveCamera()
     camera.Zoom(0.5)
     camera.SetPosition(0, 0, 10)
 
+    # Ustawienie interakcji za pomocą myszki
     interactor_style = vtk.vtkInteractorStyleTrackballCamera()
     renderWindowInteractor.SetInteractorStyle(interactor_style)
 
+    # Obsługa zdarzeń klawiatury
     def key_press(obj, event):
         key = obj.GetKeySym()
         if key == "r":
@@ -149,28 +144,26 @@ def main(args=None):
 
     renderWindowInteractor.AddObserver("KeyPressEvent", key_press)
 
+    # Funkcja do cyklicznego odświeżania renderera
     def updateVTK(_obj, _event):
         renderWindow.Render()
 
     renderWindowInteractor.AddObserver('TimerEvent', updateVTK)
     renderWindowInteractor.CreateRepeatingTimer(100)
 
+    # Wątek dla ROS 2
     rclpy_thread = Thread(target=rclpy.spin, args=(lidar_subscriber,), daemon=True)
     rclpy_thread.start()
 
+    # Wyświetlenie stanu połączenia z Lidarem
     print(lidar_subscriber.ConectionStatus)
 
-    if lidar_subscriber.ConectionStatus == 'LiDAR OK':
-        print(lidar_subscriber.ConectionStatus)
-        renderWindow.Render()
-        renderWindowInteractor.Start()
-    else:
-        print(lidar_subscriber.ConectionStatus)
-        renderWindow.Render()
-        renderWindowInteractor.Start()
+    # Renderowanie sceny i rozpoczęcie interakcji
+    renderWindow.Render()
+    renderWindowInteractor.Start()
 
+    # Wyłączenie ROS 2
     rclpy.shutdown()
-
 
 if __name__ == '__main__':
     main()
