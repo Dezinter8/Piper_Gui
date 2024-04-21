@@ -85,10 +85,16 @@ class LidarVisualizer:
         self.vertices.Modified()
         self.polyData.Modified()
 
-        # Export punktów
+        #export chmury punktów
+        self.export_to_ply()
+
+    def export_to_ply(self):
         writer = vtk.vtkPLYWriter()
         writer.SetFileName("output.ply")
         writer.SetInputData(self.polyData)
+        writer.SetFileTypeToASCII()
+        writer.SetColorModeToDefault()
+        writer.SetArrayName("Colors")
         writer.Write()
 
 def main(args=None):
