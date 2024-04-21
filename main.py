@@ -17,16 +17,6 @@ from Ui.MainWindow import Ui_MainWindow
 from RosClient import RosClient
 from ImageProcessor import ImageProcessor
 
-class TeleopThread(QThread):
-    key_pressed = pyqtSignal(str)
-
-    def run(self):
-        teleop_process = subprocess.Popen(["ros2", "run", "teleop_twist_keyboard", "teleop_twist_keyboard"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        while teleop_process.poll() is None:  
-            output = teleop_process.stdout.readline().decode().strip()
-            if output:  
-                self.key_pressed.emit(output)
-
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, *args, obj=None, **kwargs):
@@ -62,9 +52,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.vizualization_button.clicked.connect(self.openVTK) # Połączenie przycisku z metodą openVTK
         self.vizualization_button.setText("Włącz Wizualizacje Lidaru")
-        # Inicjalizacja wątku teleoperacji i połączenie z metodą handle_key_pressed
-        self.teleop_thread = TeleopThread()
-        self.teleop_thread.key_pressed.connect(self.handle_key_pressed)
 
         self.vtk_process = None
         self.program_running = False
@@ -87,10 +74,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.vtk_process.kill()
             self.program_running = False
             self.vizualization_button.setText("Włącz Wizualizacje Lidaru")
-
-    def handle_key_pressed(self, key):
-        # Funkcja obsługująca naciśnięcie klawisza w czasie działania wizualizacji
-        print("Pressed key:", key)  
 
     def vtk_finished(self, exitCode, exitStatus):
         # Funkcja wywoływana po zakończeniu procesu wizualizacji
