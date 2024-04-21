@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import Image, LaserScan
+from sensor_msgs.msg import CompressedImage , Image, LaserScan
 from PyQt5.QtCore import pyqtSignal, QObject
 from cv_bridge import CvBridge
 import subprocess
@@ -29,7 +29,7 @@ def check_lidar_connection():
         return False
 
 class RosClient(QObject):
-    image_received = pyqtSignal(Image)
+    image_received = pyqtSignal(CompressedImage)
 
     def __init__(self):
         super().__init__()
@@ -41,7 +41,7 @@ class RosClient(QObject):
         self.bridge = CvBridge()
         # Utworzenie subskrypcji obrazu skompresowanego
         self.subscription = self.node.create_subscription(
-            Image, '/image_raw', self.image_callback, 10)
+            CompressedImage, '/image_raw/compressed', self.image_callback, 10)
 
     def image_callback(self, msg):
         # Wywołanie sygnału informującego o otrzymaniu nowego obrazu
@@ -68,10 +68,10 @@ class LidarSubscriber(Node):
                 self.listener_callback,
                 10)
             self.get_logger().info('Subscriber initialized')
-            LidarSubscriber.ConectionStatus = 'LiDAR OK'  # Ustawienie atrybutu klasy
+            LidarSubscriber.ConectionStatus = 'Utowrzono połączenie z topikiem scan - LiDAR' 
         else:
             self.get_logger().error('Failed to connect to LiDAR. Topic not found.')
-            LidarSubscriber.ConectionStatus = 'LiDAR ERROR'  # Ustawienie atrybutu klasy
+            LidarSubscriber.ConectionStatus = 'Nie wykryto topiku scan - LiDAR'
 
     def listener_callback(self, msg):
         # Wywołanie metody wizualizatora do aktualizacji punktów na podstawie danych z LiDARa

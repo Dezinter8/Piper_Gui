@@ -2,7 +2,7 @@ import os
 
 # Sprawdzenie, czy sesja jest uruchomiona na Waylandzie
 if os.getenv('XDG_SESSION_TYPE') == 'xcb':
-    # Ustawienie platformy Qt na 'wayland'
+    # Ustawienie platformy Qt na 'xcb'
     os.environ['QT_QPA_PLATFORM'] = 'xcb'
 
 import sys
@@ -13,7 +13,6 @@ from Ui.MainWindow import Ui_MainWindow
 from RosClient import RosClient
 from ImageProcessor import ImageProcessor
 
-
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, *args, obj=None, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
@@ -22,21 +21,21 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.ros_client = RosClient()
         self.image_processor = ImageProcessor()
 
-        # Connect signal for ROS image reception to processing slot
+        # Połączenie sygnału odbioru obrazu ROS z funkcją przetwarzania
         self.ros_client.image_received.connect(self.image_callback)
 
-        # Setup QLabel for displaying images
+        # Ustawienie QLabel do wyświetlania obrazów
         self.image_label = QtWidgets.QLabel(self.camera_frame)
         self.image_label.resize(self.camera_frame.size())
 
-        # Setup QTimer for regular updates
+        # Ustawienie QTimer do regularnej aktualizacji
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.ros_client.spin_once)
         self.timer.start(10)
 
-        # QTimer for delayed resizing
+        # QTimer do opóźnionego zmiany rozmiaru
         self.resize_timer = QTimer(self)
-        self.resize_timer.setSingleShot(True)  # Ensure timer runs only once per resize event
+        self.resize_timer.setSingleShot(True)  # Zapewnia, że timer uruchamia się tylko raz podczas zdarzenia zmiany rozmiaru
         self.resize_timer.timeout.connect(self.resize_image_label)
 
         self.record_button = self.record_button
@@ -48,47 +47,49 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.vtk_process = None
         self.program_running = False
 
-    def openVTK(self): # Funkcja obsługująca uruchamianie i zatrzymywanie wizualizacji
+    def openVTK(self): # Metoda obsługująca uruchamianie i zatrzymywanie wizualizacji
         if not self.program_running:
             self.startVTK()
         else:
             self.stopVTK()
     
     def startVTK(self): 
-    # Metoda do rozpoczęcia procesu wizualizacji Lidaru
+        # Rozpoczęcie procesu wizualizacji Lidaru
         self.program_running = True  # Ustawienie flagi wskazującej, że program wizualizacji jest uruchomiony
         self.vizualization_button.setText("Wyłącz Wizualizacje Lidaru")  # Zmiana tekstu przycisku na "Wyłącz Wizualizacje Lidaru"
         self.vtk_process = QProcess()  # Utworzenie obiektu procesu QProcess
         self.vtk_process.finished.connect(self.vtk_finished)  # Połączenie sygnału zakończenia procesu z metodą vtk_finished
         self.vtk_process.start("python3 lidar_visualization.py")  # Uruchomienie procesu wizualizacji Lidaru, używając polecenia 'python3 lidar_visualization.py'
 
-    def stopVTK(self): # Funkcja zatrzymująca proces wizualizacji
+    def stopVTK(self): # Metoda zatrzymująca proces wizualizacji
         if self.vtk_process:
             self.vtk_process.kill()
             self.program_running = False
             self.vizualization_button.setText("Włącz Wizualizacje Lidaru")
 
     def handle_key_pressed(self, key):
-        # Funkcja obsługująca naciśnięcie klawisza w czasie działania wizualizacji
-        print("Pressed key:", key)  
+        # Metoda obsługująca naciśnięcie klawisza podczas działania wizualizacji
+        print("Naciśnięty klawisz:", key)  
 
     def vtk_finished(self, exitCode, exitStatus):
-        # Funkcja wywoływana po zakończeniu procesu wizualizacji
+        # Metoda wywoływana po zakończeniu procesu wizualizacji
         self.program_running = False
         self.vizualization_button.setText("Włącz Wizualizacje Lidaru")      
 
     def resizeEvent(self, event):
         super(MainWindow, self).resizeEvent(event)
-        # Start or restart the resize timer with a delay of 1...
-        # Made because otherwise app will launch with small camera until you resize manually
+        # Uruchomienie lub ponowne uruchomienie timera zmiany rozmiaru z opóźnieniem 1...
+        # Zrobione, ponieważ w przeciwnym razie aplikacja uruchomi się z małą kamerą, dopóki nie zmienisz rozmiaru ręcznie
         self.resize_timer.start(1)
 
     def resize_image_label(self):
-        # Resize image_label after delay
+        # Zmiana rozmiaru image_label po opóźnieniu
         self.image_label.resize(self.camera_frame.size())
 
     def image_callback(self, msg):
+        # Konwersja obrazu ROS na obiekt obrazu OpenCV
         cv_image = self.ros_client.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+        # Konwersja obrazu OpenCV na obiekt QPixmap i wyświetlenie
         qt_image = self.image_processor.convert_cv_to_pixmap(cv_image)
         self.display_image(qt_image)
         self.image_processor.write_frame(cv_image)
