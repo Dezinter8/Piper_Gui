@@ -40,7 +40,7 @@ source venv/bin/activate
 Aby Pobrać wymagane biblioteki należy użyć komendy:
 
 ```
-pip install PyQt5 vtk opencv-python
+pip install PyQt5 vtk opencv-python-headless
 ```
 
 Aby uruchomić program należy użyć komendy:
