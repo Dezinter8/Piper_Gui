@@ -96,38 +96,48 @@ class LidarVisualizer:
         writer.SetColorModeToDefault()
         writer.SetArrayName("Colors")
         writer.Write()
+        
 
 def main(args=None):
+    # Inicjalizacja ROS 2
     rclpy.init(args=args)
 
+    # Inicjalizacja obiektu renderera i okna renderowania VTK
     renderer = vtk.vtkRenderer()
     renderWindow = vtk.vtkRenderWindow()
     renderWindow.SetSize(600, 500)
     renderWindow.SetWindowName("Wizualizacja Liadru")
     renderWindow.AddRenderer(renderer)
-    # Ustawienie okna po prawo
+    
+    # Ustawienie okna po prawej stronie ekranu
     screen_width = renderWindow.GetScreenSize()[0]
     window_width = renderWindow.GetSize()[0]
     renderWindow.SetPosition(screen_width - window_width, 0)
-    # Tworzenie interaktora i ustawianie okna renderowania
+    
+    # Tworzenie interaktora do obsługi zdarzeń
     renderWindowInteractor = vtk.vtkRenderWindowInteractor()
     renderWindowInteractor.SetRenderWindow(renderWindow)
 
-    # Inicjalizacja lidar_subscriber przed użyciem w warunku if
+    # Inicjalizacja subskrybenta lidaru
     lidar_subscriber = LidarSubscriber(None)
+    # Inicjalizacja wizualizatora lidaru
     visualizer = LidarVisualizer(renderer)
+    # Przekazanie wizualizatora do subskrybenta
     lidar_subscriber = LidarSubscriber(visualizer)
 
+    # Dodanie aktora do renderera
     renderer.AddActor(visualizer.actor)
 
+    # Ustawienia kamery
     camera = renderer.GetActiveCamera()
     camera.Zoom(0.5)
     camera.SetPosition(0, 0, 10)
 
+    # Ustawienie interakcji za pomocą myszki
     interactor_style = vtk.vtkInteractorStyleTrackballCamera()
     renderWindowInteractor.SetInteractorStyle(interactor_style)
 
-    # Obsługa naciśniętych klawiszy
+    # Obsługa zdarzeń klawiatury
     def key_press(obj, event):
         key = obj.GetKeySym()
         if key == "r":  # Resetowanie pozycji kamery do stanu początkowego
@@ -138,22 +148,26 @@ def main(args=None):
 
     renderWindowInteractor.AddObserver("KeyPressEvent", key_press)
 
-    def updateVTK(_obj, _event): # Funkcja aktualizująca obraz VTK
+    # Funkcja do cyklicznego odświeżania renderera
+    def updateVTK(_obj, _event):
         renderWindow.Render()
 
     renderWindowInteractor.AddObserver('TimerEvent', updateVTK)
     renderWindowInteractor.CreateRepeatingTimer(100)
 
+    # Wątek dla ROS 2
     rclpy_thread = Thread(target=rclpy.spin, args=(lidar_subscriber,), daemon=True)
     rclpy_thread.start()
 
+    # Wyświetlenie stanu połączenia z Lidarem
     print(lidar_subscriber.ConectionStatus)
 
+    # Renderowanie sceny i rozpoczęcie interakcji
     renderWindow.Render()
     renderWindowInteractor.Start()
 
+    # Wyłączenie ROS 2
     rclpy.shutdown()
-
 
 if __name__ == '__main__':
     main()
