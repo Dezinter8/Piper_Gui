@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import CompressedImage , Image, LaserScan, JointState
+from sensor_msgs.msg import CompressedImage , Image, LaserScan, JointState, Imu
 from PyQt5.QtCore import pyqtSignal, QObject
 from cv_bridge import CvBridge
 import subprocess
@@ -51,6 +51,7 @@ class RosClient(QObject):
         # Wywołanie pojedynczej iteracji pętli ROS 2
         rclpy.spin_once(self.node, timeout_sec=0)
 
+#   LIDAR
 class LidarSubscriber(Node):
     ConectionStatus = None 
 
@@ -76,7 +77,9 @@ class LidarSubscriber(Node):
     def listener_callback(self, msg):
         # Wywołanie metody wizualizatora do aktualizacji punktów na podstawie danych z LiDARa
         self.visualizer.update_points(msg.ranges, msg.angle_min, msg.angle_increment)
-        
+    
+    
+#   ENKODERY 
 class JointStateSubscriber(Node):
     ConnectionStatus = None  # Atrybut klasy przechowujący informacje o stanie połączenia
 
@@ -104,9 +107,9 @@ class JointStateSubscriber(Node):
             joint_state_topic_exists = any('/joint_states' == topic for topic, _ in topic_names)
             
             if joint_state_topic_exists:
-                JointStateSubscriber.ConnectionStatus = 'Utworzono połączenie z topikiem joint_states - akcelerometry'
+                JointStateSubscriber.ConnectionStatus = 'Utworzono połączenie z topikiem joint_states - enkodery'
             else:
-                JointStateSubscriber.ConnectionStatus = 'Nie wykryto topiku joint_states - akcelerometry'
+                JointStateSubscriber.ConnectionStatus = 'Nie wykryto topiku joint_states - enkodery'
         
         except Exception as e:
             self.get_logger().error(f'Error while checking connection: {e}')
@@ -117,3 +120,45 @@ class JointStateSubscriber(Node):
         self.get_logger().info(f'Received joint states: {msg}')
         # Możesz dodać tutaj więcej logiki do przetwarzania danych z JointState
 
+
+
+#   AKCELEROMETRY
+class ImuSubscriber(Node):
+    ConnectionStatus = None  # Atrybut klasy przechowujący informacje o stanie połączenia
+
+    def __init__(self):
+        super().__init__('imu_subscriber')
+        # Sprawdzanie, czy topic '/imu_plugin/out' jest dostępny
+        self.check_imu_connection()
+        if ImuSubscriber.ConnectionStatus:
+            # Utworzenie subskrypcji dla danych z '/imu_plugin/out'
+            self.subscription = self.create_subscription(
+                Imu,
+                '/imu_plugin/out',
+                self.listener_callback,
+                10)
+            self.get_logger().info('IMU Subscriber initialized')
+        else:
+            self.get_logger().error('Failed to connect to IMU data. Topic not found.')
+
+    def check_imu_connection(self):
+        # Sprawdzanie dostępności topicu '/imu_plugin/out'
+        try:
+            # Pobranie listy dostępnych tematów
+            topic_names = self.get_topic_names_and_types()
+            # Sprawdzenie, czy istnieje temat '/imu_plugin/out'
+            imu_topic_exists = any('/imu_plugin/out' == topic for topic, _ in topic_names)
+            
+            if imu_topic_exists:
+                ImuSubscriber.ConnectionStatus = 'Utworzono połączenie z topikiem imu_plugin/out - akcelerometry'
+            else:
+                ImuSubscriber.ConnectionStatus = 'Nie wykryto topiku imu_plugin/out - akcelerometry'
+        
+        except Exception as e:
+            self.get_logger().error(f'Error while checking connection: {e}')
+            ImuSubscriber.ConnectionStatus = 'Wystąpił błąd podczas sprawdzania połączenia'
+
+    def listener_callback(self, msg):
+        # Logowanie lub aktualizacja danych na podstawie wiadomości otrzymanej z topicu '/imu_plugin/out'
+        self.get_logger().info(f'Received IMU data: {msg}')
+        # Możesz dodać tutaj więcej logiki do przetwarzania danych z Imu
