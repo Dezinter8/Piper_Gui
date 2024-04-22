@@ -71,11 +71,11 @@ class LidarVisualizer:
             # Wybór koloru punktu na podstawie kąta
             if i == 0:
                 self.colors.InsertNextTuple([0, 255, 0])  # Zielony kolor dla punktu o kącie 0 stopni
-            elif i == 90:
+            elif i == 167:
                 self.colors.InsertNextTuple([255, 255, 0])  # Żółty kolor dla punktu o kącie 90 stopni
-            elif i == 180:
+            elif i == 333:
                 self.colors.InsertNextTuple([0, 255, 255])  # Cyan kolor dla punktu o kącie 180 stopni
-            elif i == 270:
+            elif i == 500:
                 self.colors.InsertNextTuple([255, 0, 255])  # Magenta kolor dla punktu o kącie 270 stopni
             else:
                 self.colors.InsertNextTuple([255, 0, 0])  # Domyślny kolor czerwony
