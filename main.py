@@ -9,13 +9,18 @@ import sys
 import subprocess
 import numpy as np
 import cv2
+from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+import vtk
+import rclpy
+from threading import Thread
 
 from PyQt5 import QtWidgets, QtCore, uic
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal, QProcess
 
 from Ui.MainWindow import Ui_MainWindow
-from RosClient import ImageSubscriber
+from RosClient import ImageSubscriber, LidarSubscriber, RosClient
 from ImageProcessor import ImageProcessor
+from lidar_visualization import LidarVisualizer
 
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -24,73 +29,51 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
 
         self.image_client = ImageSubscriber()
-        self.image_format = None 
         self.image_processor = ImageProcessor()
+        self.image_format = None 
 
-        # Connect signal for ROS image reception to processing slot
         self.image_client.image_received.connect(self.image_callback)
-
-        # Setup QLabel for displaying images
         self.image_label = QtWidgets.QLabel(self.camera_frame)
         self.image_label.resize(self.camera_frame.size())
 
-        # Setup QTimer for regular updates
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.image_client.spin_once)
+        # self.timer.timeout.connect(self.updateVTK)
+
         self.timer.start(10)
 
-        # QTimer for delayed resizing
-        self.resize_timer = QTimer(self)
-        self.resize_timer.setSingleShot(True)  # Ensure timer runs only once per resize event
-        self.resize_timer.timeout.connect(self.resize_image_label)
-
-
-        self.record_button = self.record_button
-        self.record_button.clicked.connect(self.toggle_camera)
+        # self.addVTKWidget()
 
 
 
-        self.vizualization_button.clicked.connect(self.openVTK) # Połączenie przycisku z metodą openVTK
-        self.vizualization_button.setText("Włącz Wizualizacje Lidaru")
+    def addVTKWidget(self):
+        # Konfiguracja widgetu VTK do wyświetlania wizualizacji.
+        self.vtkWidget = QVTKRenderWindowInteractor(self.vtk_frame)
+        self.vtkWidget.setMinimumSize(200, 150)
 
-        self.vtk_process = None
-        self.program_running = False
+        self.renderer = vtk.vtkRenderer()
+        self.vtkWidget.GetRenderWindow().AddRenderer(self.renderer)
 
-    def openVTK(self): # Funkcja obsługująca uruchamianie i zatrzymywanie wizualizacji
-        if not self.program_running:
-            self.startVTK()
-        else:
-            self.stopVTK()
+        # Ustawienie wizualizera lidaru i kamery.
+        self.lidarVisualizer = LidarVisualizer(self.renderer)
+        self.vtkWidget.Initialize()
+
+        camera = self.renderer.GetActiveCamera()
+        camera.Zoom(0.5)
+        camera.SetPosition(0, 0, 15)
+        self.verticalLayout.addWidget(self.vtkWidget)
+
+        # Inicjalizacja i uruchomienie wątku dla ROS2.
+        rclpy.init()
+        self.lidarSubscriber = LidarSubscriber(self.lidarVisualizer)
+        self.rclpyThread = Thread(target=rclpy.spin, args=(self.lidarSubscriber,), daemon=True)
+        self.rclpyThread.start()
     
-    def startVTK(self): # Funkcja uruchamiająca proces wizualizacji
-        self.program_running = True
-        self.vizualization_button.setText("Wyłącz Wizualizacje Lidaru")
-        self.vtk_process = QProcess()
-        self.vtk_process.finished.connect(self.vtk_finished)
-        self.vtk_process.start("python3 lidar_visualization.py")
-
-    def stopVTK(self): # Funkcja zatrzymująca proces wizualizacji
-        if self.vtk_process:
-            self.vtk_process.kill()
-            self.program_running = False
-            self.vizualization_button.setText("Włącz Wizualizacje Lidaru")
-
-    def vtk_finished(self, exitCode, exitStatus):
-        # Funkcja wywoływana po zakończeniu procesu wizualizacji
-        self.program_running = False
-        self.vizualization_button.setText("Włącz Wizualizacje Lidaru")      
+    def updateVTK(self):
+        # Renderowanie sceny VTK.
+        self.vtkWidget.GetRenderWindow().Render()
 
 
-
-    def resizeEvent(self, event):
-        super(MainWindow, self).resizeEvent(event)
-        # Start or restart the resize timer with a delay of 1...
-        # Made because otherwise app will launch with small camera until you resize manually
-        self.resize_timer.start(1)
-
-    def resize_image_label(self):
-        # Resize image_label after delay
-        self.image_label.resize(self.camera_frame.size())
 
     def image_callback(self, msg):
         # Dekompresuj obraz
@@ -110,16 +93,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def display_image(self, pixmap):
         self.image_label.setPixmap(pixmap.scaled(self.image_label.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
 
-    def toggle_camera(self):
-        if not self.image_processor.recording:
-            self.image_processor.start_recording()
-            self.record_button.setText("Stop Recording")
-        else:
-            self.image_processor.stop_recording()
-            self.record_button.setText("Start Recording")
+
 
     def closeEvent(self, event):
-        self.image_processor.stop_recording()
         super().closeEvent(event)
 
 

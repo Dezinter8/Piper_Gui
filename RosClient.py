@@ -4,6 +4,34 @@ from sensor_msgs.msg import CompressedImage , Image, LaserScan
 from PyQt5.QtCore import pyqtSignal, QObject
 from cv_bridge import CvBridge
 import subprocess
+from threading import Thread
+
+class RosClient(QObject):
+    def __init__(self, visualizer, image_callback):
+        super().__init__()
+        self.visualizer = visualizer
+        self.image_callback = image_callback
+        self.init_ros()
+
+    def init_ros(self):
+        self.thread = Thread(target=self.ros_thread_function)
+        self.thread.start()
+
+    def ros_thread_function(self):
+        rclpy.init()
+        self.node = Node("ros_client_node")
+
+        # Subskrypcja obrazu
+        self.image_subscription = self.node.create_subscription(CompressedImage, '/image_raw/compressed', self.image_callback, 10)
+        
+        # Subskrypcja skanu lidar
+        self.scan_subscription = self.node.create_subscription(LaserScan, 'scan', self.visualizer.listener_callback, 10)
+        
+        rclpy.spin(self.node)
+
+    def shutdown(self):
+        rclpy.shutdown()
+
 
 
 class ImageSubscriber(QObject):
@@ -23,40 +51,14 @@ class ImageSubscriber(QObject):
         rclpy.spin_once(self.node, timeout_sec=0)
 
 class LidarSubscriber(Node):
-    ConectionStatus = None  # Przesunięcie tego atrybutu na poziom klasy
-
     def __init__(self, visualizer):
         super().__init__('lidar_subscriber')
         self.visualizer = visualizer
         
-        lidar_connected = self.check_lidar_connection()
-        if lidar_connected:
-            self.subscription = self.create_subscription(LaserScan, 'scan', self.listener_callback, 10)
+        self.subscription = self.create_subscription(LaserScan, 'scan', self.listener_callback, 10)
 
-            self.get_logger().info('Subscriber initialized')
-            LidarSubscriber.ConectionStatus = 'Utowrzono połączenie z topikiem scan - LiDAR' 
-        else:
-            self.get_logger().error('Failed to connect to LiDAR. Topic not found.')
-            LidarSubscriber.ConectionStatus = 'Nie wykryto topiku scan - LiDAR'
+        self.get_logger().info('Subscriber initialized')
+        LidarSubscriber.ConectionStatus = 'Utowrzono połączenie z topikiem scan - LiDAR' 
 
     def listener_callback(self, msg):
         self.visualizer.update_points(msg.ranges, msg.angle_min, msg.angle_increment)
-
-    def check_lidar_connection(self):
-        try:
-            node = rclpy.create_node('lidar_connection_checker')
-            topic_names = node.get_topic_names_and_types()
-            lidar_topic_exists = any('/scan' in topic for topic, _ in topic_names)
-            
-            # Pobranie listy tematów z polecenia 'ros2 topic list'
-            result = subprocess.run(['ros2', 'topic', 'list'], capture_output=True, text=True)
-            topics_list = result.stdout.split('\n')
-
-            # Sprawdzenie, czy 'scan' znajduje się na liście tematów
-            lidar_topic_exists = '/scan' in topics_list
-            
-            return lidar_topic_exists
-        
-        except Exception as e:
-            print("Błąd podczas sprawdzania połączenia z LiDARem:", e)
-            return False
