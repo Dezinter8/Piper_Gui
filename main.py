@@ -14,7 +14,7 @@ from PyQt5 import QtWidgets, QtCore, uic
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal, QProcess
 
 from Ui.MainWindow import Ui_MainWindow
-from RosClient import RosClient
+from RosClient import ImageSubscriber
 from ImageProcessor import ImageProcessor
 
 
@@ -23,12 +23,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setupUi(self)
 
-        self.ros_client = RosClient()
+        self.image_client = ImageSubscriber()
         self.image_format = None 
         self.image_processor = ImageProcessor()
 
         # Connect signal for ROS image reception to processing slot
-        self.ros_client.image_received.connect(self.image_callback)
+        self.image_client.image_received.connect(self.image_callback)
 
         # Setup QLabel for displaying images
         self.image_label = QtWidgets.QLabel(self.camera_frame)
@@ -36,7 +36,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Setup QTimer for regular updates
         self.timer = QTimer(self)
-        self.timer.timeout.connect(self.ros_client.spin_once)
+        self.timer.timeout.connect(self.image_client.spin_once)
         self.timer.start(10)
 
         # QTimer for delayed resizing

@@ -24,7 +24,7 @@ def check_lidar_connection():
         print("Błąd podczas sprawdzania połączenia z LiDARem:", e)
         return False
 
-class RosClient(QObject):
+class ImageSubscriber(QObject):
     image_received = pyqtSignal(CompressedImage)
 
     def __init__(self):
@@ -32,8 +32,7 @@ class RosClient(QObject):
         rclpy.init(args=None)
         self.node = Node('image_viewer_node')
         self.bridge = CvBridge()
-        self.subscription = self.node.create_subscription(
-            CompressedImage, '/image_raw/compressed', self.image_callback, 10)
+        self.subscription = self.node.create_subscription(CompressedImage, '/image_raw/compressed', self.image_callback, 10)
 
     def image_callback(self, msg):
         self.image_received.emit(msg)
@@ -50,11 +49,8 @@ class LidarSubscriber(Node):
         
         lidar_connected = check_lidar_connection()
         if lidar_connected:
-            self.subscription = self.create_subscription(
-                LaserScan,
-                'scan',
-                self.listener_callback,
-                10)
+            self.subscription = self.create_subscription(LaserScan, 'scan', self.listener_callback, 10)
+
             self.get_logger().info('Subscriber initialized')
             LidarSubscriber.ConectionStatus = 'Utowrzono połączenie z topikiem scan - LiDAR' 
         else:
