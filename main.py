@@ -18,7 +18,7 @@ from PyQt5 import QtWidgets, QtCore, uic
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal, QProcess
 
 from Ui.MainWindow import Ui_MainWindow
-from RosClient import ImageSubscriber, LidarSubscriber, RosClient
+from RosClient import RosClient
 from ImageProcessor import ImageProcessor
 from lidar_visualization import LidarVisualizer
 
@@ -27,23 +27,26 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, *args, obj=None, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setupUi(self)
+        # self.lidarVisualizer = LidarVisualizer(self.renderer)
 
-        self.image_client = ImageSubscriber()
-        self.image_processor = ImageProcessor()
-        self.image_format = None 
+        self.image_processor = ImageProcessor()  # Asumując, że ImageProcessor został już zaimportowany.
 
-        self.image_client.image_received.connect(self.image_callback)
+        # Konfiguracja GUI z widżetami.
+        self.addVTKWidget()
+
+        # Utworzenie RosClient z przekazaniem funkcji obsługi obrazu i wizualizatora lidaru
+        self.ros_client = RosClient(self.lidarVisualizer, self.image_callback)
+
+        # Timer do odświeżania wizualizacji VTK.
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.updateVTK)
+        self.timer.start(10)
+
+        # Setup QLabel for displaying images
         self.image_label = QtWidgets.QLabel(self.camera_frame)
         self.image_label.resize(self.camera_frame.size())
 
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.image_client.spin_once)
-        # self.timer.timeout.connect(self.updateVTK)
-
-        self.timer.start(10)
-
-        # self.addVTKWidget()
-
+        self.image_format = None 
 
 
     def addVTKWidget(self):
@@ -51,23 +54,24 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.vtkWidget = QVTKRenderWindowInteractor(self.vtk_frame)
         self.vtkWidget.setMinimumSize(200, 150)
 
+        # Utworzenie renderera VTK.
         self.renderer = vtk.vtkRenderer()
         self.vtkWidget.GetRenderWindow().AddRenderer(self.renderer)
 
-        # Ustawienie wizualizera lidaru i kamery.
+        # Utworzenie i skonfigurowanie wizualizera lidaru.
         self.lidarVisualizer = LidarVisualizer(self.renderer)
+
+        # Inicjalizacja widżetu VTK.
         self.vtkWidget.Initialize()
 
+        # Ustawienia kamery w scenie VTK.
         camera = self.renderer.GetActiveCamera()
         camera.Zoom(0.5)
         camera.SetPosition(0, 0, 15)
+
+        # Dodanie widżetu VTK do layoutu.
         self.verticalLayout.addWidget(self.vtkWidget)
 
-        # Inicjalizacja i uruchomienie wątku dla ROS2.
-        rclpy.init()
-        self.lidarSubscriber = LidarSubscriber(self.lidarVisualizer)
-        self.rclpyThread = Thread(target=rclpy.spin, args=(self.lidarSubscriber,), daemon=True)
-        self.rclpyThread.start()
     
     def updateVTK(self):
         # Renderowanie sceny VTK.
@@ -76,7 +80,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
     def image_callback(self, msg):
-        # Dekompresuj obraz
+        # Dekompresja obrazu
         np_arr = np.frombuffer(msg.data, np.uint8)
         cv_image = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
@@ -96,7 +100,28 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
     def closeEvent(self, event):
+        # Zatrzymanie timera
+        if self.timer.isActive():
+            self.timer.stop()
+
+        # Zamknięcie i czyszczenie klienta ROS
+        self.ros_client.shutdown()
+
+        # Czyszczenie widżetów VTK
+        self.vtkWidget.GetRenderWindow().Finalize()  # Zalecane dla czyszczenia zasobów VTK
+        self.renderer.RemoveAllViewProps()  # Usunięcie wszystkich obiektów z renderera
+        self.vtkWidget = None
+
+        # Usunięcie dynamicznie utworzonych widżetów
+        for widget in self.findChildren(QtWidgets.QWidget):
+            widget.deleteLater()
+
+        # Wywołanie metody bazowej
         super().closeEvent(event)
+
+
+
+
 
 
 
