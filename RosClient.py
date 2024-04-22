@@ -5,24 +5,6 @@ from PyQt5.QtCore import pyqtSignal, QObject
 from cv_bridge import CvBridge
 import subprocess
 
-def check_lidar_connection():
-    try:
-        node = rclpy.create_node('lidar_connection_checker')
-        topic_names = node.get_topic_names_and_types()
-        lidar_topic_exists = any('/scan' in topic for topic, _ in topic_names)
-        
-        # Pobranie listy tematów z polecenia 'ros2 topic list'
-        result = subprocess.run(['ros2', 'topic', 'list'], capture_output=True, text=True)
-        topics_list = result.stdout.split('\n')
-
-        # Sprawdzenie, czy 'scan' znajduje się na liście tematów
-        lidar_topic_exists = '/scan' in topics_list
-        
-        return lidar_topic_exists
-    
-    except Exception as e:
-        print("Błąd podczas sprawdzania połączenia z LiDARem:", e)
-        return False
 
 class ImageSubscriber(QObject):
     image_received = pyqtSignal(CompressedImage)
@@ -47,7 +29,7 @@ class LidarSubscriber(Node):
         super().__init__('lidar_subscriber')
         self.visualizer = visualizer
         
-        lidar_connected = check_lidar_connection()
+        lidar_connected = self.check_lidar_connection()
         if lidar_connected:
             self.subscription = self.create_subscription(LaserScan, 'scan', self.listener_callback, 10)
 
@@ -60,3 +42,21 @@ class LidarSubscriber(Node):
     def listener_callback(self, msg):
         self.visualizer.update_points(msg.ranges, msg.angle_min, msg.angle_increment)
 
+    def check_lidar_connection(self):
+        try:
+            node = rclpy.create_node('lidar_connection_checker')
+            topic_names = node.get_topic_names_and_types()
+            lidar_topic_exists = any('/scan' in topic for topic, _ in topic_names)
+            
+            # Pobranie listy tematów z polecenia 'ros2 topic list'
+            result = subprocess.run(['ros2', 'topic', 'list'], capture_output=True, text=True)
+            topics_list = result.stdout.split('\n')
+
+            # Sprawdzenie, czy 'scan' znajduje się na liście tematów
+            lidar_topic_exists = '/scan' in topics_list
+            
+            return lidar_topic_exists
+        
+        except Exception as e:
+            print("Błąd podczas sprawdzania połączenia z LiDARem:", e)
+            return False
