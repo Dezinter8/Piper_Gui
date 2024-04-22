@@ -1,6 +1,6 @@
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import CompressedImage , Image, LaserScan
+from sensor_msgs.msg import CompressedImage , Image, LaserScan, JointState
 from PyQt5.QtCore import pyqtSignal, QObject
 from cv_bridge import CvBridge
 import subprocess
@@ -52,7 +52,7 @@ class RosClient(QObject):
         rclpy.spin_once(self.node, timeout_sec=0)
 
 class LidarSubscriber(Node):
-    ConectionStatus = None  # Przesunięcie tego atrybutu na poziom klasy
+    ConectionStatus = None 
 
     def __init__(self, visualizer):
         super().__init__('lidar_subscriber')
@@ -76,3 +76,44 @@ class LidarSubscriber(Node):
     def listener_callback(self, msg):
         # Wywołanie metody wizualizatora do aktualizacji punktów na podstawie danych z LiDARa
         self.visualizer.update_points(msg.ranges, msg.angle_min, msg.angle_increment)
+        
+class JointStateSubscriber(Node):
+    ConnectionStatus = None  # Atrybut klasy przechowujący informacje o stanie połączenia
+
+    def __init__(self):
+        super().__init__('joint_state_subscriber')
+        # Sprawdzanie, czy topic '/joint_states' jest dostępny
+        self.check_joint_state_connection()
+        if JointStateSubscriber.ConnectionStatus:
+            # Utworzenie subskrypcji dla danych z '/joint_states'
+            self.subscription = self.create_subscription(
+                JointState,
+                '/joint_states',
+                self.listener_callback,
+                10)
+            self.get_logger().info('Subscriber initialized')
+        else:
+            self.get_logger().error('Failed to connect to joint states. Topic not found.')
+
+    def check_joint_state_connection(self):
+        # Sprawdzanie dostępności topicu '/joint_states'
+        try:
+            # Pobranie listy dostępnych tematów
+            topic_names = self.get_topic_names_and_types()
+            # Sprawdzenie, czy istnieje temat '/joint_states'
+            joint_state_topic_exists = any('/joint_states' == topic for topic, _ in topic_names)
+            
+            if joint_state_topic_exists:
+                JointStateSubscriber.ConnectionStatus = 'Utworzono połączenie z topikiem joint_states - akcelerometry'
+            else:
+                JointStateSubscriber.ConnectionStatus = 'Nie wykryto topiku joint_states - akcelerometry'
+        
+        except Exception as e:
+            self.get_logger().error(f'Error while checking connection: {e}')
+            JointStateSubscriber.ConnectionStatus = 'Wystąpił błąd podczas sprawdzania połączenia'
+
+    def listener_callback(self, msg):
+        # Logowanie lub aktualizacja danych na podstawie wiadomości otrzymanej z topicu '/joint_states'
+        self.get_logger().info(f'Received joint states: {msg}')
+        # Możesz dodać tutaj więcej logiki do przetwarzania danych z JointState
+
