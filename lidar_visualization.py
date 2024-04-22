@@ -3,7 +3,7 @@ import time
 import vtk
 import rclpy
 from threading import Thread
-from RosClient import LidarSubscriber, JointStateSubscriber, ImuSubscriber
+from RosClient import LidarSubscriber, SensorsSubscriber
 
 class LidarVisualizer:
     def __init__(self, renderer):
@@ -120,11 +120,8 @@ def main(args=None):
     # Przekazanie wizualizatora do subskrybenta
     lidar_subscriber = LidarSubscriber(visualizer)
 
-    # Inicjalizacja subskrybenta enkoderów
-    joint_state_subscriber = JointStateSubscriber()
-    
-    # Inicjalizacja subskrybenta akcelerometrów
-    imu_subscriber = ImuSubscriber()
+    # Inicjalizacja subskrybenta sensorów
+    sensors_subscriber = SensorsSubscriber()
     
     # Dodanie aktora do renderera
     renderer.AddActor(visualizer.actor)
@@ -163,11 +160,9 @@ def main(args=None):
     # Wyświetlenie stanu połączenia z Lidarem
     print(lidar_subscriber.ConectionStatus)
     
-    # Wyświetlenie stanu połączenia z Enkoderami
-    print(joint_state_subscriber.ConnectionStatus)
-    
-    # Wyświetlenie stanu połączenia z Akcelerometrami
-    print(imu_subscriber.ConnectionStatus)
+    # Wyświetlenie stanu połączenia z sensorami
+    print(sensors_subscriber.ConnectionStatus_joint_states)
+    print(sensors_subscriber.ConnectionStatus_imu_plugin_out)
 
     # Renderowanie sceny i rozpoczęcie interakcji
     renderWindow.Render()
