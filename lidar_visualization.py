@@ -34,7 +34,10 @@ class LidarVisualizer:
     
     def update_joints(self, name, position, velocity):
 
-        print(name,position,velocity)
+        
+        print (name[0],position[0],velocity[0])
+        print (name[1],position[1],velocity[1])
+        
 
     def update_points(self, ranges, angle_min, angle_increment):
         # Aktualizacja punktów na podstawie danych z lidaru
