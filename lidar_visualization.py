@@ -85,12 +85,11 @@ class LidarVisualizer:
         self.vertices.Modified()
         self.polyData.Modified()
 
-        #export chmury punktów
-        self.export_to_ply()
-
     def export_to_ply(self):
+        current_time = time.strftime("%Y-%m-%d_%H-%M-%S")
+        filename = f"{current_time}_pointcloud.ply"
         writer = vtk.vtkPLYWriter()
-        writer.SetFileName("output.ply")
+        writer.SetFileName(filename)
         writer.SetInputData(self.polyData)
         writer.SetFileTypeToASCII()
         writer.SetColorModeToDefault()
@@ -152,6 +151,9 @@ def main(args=None):
     renderWindow.Render()
     renderWindowInteractor.Start()
 
+    #export chmury punktów
+    visualizer.export_to_ply()
+    
     rclpy.shutdown()
 
 
