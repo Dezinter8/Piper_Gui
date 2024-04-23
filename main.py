@@ -53,7 +53,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.record_button = self.record_button
         self.record_button.clicked.connect(self.toggle_camera)
 
-        self.record_button = self.reset_vtk_view_button
+        self.reset_vtk_view_button = self.reset_vtk_view_button
         self.reset_vtk_view_button.clicked.connect(self.resetCamera) # Połączenie przycisku z metodą openVTK
 
 
