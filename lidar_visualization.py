@@ -2,44 +2,39 @@ import math
 import time
 import vtk
 import rclpy
+from rclpy.executors import MultiThreadedExecutor
 from threading import Thread
 from RosClient import LidarSubscriber, JointStateSubscriber, ImuSubscriber
 
 class LidarVisualizer:
     def __init__(self, renderer):
-        # Inicjalizacja renderera i aktora VTK
-        self.points = vtk.vtkPoints()  # Punkty do wyświetlenia
-        self.vertices = vtk.vtkCellArray()  # Komórki dla punktów
-        self.polyData = vtk.vtkPolyData()  # Struktura danych dla geometrii
+        # Initialization as per your existing code...
+        self.points = vtk.vtkPoints()
+        self.vertices = vtk.vtkCellArray()
+        self.polyData = vtk.vtkPolyData()
         self.polyData.SetPoints(self.points)
         self.polyData.SetVerts(self.vertices)
 
-        # Inicjalizacja tablicy kolorów
         self.colors = vtk.vtkUnsignedCharArray()
         self.colors.SetNumberOfComponents(3)
-        self.colors.SetName("Colors")  # Ustawienie nazwy dla tablicy kolorów
-
-        # Powiązanie tablicy kolorów z danymi punktowymi
+        self.colors.SetName("Colors")
         self.polyData.GetPointData().SetScalars(self.colors)
 
-        # Mapper i aktor do renderowania punktów
         self.mapper = vtk.vtkPolyDataMapper()
         self.mapper.SetInputData(self.polyData)
         self.actor = vtk.vtkActor()
         self.actor.SetMapper(self.mapper)
-        
-        # Ustawienia wyglądu punktów
         self.actor.GetProperty().SetPointSize(5)
-        self.actor.GetProperty().SetColor(1.0, 0.0, 0.0)  # Czerwone punkty
+        self.actor.GetProperty().SetColor(1.0, 0.0, 0.0)  # Red points
 
-        # Inicjalizacja zmiennej przechowującej offset na osi Z
         self.z_offset = 0
-
-        # Inicjalizacja zmiennej przechowującej czas ostatniej aktualizacji
         self.last_update_time = time.time()
-
-        # Dodatkowo inicjalizujemy słownik do przechowywania już dodanych punktów
         self.added_points = {}
+
+    
+    def update_joints(self, name, position, velocity):
+
+        print(name,position,velocity)
 
     def update_points(self, ranges, angle_min, angle_increment):
         # Aktualizacja punktów na podstawie danych z lidaru
@@ -95,38 +90,25 @@ class LidarVisualizer:
         
 
 def main(args=None):
-    # Inicjalizacja ROS 2
     rclpy.init(args=args)
 
-    # Inicjalizacja obiektu renderera i okna renderowania VTK
     renderer = vtk.vtkRenderer()
     renderWindow = vtk.vtkRenderWindow()
     renderWindow.SetSize(600, 500)
     renderWindow.SetWindowName("Wizualizacja Liadru")
     renderWindow.AddRenderer(renderer)
     
-    # Ustawienie okna po prawej stronie ekranu
-    screen_width = renderWindow.GetScreenSize()[0]
-    window_width = renderWindow.GetSize()[0]
-    renderWindow.SetPosition(screen_width - window_width, 0)
-    
-    # Tworzenie interaktora do obsługi zdarzeń
     renderWindowInteractor = vtk.vtkRenderWindowInteractor()
     renderWindowInteractor.SetRenderWindow(renderWindow)
 
-    # Inicjalizacja wizualizatora lidaru
     visualizer = LidarVisualizer(renderer)
-    
-    # Przekazanie wizualizatora do subskrybenta
     lidar_subscriber = LidarSubscriber(visualizer)
-
-    # Inicjalizacja subskrybenta enkoderów
-    joint_state_subscriber = JointStateSubscriber()
     
-    # Inicjalizacja subskrybenta akcelerometrów
+    enkoders_visualizer = LidarVisualizer(renderer)
+    joint_state_subscriber = JointStateSubscriber(enkoders_visualizer)
+    
     imu_subscriber = ImuSubscriber()
-    
-    # Dodanie aktora do renderera
+
     renderer.AddActor(visualizer.actor)
 
     # Ustawienia kamery
@@ -156,15 +138,19 @@ def main(args=None):
     renderWindowInteractor.AddObserver('TimerEvent', updateVTK)
     renderWindowInteractor.CreateRepeatingTimer(100)
 
-    # Wątek dla ROS 2
-    rclpy_thread = Thread(target=rclpy.spin, args=(lidar_subscriber,), daemon=True)
+    # Use a MultiThreadedExecutor to handle the nodes
+    executor = MultiThreadedExecutor()
+    executor.add_node(lidar_subscriber)
+    executor.add_node(joint_state_subscriber)
+    executor.add_node(imu_subscriber)
+
+    # Spin in a separate thread
+    rclpy_thread = Thread(target=executor.spin, daemon=True)
     rclpy_thread.start()
 
-    # Renderowanie sceny i rozpoczęcie interakcji
     renderWindow.Render()
     renderWindowInteractor.Start()
 
-    # Wyłączenie ROS 2
     rclpy.shutdown()
 
 if __name__ == '__main__':

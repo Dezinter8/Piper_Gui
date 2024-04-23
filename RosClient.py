@@ -18,7 +18,7 @@ def check_connection(name):
         result = subprocess.run(['ros2', 'topic', 'list'], capture_output=True, text=True)
         topics_list = result.stdout.split('\n')
 
-        # Sprawdzenie, czy 'scan' znajduje się na liście tematów
+        # Sprawdzenie, czy topic znajduje się na liście tematów
         if name == 'lidar':
             lidar_topic_exists = '/scan' in topics_list
             return lidar_topic_exists
@@ -87,8 +87,9 @@ class LidarSubscriber(Node):
 class JointStateSubscriber(Node):
     ConnectionStatus = None  # Atrybut klasy przechowujący informacje o stanie połączenia
 
-    def __init__(self, ):
+    def __init__(self, enkoders):
         super().__init__('joint_state_subscriber')
+        self.enkoders = enkoders
         
         # Sprawdzanie, czy topic '/joint_states' jest dostępny
         enkoder_connected = check_connection('enkoder')
@@ -104,10 +105,8 @@ class JointStateSubscriber(Node):
             self.get_logger().error('Nie wykryto topiku joint_states - enkodery')
 
     def listener_callback(self, msg):
-        # Logowanie lub aktualizacja danych na podstawie wiadomości otrzymanej z topicu '/joint_states'
-        self.get_logger().info(f'Received joint states: {msg}')
-        # Możesz dodać tutaj więcej logiki do przetwarzania danych z JointState
-
+        # Wywołanie metody enkoders do aktualizacji informacji na podstawie danych z /joint_state
+        self.enkoders.update_joints(msg.name, msg.position, msg.velocity)
 
 
 #   AKCELEROMETRY
