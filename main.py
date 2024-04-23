@@ -6,16 +6,13 @@ if os.getenv('XDG_SESSION_TYPE') == 'wayland':
     os.environ['QT_QPA_PLATFORM'] = 'xcb'
 
 import sys
-import subprocess
 import numpy as np
 import cv2
 from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
-import rclpy
-from threading import Thread
 
 from PyQt5 import QtWidgets, QtCore, uic
-from PyQt5.QtCore import QTimer, QThread, pyqtSignal, QProcess
+from PyQt5.QtCore import QTimer
 
 from Ui.MainWindow import Ui_MainWindow
 from RosClient import RosClient
