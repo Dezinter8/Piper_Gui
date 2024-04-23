@@ -56,6 +56,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.record_button = self.record_button
         self.record_button.clicked.connect(self.toggle_camera)
 
+        self.record_button = self.reset_vtk_view_button
+        self.reset_vtk_view_button.clicked.connect(self.resetCamera) # Połączenie przycisku z metodą openVTK
+
 
     ########### VTK #############
 
@@ -99,7 +102,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def resetCamera(self):
         if self.renderer:
             camera = self.renderer.GetActiveCamera()
-            camera.SetPosition(0, 0, 10)
+            camera.SetPosition(0, 0, 2)
             camera.SetFocalPoint(0, 0, 0)
             camera.SetViewUp(0, 1, 0)
             self.vtkWidget.GetRenderWindow().Render()
