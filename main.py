@@ -77,7 +77,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Ustawienia kamery w scenie VTK.
         camera = self.renderer.GetActiveCamera()
         camera.Zoom(0.5)
-        camera.SetPosition(0, 0, 15)
+        camera.SetPosition(0, 0, 5)
+
+        # Ustawienie stylu interakcji na TrackballCamera.
+        interactor_style = vtk.vtkInteractorStyleTrackballCamera()
+        self.vtkWidget.SetInteractorStyle(interactor_style)
+
 
         # Dodanie widżetu VTK bezpośrednio do vtk_frame
         layout = QtWidgets.QVBoxLayout(self.vtk_frame)
@@ -90,6 +95,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Renderowanie sceny VTK.
         self.vtkWidget.GetRenderWindow().Render()
 
+
+    def resetCamera(self):
+        if self.renderer:
+            camera = self.renderer.GetActiveCamera()
+            camera.SetPosition(0, 0, 10)
+            camera.SetFocalPoint(0, 0, 0)
+            camera.SetViewUp(0, 1, 0)
+            self.vtkWidget.GetRenderWindow().Render()
 
 
 
@@ -137,8 +150,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
 
+
+    def keyPressEvent(self, event):
+        super(MainWindow, self).keyPressEvent(event)  # Przekaż zdarzenie do bazowej klasy, jeśli nie jest obsługiwane tutaj
+        
+        if event.key() == QtCore.Qt.Key_R:  # Sprawdź, czy naciśnięto klawisz 'r'
+            self.resetCamera()
+
+
     def closeEvent(self, event):
         self.image_processor.stop_recording()
+        #export chmury punktów
+        self.lidarVisualizer.export_to_ply()
 
         # Zatrzymanie timera
         if self.timer.isActive():
