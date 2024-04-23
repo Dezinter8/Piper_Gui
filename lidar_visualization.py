@@ -83,7 +83,7 @@ class LidarVisualizer:
         self.vertices.Modified()
         self.polyData.Modified()
 
-
+        
     def export_to_ply(self):
         current_time = time.strftime("%Y-%m-%d_%H-%M-%S")
         filename = f"{current_time}_pointcloud.ply"
