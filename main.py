@@ -52,7 +52,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def addVTKWidget(self):
         # Konfiguracja widgetu VTK do wyświetlania wizualizacji.
         self.vtkWidget = QVTKRenderWindowInteractor(self.vtk_frame)
-        self.vtkWidget.setMinimumSize(200, 150)
+        self.vtkWidget.setMinimumSize(100, 100)
 
         # Utworzenie renderera VTK.
         self.renderer = vtk.vtkRenderer()
@@ -69,8 +69,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         camera.Zoom(0.5)
         camera.SetPosition(0, 0, 15)
 
-        # Dodanie widżetu VTK do layoutu.
-        self.verticalLayout.addWidget(self.vtkWidget)
+        # Dodanie widżetu VTK bezpośrednio do vtk_frame
+        layout = QtWidgets.QVBoxLayout(self.vtk_frame)
+        layout.addWidget(self.vtkWidget)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.vtk_frame.setLayout(layout)
 
     
     def updateVTK(self):
