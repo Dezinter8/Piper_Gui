@@ -5,10 +5,10 @@ from PyQt5.QtCore import pyqtSignal, QObject
 from cv_bridge import CvBridge
 import subprocess
 
-def check_lidar_connection():
+def check_connection(name):
     try:
         # Tworzenie tymczasowego węzła ROS 2
-        node = rclpy.create_node('lidar_connection_checker')
+        node = rclpy.create_node('connection_checker')
         # Pobranie listy dostępnych tematów
         topic_names = node.get_topic_names_and_types()
         # Sprawdzenie czy istnieje temat związany z LiDARem (/scan)
@@ -19,10 +19,16 @@ def check_lidar_connection():
         topics_list = result.stdout.split('\n')
 
         # Sprawdzenie, czy 'scan' znajduje się na liście tematów
-        lidar_topic_exists = '/scan' in topics_list
+        if name == 'lidar':
+            lidar_topic_exists = '/scan' in topics_list
+            return lidar_topic_exists
+        elif name =='enkoder':
+            joint_state_topic_exists = '/joint_states' in topics_list
+            return joint_state_topic_exists
+        elif name =='akcelerometr':
+            imu_topic_exists = '/imu_plugin/out' in topics_list
+            return imu_topic_exists
         
-        return lidar_topic_exists
-    
     except Exception as e:
         # Obsługa błędów podczas sprawdzania połączenia z LiDARem
         print("Błąd podczas sprawdzania połączenia z LiDARem:", e)
@@ -53,14 +59,14 @@ class RosClient(QObject):
 
 #   LIDAR
 class LidarSubscriber(Node):
-    ConectionStatus = None 
+    ConectionStatus = None  # Atrybut klasy przechowujący informacje o stanie połączenia 
 
     def __init__(self, visualizer):
         super().__init__('lidar_subscriber')
         self.visualizer = visualizer
         
         # Sprawdzenie połączenia z LiDARem
-        lidar_connected = check_lidar_connection()
+        lidar_connected = check_connection('lidar')
         if lidar_connected:
             # Utworzenie subskrypcji dla danych z LiDARa
             self.subscription = self.create_subscription(
@@ -68,11 +74,9 @@ class LidarSubscriber(Node):
                 'scan',
                 self.listener_callback,
                 10)
-            self.get_logger().info('Subscriber initialized')
-            LidarSubscriber.ConectionStatus = 'Utowrzono połączenie z topikiem scan - LiDAR' 
+            self.get_logger().info('Utowrzono połączenie z topikiem scan - LiDAR')
         else:
-            self.get_logger().error('Failed to connect to LiDAR. Topic not found.')
-            LidarSubscriber.ConectionStatus = 'Nie wykryto topiku scan - LiDAR'
+            self.get_logger().error('Nie wykryto topiku scan - LiDAR')
 
     def listener_callback(self, msg):
         # Wywołanie metody wizualizatora do aktualizacji punktów na podstawie danych z LiDARa
@@ -83,37 +87,21 @@ class LidarSubscriber(Node):
 class JointStateSubscriber(Node):
     ConnectionStatus = None  # Atrybut klasy przechowujący informacje o stanie połączenia
 
-    def __init__(self):
+    def __init__(self, ):
         super().__init__('joint_state_subscriber')
+        
         # Sprawdzanie, czy topic '/joint_states' jest dostępny
-        self.check_joint_state_connection()
-        if JointStateSubscriber.ConnectionStatus:
+        enkoder_connected = check_connection('enkoder')
+        if enkoder_connected:
             # Utworzenie subskrypcji dla danych z '/joint_states'
             self.subscription = self.create_subscription(
                 JointState,
                 '/joint_states',
                 self.listener_callback,
                 10)
-            self.get_logger().info('Subscriber initialized')
+            self.get_logger().info('Utworzono połączenie z topikiem joint_states - enkodery')
         else:
-            self.get_logger().error('Failed to connect to joint states. Topic not found.')
-
-    def check_joint_state_connection(self):
-        # Sprawdzanie dostępności topicu '/joint_states'
-        try:
-            # Pobranie listy dostępnych tematów
-            topic_names = self.get_topic_names_and_types()
-            # Sprawdzenie, czy istnieje temat '/joint_states'
-            joint_state_topic_exists = any('/joint_states' == topic for topic, _ in topic_names)
-            
-            if joint_state_topic_exists:
-                JointStateSubscriber.ConnectionStatus = 'Utworzono połączenie z topikiem joint_states - enkodery'
-            else:
-                JointStateSubscriber.ConnectionStatus = 'Nie wykryto topiku joint_states - enkodery'
-        
-        except Exception as e:
-            self.get_logger().error(f'Error while checking connection: {e}')
-            JointStateSubscriber.ConnectionStatus = 'Wystąpił błąd podczas sprawdzania połączenia'
+            self.get_logger().error('Nie wykryto topiku joint_states - enkodery')
 
     def listener_callback(self, msg):
         # Logowanie lub aktualizacja danych na podstawie wiadomości otrzymanej z topicu '/joint_states'
@@ -129,34 +117,17 @@ class ImuSubscriber(Node):
     def __init__(self):
         super().__init__('imu_subscriber')
         # Sprawdzanie, czy topic '/imu_plugin/out' jest dostępny
-        self.check_imu_connection()
-        if ImuSubscriber.ConnectionStatus:
+        akcelerometr_connected = check_connection('akcelerometr')
+        if akcelerometr_connected:
             # Utworzenie subskrypcji dla danych z '/imu_plugin/out'
             self.subscription = self.create_subscription(
                 Imu,
                 '/imu_plugin/out',
                 self.listener_callback,
                 10)
-            self.get_logger().info('IMU Subscriber initialized')
+            self.get_logger().info('Utworzono połączenie z topikiem imu_plugin/out - akcelerometry')
         else:
-            self.get_logger().error('Failed to connect to IMU data. Topic not found.')
-
-    def check_imu_connection(self):
-        # Sprawdzanie dostępności topicu '/imu_plugin/out'
-        try:
-            # Pobranie listy dostępnych tematów
-            topic_names = self.get_topic_names_and_types()
-            # Sprawdzenie, czy istnieje temat '/imu_plugin/out'
-            imu_topic_exists = any('/imu_plugin/out' == topic for topic, _ in topic_names)
-            
-            if imu_topic_exists:
-                ImuSubscriber.ConnectionStatus = 'Utworzono połączenie z topikiem imu_plugin/out - akcelerometry'
-            else:
-                ImuSubscriber.ConnectionStatus = 'Nie wykryto topiku imu_plugin/out - akcelerometry'
-        
-        except Exception as e:
-            self.get_logger().error(f'Error while checking connection: {e}')
-            ImuSubscriber.ConnectionStatus = 'Wystąpił błąd podczas sprawdzania połączenia'
+            self.get_logger().error('Nie wykryto topiku imu_plugin/out - akcelerometry')
 
     def listener_callback(self, msg):
         # Logowanie lub aktualizacja danych na podstawie wiadomości otrzymanej z topicu '/imu_plugin/out'

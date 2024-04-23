@@ -160,15 +160,6 @@ def main(args=None):
     rclpy_thread = Thread(target=rclpy.spin, args=(lidar_subscriber,), daemon=True)
     rclpy_thread.start()
 
-    # Wyświetlenie stanu połączenia z Lidarem
-    print(lidar_subscriber.ConectionStatus)
-    
-    # Wyświetlenie stanu połączenia z Enkoderami
-    print(joint_state_subscriber.ConnectionStatus)
-    
-    # Wyświetlenie stanu połączenia z Akcelerometrami
-    print(imu_subscriber.ConnectionStatus)
-
     # Renderowanie sceny i rozpoczęcie interakcji
     renderWindow.Render()
     renderWindowInteractor.Start()
