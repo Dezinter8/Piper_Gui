@@ -39,5 +39,7 @@ class RosClient(QObject):
     def shutdown(self):
         self._is_running.clear()
         if self.thread.is_alive():
-            self.thread.join()  # Upewniamy się, że wątek zakończy działanie przed kontynuowaniem.
+            self.thread.join(timeout=2)  # Oczekuje do 5 sekund na zakończenie wątku
+            if self.thread.is_alive():
+                print("ROS thread did not terminate gracefully.")
 
