@@ -28,3 +28,4 @@ class ImageProcessor:
     def write_frame(self, cv_img):
         if self.recording and self.video_writer:
             self.video_writer.write(cv_img)
+
