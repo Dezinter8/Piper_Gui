@@ -29,6 +29,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         # self.lidarVisualizer = LidarVisualizer(self.renderer)
 
+        self.image_format = None 
         self.image_processor = ImageProcessor()  # Asumując, że ImageProcessor został już zaimportowany.
 
         # Konfiguracja GUI z widżetami.
@@ -46,8 +47,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.image_label = QtWidgets.QLabel(self.camera_frame)
         self.image_label.resize(self.camera_frame.size())
 
-        self.image_format = None 
+        # QTimer for delayed resizing
+        self.resize_timer = QTimer(self)
+        self.resize_timer.setSingleShot(True)  # Ensure timer runs only once per resize event
+        self.resize_timer.timeout.connect(self.resize_image_label)
 
+
+        self.record_button = self.record_button
+        self.record_button.clicked.connect(self.toggle_camera)
+
+
+    ########### VTK #############
 
     def addVTKWidget(self):
         # Konfiguracja widgetu VTK do wyświetlania wizualizacji.
@@ -82,6 +92,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
 
+
+    ########### CAMERA ###########
+
+    def resizeEvent(self, event):
+        super(MainWindow, self).resizeEvent(event)
+        # Start or restart the resize timer with a delay of 1...
+        # Made because otherwise app will launch with small camera until you resize manually
+        self.resize_timer.start(1)
+
+    def resize_image_label(self):
+        # Resize image_label after delay
+        self.image_label.resize(self.camera_frame.size())
+
+
     def image_callback(self, msg):
         # Dekompresja obrazu
         np_arr = np.frombuffer(msg.data, np.uint8)
@@ -100,9 +124,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def display_image(self, pixmap):
         self.image_label.setPixmap(pixmap.scaled(self.image_label.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
 
+    def toggle_camera(self):
+        if not self.image_processor.recording:
+            self.image_processor.start_recording()
+            self.record_button.setText("Stop Recording")
+        else:
+            self.image_processor.stop_recording()
+            self.record_button.setText("Start Recording")
+
+
+
+
 
 
     def closeEvent(self, event):
+        self.image_processor.stop_recording()
+
         # Zatrzymanie timera
         if self.timer.isActive():
             self.timer.stop()
