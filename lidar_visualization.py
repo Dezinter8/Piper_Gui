@@ -51,7 +51,7 @@ class LidarVisualizer:
         if elapsed_time >= 0.5:  # Aktualizacja co 0.75 sekundy
             self.last_update_time = current_time
             self.z_offset += 0.01  # Zwiększanie wartości na osi Z o 0.1 jednostkę
-
+        
         for i, range in enumerate(ranges):
             if range == float('inf') or range == 0.0:
                 continue  # Pomijanie nieprawidłowych danych
