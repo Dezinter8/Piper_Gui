@@ -1,13 +1,12 @@
 import math
 import time
 import vtk
-import rclpy
-from threading import Thread
-from RosClient import LidarSubscriber
 
 class LidarVisualizer:
     def __init__(self, renderer):
         # Inicjalizacja renderera i aktora VTK
+        self.renderer = renderer
+
         self.points = vtk.vtkPoints()  # Punkty do wyświetlenia
         self.vertices = vtk.vtkCellArray()  # Komórki dla punktów
         self.polyData = vtk.vtkPolyData()  # Struktura danych dla geometrii
@@ -32,16 +31,15 @@ class LidarVisualizer:
         self.actor.GetProperty().SetPointSize(5)
         self.actor.GetProperty().SetColor(1.0, 0.0, 0.0)  # Czerwone punkty
 
+        self.renderer.AddActor(self.actor)
+
         # Inicjalizacja zmiennej przechowującej offset na osi Z
         self.z_offset = 0
 
         # Inicjalizacja zmiennej przechowującej czas ostatniej aktualizacji
         self.last_update_time = time.time()
 
-        # Dodatkowo inicjalizujemy słownik do przechowywania już dodanych punktów
-        self.added_points = {}
-
-    def update_points(self, ranges, angle_min, angle_increment):
+    def update_points(self, ranges, angle_min, angle_increment):        
         # Aktualizacja punktów na podstawie danych z lidaru
         """self.points.Reset()
         self.vertices.Reset()
@@ -71,11 +69,11 @@ class LidarVisualizer:
             # Wybór koloru punktu na podstawie kąta
             if i == 0:
                 self.colors.InsertNextTuple([0, 255, 0])  # Zielony kolor dla punktu o kącie 0 stopni
-            elif i == 90:
+            elif i == 167:
                 self.colors.InsertNextTuple([255, 255, 0])  # Żółty kolor dla punktu o kącie 90 stopni
-            elif i == 180:
+            elif i == 333:
                 self.colors.InsertNextTuple([0, 255, 255])  # Cyan kolor dla punktu o kącie 180 stopni
-            elif i == 270:
+            elif i == 500:
                 self.colors.InsertNextTuple([255, 0, 255])  # Magenta kolor dla punktu o kącie 270 stopni
             else:
                 self.colors.InsertNextTuple([255, 0, 0])  # Domyślny kolor czerwony
@@ -85,6 +83,7 @@ class LidarVisualizer:
         self.vertices.Modified()
         self.polyData.Modified()
 
+        
     def export_to_ply(self):
         current_time = time.strftime("%Y-%m-%d_%H-%M-%S")
         filename = f"{current_time}_pointcloud.ply"
@@ -95,67 +94,3 @@ class LidarVisualizer:
         writer.SetColorModeToDefault()
         writer.SetArrayName("Colors")
         writer.Write()
-
-def main(args=None):
-    rclpy.init(args=args)
-
-    renderer = vtk.vtkRenderer()
-    renderWindow = vtk.vtkRenderWindow()
-    renderWindow.SetSize(600, 500)
-    renderWindow.SetWindowName("Wizualizacja Liadru")
-    renderWindow.AddRenderer(renderer)
-    # Ustawienie okna po prawo
-    screen_width = renderWindow.GetScreenSize()[0]
-    window_width = renderWindow.GetSize()[0]
-    renderWindow.SetPosition(screen_width - window_width, 0)
-    # Tworzenie interaktora i ustawianie okna renderowania
-    renderWindowInteractor = vtk.vtkRenderWindowInteractor()
-    renderWindowInteractor.SetRenderWindow(renderWindow)
-
-    # Inicjalizacja lidar_subscriber przed użyciem w warunku if
-    lidar_subscriber = LidarSubscriber(None)
-    visualizer = LidarVisualizer(renderer)
-    lidar_subscriber = LidarSubscriber(visualizer)
-
-    renderer.AddActor(visualizer.actor)
-
-    camera = renderer.GetActiveCamera()
-    camera.Zoom(0.5)
-    camera.SetPosition(0, 0, 10)
-
-    interactor_style = vtk.vtkInteractorStyleTrackballCamera()
-    renderWindowInteractor.SetInteractorStyle(interactor_style)
-
-    # Obsługa naciśniętych klawiszy
-    def key_press(obj, event):
-        key = obj.GetKeySym()
-        if key == "r":  # Resetowanie pozycji kamery do stanu początkowego
-            camera.SetPosition(0, 0, 10)
-            camera.SetFocalPoint(0, 0, 0)
-            camera.SetViewUp(0, 1, 0)
-        renderWindow.Render()
-
-    renderWindowInteractor.AddObserver("KeyPressEvent", key_press)
-
-    def updateVTK(_obj, _event): # Funkcja aktualizująca obraz VTK
-        renderWindow.Render()
-
-    renderWindowInteractor.AddObserver('TimerEvent', updateVTK)
-    renderWindowInteractor.CreateRepeatingTimer(100)
-
-    rclpy_thread = Thread(target=rclpy.spin, args=(lidar_subscriber,), daemon=True)
-    rclpy_thread.start()
-
-    print(lidar_subscriber.ConectionStatus)
-
-    renderWindow.Render()
-    renderWindowInteractor.Start()
-
-    #export chmury punktów
-    visualizer.export_to_ply()
-    
-    rclpy.shutdown()
-
-
-if __name__ == '__main__':
-    main()
