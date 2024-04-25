@@ -1,6 +1,7 @@
 import math
 import time
 import vtk
+import os
 
 class LidarVisualizer:
     def __init__(self, renderer):
@@ -122,7 +123,9 @@ class LidarVisualizer:
         
     def export_to_ply(self):
         current_time = time.strftime("%Y-%m-%d_%H-%M-%S")
-        filename = f"{current_time}_pointcloud.ply"
+        output_directory = os.path.expanduser("~/piper_output") # uzyskanie ścieżka do katalogu domowego użytkownika
+        filename = os.path.join(output_directory, f"{current_time}_pointcloud.ply")
+        os.makedirs(output_directory, exist_ok=True) # spr czy dany folder istnieje
         writer = vtk.vtkPLYWriter()
         writer.SetFileName(filename)
         writer.SetInputData(self.polyData)
