@@ -109,12 +109,14 @@ class JointStateSubscriber(Node):
         self.enkoders.update_joints(msg.name, msg.position, msg.velocity)
 
 
-#   AKCELEROMETRY
+#   AKCELEROMETR
 class ImuSubscriber(Node):
     ConnectionStatus = None  # Atrybut klasy przechowujący informacje o stanie połączenia
-
-    def __init__(self):
+    
+    def __init__(self, accelerometer):
         super().__init__('imu_subscriber')
+        self.accelerometer = accelerometer        
+                
         # Sprawdzanie, czy topic '/imu_plugin/out' jest dostępny
         akcelerometr_connected = check_connection('akcelerometr')
         if akcelerometr_connected:
@@ -124,11 +126,10 @@ class ImuSubscriber(Node):
                 '/imu_plugin/out',
                 self.listener_callback,
                 10)
-            self.get_logger().info('Utworzono połączenie z topikiem imu_plugin/out - akcelerometry')
+            self.get_logger().info('Utworzono połączenie z topikiem imu_plugin/out - akcelerometr')
         else:
-            self.get_logger().error('Nie wykryto topiku imu_plugin/out - akcelerometry')
+            self.get_logger().error('Nie wykryto topiku imu_plugin/out - akcelerometr')
 
     def listener_callback(self, msg):
-        # Logowanie lub aktualizacja danych na podstawie wiadomości otrzymanej z topicu '/imu_plugin/out'
-        self.get_logger().info(f'Received IMU data: {msg}')
-        # Możesz dodać tutaj więcej logiki do przetwarzania danych z Imu
+        # Wywołanie metody accelerometers do aktualizacji informacji na podstawie danych z /imu_plugin/out
+        self.accelerometer.update_pivot(msg.orientation)

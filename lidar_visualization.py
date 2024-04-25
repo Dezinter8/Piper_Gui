@@ -7,6 +7,7 @@ from threading import Thread
 from RosClient import LidarSubscriber, JointStateSubscriber, ImuSubscriber
 
 class LidarVisualizer:
+    
     def __init__(self, renderer):
         # Initialization as per your existing code...
         self.points = vtk.vtkPoints()
@@ -30,23 +31,39 @@ class LidarVisualizer:
         self.z_offset = 0
         self.last_update_time = time.time()
         self.added_points = {}
+        
+        self.idnr1 = 0
+        self.wheelA = []
+        self.wheelB = []
+        
+        self.idnr2 = 0
+        self.accelerometer = []
 
-    
+        
+    def update_pivot(self, orientation):
+
+        print(orientation)  # Accelerometer 
+        
+
+        
     def update_joints(self, name, position, velocity):
 
+        self.wheelA.append([self.idnr1, name[0], position[0], velocity[0]])
+        self.wheelB.append([self.idnr1, name[1], position[1], velocity[1]])
         
-        print (name[0],position[0],velocity[0])
-        print (name[1],position[1],velocity[1])
+        print(self.wheelA[self.idnr1])  # Left wheel / encoder A
+        print(self.wheelB[self.idnr1])  # Right wheel / encoder B
         
-
+        self.idnr1 += 1
+        
     def update_points(self, ranges, angle_min, angle_increment):
         # Aktualizacja punktów na podstawie danych z lidaru
         current_time = time.time()
         elapsed_time = current_time - self.last_update_time
-
-        if elapsed_time >= 0.75:  # Aktualizacja co 0.75 sekundy
+        
+        if elapsed_time >= 0.75:  # Update every 0.75 seconds
             self.last_update_time = current_time
-            self.z_offset += 0.01  # Zwiększanie wartości na osi Z o 0.1 jednostkę
+            self.z_offset += 0.01  # Increment z-offset periodically
         
         for i, range in enumerate(ranges):
             if range == float('inf') or range == 0.0:
@@ -110,7 +127,8 @@ def main(args=None):
     enkoders_visualizer = LidarVisualizer(renderer)
     joint_state_subscriber = JointStateSubscriber(enkoders_visualizer)
     
-    imu_subscriber = ImuSubscriber()
+    accelerometers_visualizer = LidarVisualizer(renderer)
+    imu_subscriber = ImuSubscriber(accelerometers_visualizer)
 
     renderer.AddActor(visualizer.actor)
 
