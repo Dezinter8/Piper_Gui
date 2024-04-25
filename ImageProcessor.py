@@ -1,6 +1,8 @@
-from PyQt5.QtGui import QImage, QPixmap
 import cv2
+import os
+from PyQt5.QtGui import QImage, QPixmap
 from datetime import datetime
+
 
 class ImageProcessor:
     def __init__(self):
@@ -15,9 +17,12 @@ class ImageProcessor:
 
     def start_recording(self):
         now = datetime.now()
-        filename = now.strftime("%Y-%m-%d_%H-%M-%S_Kamera.avi")
+        output_directory = os.path.expanduser("~/piper_output") # uzyskanie ścieżka do katalogu domowego użytkownika
+        filename = os.path.join(output_directory, now.strftime("%Y-%m-%d_%H-%M-%S_Kamera.avi"))
+        os.makedirs(output_directory, exist_ok=True) # spr czy dany folder istnieje
         self.video_writer = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc(*'MJPG'), 20, (640, 480))
         self.recording = True
+
 
     def stop_recording(self):
         if self.video_writer:
