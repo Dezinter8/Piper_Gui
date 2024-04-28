@@ -32,8 +32,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Konfiguracja GUI z widżetami.
         self.addVTKWidget()
 
-        # Utworzenie RosClient z przekazaniem funkcji obsługi obrazu i wizualizatora lidaru
-        self.ros_client = RosClient(self.lidarVisualizer, self.image_callback)
+        '''
+        Utworzenie RosClient z przekazaniem funkcji:
+            - obsługi obrazu 
+            - wizualizatora lidaru
+            - enkoderow
+            - akcelerometru
+        '''
+        self.ros_client = RosClient(self.lidarVisualizer, self.image_callback, self.enkoders,  self.accelerometer)
 
         # Timer do odświeżania wizualizacji VTK.
         self.timer = QTimer(self)
@@ -70,7 +76,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Utworzenie i skonfigurowanie wizualizera lidaru.
         self.lidarVisualizer = LidarVisualizer(self.renderer)
-
+        
+        # Utworzenie i skonfigurowanie polaczenia enkoderow.
+        self.enkoders = LidarVisualizer(self.renderer)
+        
+        # Utworzenie i skonfigurowanie poloczenia akcelerometrow.
+        self.accelerometer = LidarVisualizer(self.renderer)
+        
         # Inicjalizacja widżetu VTK.
         self.vtkWidget.Initialize()
 
@@ -83,18 +95,15 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         interactor_style = vtk.vtkInteractorStyleTrackballCamera()
         self.vtkWidget.SetInteractorStyle(interactor_style)
 
-
         # Dodanie widżetu VTK bezpośrednio do vtk_frame
         layout = QtWidgets.QVBoxLayout(self.vtk_frame)
         layout.addWidget(self.vtkWidget)
         layout.setContentsMargins(0, 0, 0, 0)
         self.vtk_frame.setLayout(layout)
 
-    
     def updateVTK(self):
         # Renderowanie sceny VTK.
         self.vtkWidget.GetRenderWindow().Render()
-
 
     def resetCamera(self):
         if self.renderer:
