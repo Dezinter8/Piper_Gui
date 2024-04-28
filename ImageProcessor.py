@@ -16,7 +16,7 @@ class ImageProcessor:
     def start_recording(self):
         now = datetime.now()
         filename = now.strftime("%Y-%m-%d_%H-%M-%S_Kamera.avi")
-        self.video_writer = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc(*'MJPG'), 30, (640, 480))
+        self.video_writer = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc(*'MJPG'), 20, (640, 480))
         self.recording = True
 
     def stop_recording(self):
@@ -28,3 +28,4 @@ class ImageProcessor:
     def write_frame(self, cv_img):
         if self.recording and self.video_writer:
             self.video_writer.write(cv_img)
+

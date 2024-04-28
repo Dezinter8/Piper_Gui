@@ -1,120 +1,201 @@
 import os
 
 # Sprawdzenie, czy sesja jest uruchomiona na Waylandzie
-if os.getenv('XDG_SESSION_TYPE') == 'xcb':
-    # Ustawienie platformy Qt na 'xcb'
+if os.getenv('XDG_SESSION_TYPE') == 'wayland':
+    # Ustawienie platformy Qt na 'wayland'
     os.environ['QT_QPA_PLATFORM'] = 'xcb'
 
 import sys
-import subprocess
+import numpy as np
+import cv2
+from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
+import vtk
+
 from PyQt5 import QtWidgets, QtCore, uic
-from PyQt5.QtCore import QTimer, QThread, pyqtSignal, QProcess
+from PyQt5.QtCore import QTimer
+
 from Ui.MainWindow import Ui_MainWindow
 from RosClient import RosClient
 from ImageProcessor import ImageProcessor
+from lidar_visualization import LidarVisualizer
+
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, *args, obj=None, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setupUi(self)
+        # self.lidarVisualizer = LidarVisualizer(self.renderer)
 
-        self.ros_client = RosClient()
-        self.image_processor = ImageProcessor()
+        self.image_format = None 
+        self.image_processor = ImageProcessor()  # Asumując, że ImageProcessor został już zaimportowany.
 
-        # Połączenie sygnału odbioru obrazu ROS z funkcją przetwarzania
-        self.ros_client.image_received.connect(self.image_callback)
+        # Konfiguracja GUI z widżetami.
+        self.addVTKWidget()
 
-        # Ustawienie QLabel do wyświetlania obrazów
+        '''
+        Utworzenie RosClient z przekazaniem funkcji:
+            - obsługi obrazu 
+            - wizualizatora lidaru
+            - enkoderow
+            - akcelerometru
+        '''
+        self.ros_client = RosClient(self.lidarVisualizer, self.image_callback, self.enkoders,  self.accelerometer)
+
+        # Timer do odświeżania wizualizacji VTK.
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.updateVTK)
+        self.timer.start(10)
+
+        # Setup QLabel for displaying images
         self.image_label = QtWidgets.QLabel(self.camera_frame)
         self.image_label.resize(self.camera_frame.size())
 
-        # Ustawienie QTimer do regularnej aktualizacji
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.ros_client.spin_once)
-        self.timer.start(10)
-
-        # QTimer do opóźnionego zmiany rozmiaru
+        # QTimer for delayed resizing
         self.resize_timer = QTimer(self)
-        self.resize_timer.setSingleShot(True)  # Zapewnia, że timer uruchamia się tylko raz podczas zdarzenia zmiany rozmiaru
+        self.resize_timer.setSingleShot(True)  # Ensure timer runs only once per resize event
         self.resize_timer.timeout.connect(self.resize_image_label)
+
 
         self.record_button = self.record_button
         self.record_button.clicked.connect(self.toggle_camera)
 
-        self.vizualization_button.clicked.connect(self.openVTK) # Połączenie przycisku z metodą openVTK
-        self.vizualization_button.setText("Włącz Wizualizacje Lidaru")
+        self.reset_vtk_view_button = self.reset_vtk_view_button
+        self.reset_vtk_view_button.clicked.connect(self.resetCamera) # Połączenie przycisku z metodą openVTK
 
-        self.vtk_process = None
-        self.program_running = False
 
-    def openVTK(self): # Metoda obsługująca uruchamianie i zatrzymywanie wizualizacji
-        if not self.program_running:
-            self.startVTK()
-        else:
-            self.stopVTK()
-    
-    def startVTK(self): 
-        # Rozpoczęcie procesu wizualizacji Lidaru
-        self.program_running = True  # Ustawienie flagi wskazującej, że program wizualizacji jest uruchomiony
-        self.vizualization_button.setText("Wyłącz Wizualizacje Lidaru")  # Zmiana tekstu przycisku na "Wyłącz Wizualizacje Lidaru"
-        self.vtk_process = QProcess()  # Utworzenie obiektu procesu QProcess
-        self.vtk_process.finished.connect(self.vtk_finished)  # Połączenie sygnału zakończenia procesu z metodą vtk_finished
-        self.vtk_process.start("python3 lidar_visualization.py")  # Uruchomienie procesu wizualizacji Lidaru, używając polecenia 'python3 lidar_visualization.py'
+    ########### VTK #############
 
-    def stopVTK(self): # Metoda zatrzymująca proces wizualizacji
-        if self.vtk_process:
-            self.vtk_process.kill()
-            self.program_running = False
-            self.vizualization_button.setText("Włącz Wizualizacje Lidaru")
+    def addVTKWidget(self):
+        # Konfiguracja widgetu VTK do wyświetlania wizualizacji.
+        self.vtkWidget = QVTKRenderWindowInteractor(self.vtk_frame)
+        self.vtkWidget.setMinimumSize(100, 100)
 
-    def handle_key_pressed(self, key):
-        # Metoda obsługująca naciśnięcie klawisza podczas działania wizualizacji
-        print("Naciśnięty klawisz:", key)  
+        # Utworzenie renderera VTK.
+        self.renderer = vtk.vtkRenderer()
+        self.vtkWidget.GetRenderWindow().AddRenderer(self.renderer)
 
-    def vtk_finished(self, exitCode, exitStatus):
-        # Metoda wywoływana po zakończeniu procesu wizualizacji
-        self.program_running = False
-        self.vizualization_button.setText("Włącz Wizualizacje Lidaru")      
+        # Utworzenie i skonfigurowanie wizualizera lidaru.
+        self.lidarVisualizer = LidarVisualizer(self.renderer)
+        
+        # Utworzenie i skonfigurowanie polaczenia enkoderow.
+        self.enkoders = LidarVisualizer(self.renderer)
+        
+        # Utworzenie i skonfigurowanie poloczenia akcelerometrow.
+        self.accelerometer = LidarVisualizer(self.renderer)
+        
+        # Inicjalizacja widżetu VTK.
+        self.vtkWidget.Initialize()
+
+        # Ustawienia kamery w scenie VTK.
+        camera = self.renderer.GetActiveCamera()
+        camera.Zoom(0.5)
+        camera.SetPosition(0, 0, 5)
+
+        # Ustawienie stylu interakcji na TrackballCamera.
+        interactor_style = vtk.vtkInteractorStyleTrackballCamera()
+        self.vtkWidget.SetInteractorStyle(interactor_style)
+
+        # Dodanie widżetu VTK bezpośrednio do vtk_frame
+        layout = QtWidgets.QVBoxLayout(self.vtk_frame)
+        layout.addWidget(self.vtkWidget)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.vtk_frame.setLayout(layout)
+
+    def updateVTK(self):
+        # Renderowanie sceny VTK.
+        self.vtkWidget.GetRenderWindow().Render()
+
+    def resetCamera(self):
+        if self.renderer:
+            camera = self.renderer.GetActiveCamera()
+            camera.SetPosition(0, 0, 2)
+            camera.SetFocalPoint(0, 0, 0)
+            camera.SetViewUp(0, 1, 0)
+            self.vtkWidget.GetRenderWindow().Render()
+
+
+
+    ########### CAMERA ###########
 
     def resizeEvent(self, event):
         super(MainWindow, self).resizeEvent(event)
-        # Uruchomienie lub ponowne uruchomienie timera zmiany rozmiaru z opóźnieniem 1...
-        # Zrobione, ponieważ w przeciwnym razie aplikacja uruchomi się z małą kamerą, dopóki nie zmienisz rozmiaru ręcznie
+        # Start or restart the resize timer with a delay of 1...
+        # Made because otherwise app will launch with small camera until you resize manually
         self.resize_timer.start(1)
 
     def resize_image_label(self):
-        # Zmiana rozmiaru image_label po opóźnieniu
+        # Resize image_label after delay
         self.image_label.resize(self.camera_frame.size())
 
+
     def image_callback(self, msg):
-        # Konwersja obrazu ROS na obiekt obrazu OpenCV
-        cv_image = self.ros_client.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
-        # Konwersja obrazu OpenCV na obiekt QPixmap i wyświetlenie
+        # Dekompresja obrazu
+        np_arr = np.frombuffer(msg.data, np.uint8)
+        cv_image = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
+        # Ustawienie formatu obrazu, jeśli nie jest jeszcze ustawiony
+        if self.image_format is None:
+            self.image_format = cv_image.shape[2]
+
+        # Konwersja obrazu do QImage i wyświetlenie
         qt_image = self.image_processor.convert_cv_to_pixmap(cv_image)
         self.display_image(qt_image)
         self.image_processor.write_frame(cv_image)
 
-    # Metoda do wyświetlania obrazu na etykiecie obrazu (QLabel)
-    # pixmap: obiekt QPixmap zawierający obraz do wyświetlenia
+
     def display_image(self, pixmap):
         self.image_label.setPixmap(pixmap.scaled(self.image_label.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation))
 
     def toggle_camera(self):
-        # Metoda do przełączania nagrywania kamery między włączonym i wyłączonym stanem
         if not self.image_processor.recording:
-            # Jeśli nagrywanie nie jest włączone, uruchom nagrywanie i zmień tekst przycisku na "Stop Recording"
             self.image_processor.start_recording()
             self.record_button.setText("Stop Recording")
         else:
-            # Jeśli nagrywanie jest włączone, zatrzymaj nagrywanie i zmień tekst przycisku na "Start Recording"
             self.image_processor.stop_recording()
             self.record_button.setText("Start Recording")
 
+
+
+
+
+
+
+    def keyPressEvent(self, event):
+        super(MainWindow, self).keyPressEvent(event)  # Przekaż zdarzenie do bazowej klasy, jeśli nie jest obsługiwane tutaj
+        
+        if event.key() == QtCore.Qt.Key_R:  # Sprawdź, czy naciśnięto klawisz 'r'
+            self.resetCamera()
+
+
     def closeEvent(self, event):
-        # Metoda wywoływana przy zamykaniu okna głównego aplikacji
-        # Zatrzymaj nagrywanie obrazu przed zamknięciem aplikacji
         self.image_processor.stop_recording()
+        #export chmury punktów
+        self.lidarVisualizer.export_to_ply()
+
+        # Zatrzymanie timera
+        if self.timer.isActive():
+            self.timer.stop()
+
+        # Zamknięcie i czyszczenie klienta ROS
+        self.ros_client.shutdown()
+
+        # Czyszczenie widżetów VTK
+        self.vtkWidget.GetRenderWindow().Finalize()  # Zalecane dla czyszczenia zasobów VTK
+        self.renderer.RemoveAllViewProps()  # Usunięcie wszystkich obiektów z renderera
+        self.vtkWidget = None
+
+        # Usunięcie dynamicznie utworzonych widżetów
+        for widget in self.findChildren(QtWidgets.QWidget):
+            widget.deleteLater()
+
+        # Wywołanie metody bazowej
         super().closeEvent(event)
+
+
+
+
+
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
