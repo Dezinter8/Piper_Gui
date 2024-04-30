@@ -10,6 +10,8 @@ import numpy as np
 import cv2
 from vtkmodules.qt.QVTKRenderWindowInteractor import QVTKRenderWindowInteractor
 import vtk
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 
 from PyQt5 import QtWidgets, QtCore, uic
@@ -32,6 +34,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Konfiguracja GUI z widżetami.
         self.addVTKWidget()
+        # Inicjalizacja ramki na wykres matplotlib
+        self.init_matplotlib()
 
         '''
         Utworzenie RosClient z przekazaniem funkcji:
@@ -106,6 +110,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Renderowanie sceny VTK.
         self.vtkWidget.GetRenderWindow().Render()
 
+        # Aktualizacja wykresu matplotlib
+        lidar_points = self.lidarVisualizer.get_lidar_points()
+        self.ax.clear()
+        if lidar_points:
+            lidar_points = np.array(lidar_points)
+            self.ax.scatter(lidar_points[:, 0], lidar_points[:, 1], color='r', s=5)  # Wyświetlenie punktów lidaru
+        self.canvas.draw()
+
     def resetCamera(self):
         if self.renderer:
             camera = self.renderer.GetActiveCamera()
@@ -160,6 +172,35 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
 
+
+
+
+    ########## REALTIME ##########
+
+    def init_matplotlib(self):
+        # Tworzenie obiektu figury Matplotlib
+        self.figure = plt.figure()
+
+        # Tworzenie obiektu Canvas z wykorzystaniem FigureCanvas
+        self.canvas = FigureCanvas(self.figure)
+
+        # Dodawanie Canvas do ramki
+        layout = QtWidgets.QVBoxLayout(self.realtime_frame)
+        layout.addWidget(self.canvas)
+
+        # Tworzenie przykładowego wykresu
+        self.ax = self.figure.add_subplot(111)
+        self.ax.set_aspect('equal', adjustable='box')  # Ustawienie proporcji 1:1
+        self.ax.plot([1, 2, 3, 4], [10, 20, 25, 30])  # Przykładowy wykres
+
+        # Odświeżanie wyświetlania
+        self.canvas.draw()
+
+
+
+
+
+    ############# APP ############
 
     def keyPressEvent(self, event):
         super(MainWindow, self).keyPressEvent(event)  # Przekaż zdarzenie do bazowej klasy, jeśli nie jest obsługiwane tutaj

@@ -38,14 +38,15 @@ class LidarVisualizer:
 
         # Inicjalizacja zmiennej przechowującej czas ostatniej aktualizacji
         self.last_update_time = time.time()
-        
-        # Lista przechowujca pozycje punktow
-        self.added_points = {}
-        
+                
         # Listy przechowujce dane z enkoderow
         self.idnr1 = 0
         self.wheelA = []    
         self.wheelB = []
+
+        # Lista punktów lidaru do wyświetlenia w matplotlib
+        self.lidar_points = []
+
 
     # Akcelerometry
     def update_pivot(self, orientation):
@@ -77,6 +78,10 @@ class LidarVisualizer:
         if elapsed_time >= 0.5:  # Aktualizacja co 0.75 sekundy
             self.last_update_time = current_time
             self.z_offset += 0.01  # Zwiększanie wartości na osi Z o 0.1 jednostkę
+
+            # Czyszczenie listy punktów lidaru
+            self.lidar_points.clear()
+
         
         for i, range in enumerate(ranges):
             if range == float('inf') or range == 0.0:
@@ -86,28 +91,26 @@ class LidarVisualizer:
             y = range * math.cos(angle)  
             z = - self.z_offset
             
-            # Sprawdzenie, czy punkt o tych współrzędnych już istnieje
-            point_key = (x, y, z)
-            if point_key in self.added_points:
-                # Aktualizacja koloru punktu
-                self.colors.SetTuple(self.added_points[point_key], [0, 0, 255])  # Aktualizujemy kolor na niebieski
-            else:
-                # Dodanie nowego punktu
-                pt_id = self.points.InsertNextPoint([x, y, z])
-                self.vertices.InsertNextCell(1)
-                self.vertices.InsertCellPoint(pt_id)
+            # Dodanie nowego punktu
+            pt_id = self.points.InsertNextPoint([x, y, z])
+            self.vertices.InsertNextCell(1)
+            self.vertices.InsertCellPoint(pt_id)
 
-                # Wybór koloru punktu na podstawie kąta
-                if i == 0:
-                    self.colors.InsertNextTuple([0, 255, 0])  # Zielony kolor dla punktu o kącie 0 stopni
-                elif i == 167:
-                    self.colors.InsertNextTuple([255, 255, 0])  # Żółty kolor dla punktu o kącie 90 stopni
-                elif i == 333:
-                    self.colors.InsertNextTuple([0, 255, 255])  # Cyan kolor dla punktu o kącie 180 stopni
-                elif i == 500:
-                    self.colors.InsertNextTuple([255, 0, 255])  # Magenta kolor dla punktu o kącie 270 stopni
-                else:
-                    self.colors.InsertNextTuple([255, 0, 0])  # Domyślny kolor czerwony
+            # Dodanie punktu do listy punktów lidaru
+            self.lidar_points.append([x, y])
+
+
+            # Wybór koloru punktu na podstawie kąta
+            if i == 0:
+                self.colors.InsertNextTuple([0, 255, 0])  # Zielony kolor dla punktu o kącie 0 stopni
+            elif i == 167:
+                self.colors.InsertNextTuple([255, 255, 0])  # Żółty kolor dla punktu o kącie 90 stopni
+            elif i == 333:
+                self.colors.InsertNextTuple([0, 255, 255])  # Cyan kolor dla punktu o kącie 180 stopni
+            elif i == 500:
+                self.colors.InsertNextTuple([255, 0, 255])  # Magenta kolor dla punktu o kącie 270 stopni
+            else:
+                self.colors.InsertNextTuple([255, 0, 0])  # Domyślny kolor czerwony
         
         # Oznaczanie zmian w danych, aby odświeżyć wizualizację
         self.points.Modified()
@@ -125,3 +128,6 @@ class LidarVisualizer:
         writer.SetColorModeToDefault()
         writer.SetArrayName("Colors")
         writer.Write()
+
+    def get_lidar_points(self):
+        return self.lidar_points
