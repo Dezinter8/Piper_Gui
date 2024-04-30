@@ -20,6 +20,10 @@ class LidarVisualizer:
 
         # Powiązanie tablicy kolorów z danymi punktowymi
         self.polyData.GetPointData().SetScalars(self.colors)
+        
+        # Ustawienie koloru tła
+        self.renderer.SetBackground(0.8, 0.8, 0.8) 
+
 
         # Mapper i aktor do renderowania punktów
         self.mapper = vtk.vtkPolyDataMapper()
@@ -30,7 +34,7 @@ class LidarVisualizer:
         # Ustawienia wyglądu punktów
         self.actor.GetProperty().SetPointSize(5)
         self.actor.GetProperty().SetColor(1.0, 0.0, 0.0)  # Czerwone punkty
-
+        
         self.renderer.AddActor(self.actor)
 
         # Inicjalizacja zmiennej przechowującej offset na osi Z
@@ -55,8 +59,6 @@ class LidarVisualizer:
 
     # Enkodery
     def update_joints(self, name, position, velocity):
-
-
         self.wheelA.append([self.idnr1, name[0], position[0], velocity[0]])
         self.wheelB.append([self.idnr1, name[1], position[1], velocity[1]])
         
