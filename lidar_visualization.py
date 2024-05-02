@@ -69,7 +69,7 @@ class LidarVisualizer:
         self.idnr1 += 1
         
 
-    def update_points(self, ranges, angle_min, angle_increment):        
+    def update_points(self, ranges, intensities, angle_min, angle_increment):        
         # Aktualizacja punktów na podstawie danych z lidaru
         """self.points.Reset()
         self.vertices.Reset()
@@ -86,8 +86,8 @@ class LidarVisualizer:
             self.lidar_points.clear()
 
         
-        for i, range in enumerate(ranges):
-            if range == float('inf') or range == 0.0:
+        for i, (range, intensity) in enumerate(zip(ranges, intensities)):
+            if range == float('nan') or range == 0.0:
                 continue  # Pomijanie nieprawidłowych danych
             angle = angle_min + i * angle_increment
             x = range * math.sin(angle)  
@@ -103,22 +103,35 @@ class LidarVisualizer:
             self.lidar_points.append([x, y])
 
 
-            # Wybór koloru punktu na podstawie kąta
-            if i >= 0 and i <= 10: # i == 0
-                self.colors.InsertNextTuple([0, 255, 0])  # Zielony kolor dla punktu o kącie 360 stopni
-            elif i >= 162 and i <= 172: # i == 167
-                self.colors.InsertNextTuple([255, 0, 255])  # Magenta kolor dla punktu o kącie 270 stopni
-            elif i >= 328 and i <= 338: # i == 333
-                self.colors.InsertNextTuple([0, 255, 255])  # Cyan kolor dla punktu o kącie 180 stopni
-            elif i >= 495 and i <= 505: # i == 500
-                self.colors.InsertNextTuple([255, 255, 0])  # Żółty kolor dla punktu o kącie 90 stopni
-            else:
-                self.colors.InsertNextTuple([255, 0, 0])  # Domyślny kolor czerwony
+            # # Wybór koloru punktu na podstawie kąta
+            # if i >= 0 and i <= 10: # i == 0
+            #     self.colors.InsertNextTuple([0, 255, 0])  # Zielony kolor dla punktu o kącie 360 stopni
+            # elif i >= 162 and i <= 172: # i == 167
+            #     self.colors.InsertNextTuple([255, 0, 255])  # Magenta kolor dla punktu o kącie 270 stopni
+            # elif i >= 328 and i <= 338: # i == 333
+            #     self.colors.InsertNextTuple([0, 255, 255])  # Cyan kolor dla punktu o kącie 180 stopni
+            # elif i >= 495 and i <= 505: # i == 500
+            #     self.colors.InsertNextTuple([255, 255, 0])  # Żółty kolor dla punktu o kącie 90 stopni
+            # else:
+            #     self.colors.InsertNextTuple([255, 0, 0])  # Domyślny kolor czerwony
+
+            # Kolorowanie punktów na podstawie intensywności
+            color = self.get_color_from_intensity(intensity)
+            self.colors.InsertNextTuple(color)
+
         
         # Oznaczanie zmian w danych, aby odświeżyć wizualizację
         self.points.Modified()
         self.vertices.Modified()
         self.polyData.Modified()
+
+    def get_color_from_intensity(self, intensity):
+        if math.isnan(intensity):  # Sprawdzenie czy intensywność jest NaN
+            return [0, 0, 0]
+        else:
+            color_value = int(intensity)  # Skalowanie intensywności do wartości koloru (0-255)
+            color = [color_value, 0, 0]  # Ustawienie RGB koloru
+            return color
 
         
     def export_to_ply(self):
