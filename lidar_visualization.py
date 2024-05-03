@@ -35,11 +35,11 @@ class LidarVisualizer:
         # Ustawienia wyglądu punktów
         self.actor.GetProperty().SetPointSize(5)
         self.actor.GetProperty().SetColor(1.0, 0.0, 0.0)  # Czerwone punkty
-        
+
         self.renderer.AddActor(self.actor)
 
         # Inicjalizacja zmiennej przechowującej offset na osi Z
-        self.z_offset = 0
+        self.y_offset = 0
 
         # Inicjalizacja zmiennej przechowującej czas ostatniej aktualizacji
         self.last_update_time = time.time()
@@ -52,11 +52,15 @@ class LidarVisualizer:
         # Lista punktów lidaru do wyświetlenia w matplotlib
         self.lidar_points = []
 
+        # Dodanie axes do ułatwienia pracy
+        self.axesActor = vtk.vtkAxesActor()
+        self.axesActor.SetTotalLength(1, 1, 1)  # Ustawia długość każdej osi
+        self.renderer.AddActor(self.axesActor)
 
     # Akcelerometry
     def update_pivot(self, orientation):
         # Wyswietlanie danych z topica akcelerometrow
-        print(orientation)  # Accelerometer 
+        print(orientation)  # Accelerometer
 
     # Enkodery
     def update_joints(self, name, position, velocity):
@@ -67,7 +71,6 @@ class LidarVisualizer:
         print(self.wheelB[self.idnr1])  # Prawy enkoder - B
         
         self.idnr1 += 1
-        
 
     def update_points(self, ranges, intensities, angle_min, angle_increment):        
         # Aktualizacja punktów na podstawie danych z lidaru
@@ -80,7 +83,7 @@ class LidarVisualizer:
 
         if elapsed_time >= 0.5:  # Aktualizacja co 0.75 sekundy
             self.last_update_time = current_time
-            self.z_offset += 0.01  # Zwiększanie wartości na osi Z o 0.1 jednostkę
+            self.y_offset += 0.01  # Zwiększanie wartości na osi Z o 0.1 jednostkę
 
             # Czyszczenie listy punktów lidaru
             self.lidar_points.clear()
@@ -88,11 +91,11 @@ class LidarVisualizer:
         
         for i, (range, intensity) in enumerate(zip(ranges, intensities)):
             if range == float('nan') or range == 0.0:
-                continue  # Pomijanie nieprawidłowych danych
+                continue            # Pomijanie nieprawidłowych danych
             angle = angle_min + i * angle_increment
-            x = range * math.sin(angle)  
-            y = range * math.cos(angle)  
-            z = - self.z_offset
+            x = (range * math.sin(angle)) * -1
+            y = self.y_offset       #żeby zmienić kierunek na minus y, należy również usunąć * -1 z x, żeby zachować poprawne kierunki
+            z = (range * math.cos(angle)) * -1
             
             # Dodanie nowego punktu
             pt_id = self.points.InsertNextPoint([x, y, z])
@@ -100,7 +103,7 @@ class LidarVisualizer:
             self.vertices.InsertCellPoint(pt_id)
 
             # Dodanie punktu do listy punktów lidaru
-            self.lidar_points.append([x, y])
+            self.lidar_points.append([x, z])
 
 
             # # Wybór koloru punktu na podstawie kąta

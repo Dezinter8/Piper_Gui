@@ -93,8 +93,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Ustawienia kamery w scenie VTK.
         camera = self.renderer.GetActiveCamera()
-        camera.Zoom(0.5)
-        camera.SetPosition(0, 0, 5)
+        camera.Zoom(2)
+        camera.SetPosition(5, -5, 3)
+        camera.SetViewUp(0, 0, 1)
 
         # Ustawienie stylu interakcji na TrackballCamera.
         interactor_style = vtk.vtkInteractorStyleTrackballCamera()
