@@ -46,7 +46,7 @@ class RosClient(QObject):
             #akcelerometr
             self.subscription = self.node.create_subscription(
                 Imu, '/imu_plugin/out', 
-                lambda msg: self.accelerometer.update_pivot(msg.orientation), 
+                lambda msg: self.accelerometer.update_pivot(msg), 
                 100)
             
             while rclpy.ok() and self._is_running.is_set():

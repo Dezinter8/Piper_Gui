@@ -58,9 +58,20 @@ class LidarVisualizer:
         self.renderer.AddActor(self.axesActor)
 
     # Akcelerometry
-    def update_pivot(self, orientation):
-        # Wyswietlanie danych z topica akcelerometrow
-        print(orientation)  # Accelerometer
+    def update_pivot(self, msg):
+        linear_acceleration = msg.linear_acceleration
+        linear_acc_x = '{:.8f}'.format(linear_acceleration.x)
+        linear_acc_y = '{:.8f}'.format(linear_acceleration.y)
+        linear_acc_z = '{:.8f}'.format(linear_acceleration.z)
+        print(f'Akcelerometr: x={linear_acc_x}, y={linear_acc_y}, z={linear_acc_z}')
+
+        angular_velocity = msg.angular_velocity
+        angular_vel_x = '{:.8f}'.format(angular_velocity.x)
+        angular_vel_y = '{:.8f}'.format(angular_velocity.y)
+        angular_vel_z = '{:.8f}'.format(angular_velocity.z)
+        print(f'Żyroskop: x={angular_vel_x}, y={angular_vel_y}, z={angular_vel_z}')
+
+        print("\n")
 
     # Enkodery
     def update_joints(self, name, position, velocity):
