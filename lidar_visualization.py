@@ -90,7 +90,7 @@ class LidarVisualizer:
 
         
         for i, (range, intensity) in enumerate(zip(ranges, intensities)):
-            if range == float('nan') or range == 0.0:
+            if range == float('nan') or range == 0.0 or range == float('inf'):
                 continue            # Pomijanie nieprawidłowych danych
             angle = angle_min + i * angle_increment
             x = (range * math.sin(angle)) * -1
