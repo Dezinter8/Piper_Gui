@@ -671,9 +671,9 @@
                <colorrole role="Window">
                 <brush brushstyle="SolidPattern">
                  <color alpha="255">
-                  <red>255</red>
-                  <green>255</green>
-                  <blue>255</blue>
+                  <red>153</red>
+                  <green>193</green>
+                  <blue>241</blue>
                  </color>
                 </brush>
                </colorrole>
@@ -691,9 +691,9 @@
                <colorrole role="Window">
                 <brush brushstyle="SolidPattern">
                  <color alpha="255">
-                  <red>255</red>
-                  <green>255</green>
-                  <blue>255</blue>
+                  <red>153</red>
+                  <green>193</green>
+                  <blue>241</blue>
                  </color>
                 </brush>
                </colorrole>
@@ -702,18 +702,18 @@
                <colorrole role="Base">
                 <brush brushstyle="SolidPattern">
                  <color alpha="255">
-                  <red>255</red>
-                  <green>255</green>
-                  <blue>255</blue>
+                  <red>153</red>
+                  <green>193</green>
+                  <blue>241</blue>
                  </color>
                 </brush>
                </colorrole>
                <colorrole role="Window">
                 <brush brushstyle="SolidPattern">
                  <color alpha="255">
-                  <red>255</red>
-                  <green>255</green>
-                  <blue>255</blue>
+                  <red>153</red>
+                  <green>193</green>
+                  <blue>241</blue>
                  </color>
                 </brush>
                </colorrole>
@@ -724,19 +724,13 @@
              <enum>Qt::LeftToRight</enum>
             </property>
             <property name="autoFillBackground">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="text">
-             <string/>
+             <string>Frame_Test</string>
             </property>
             <property name="textFormat">
              <enum>Qt::RichText</enum>
-            </property>
-            <property name="pixmap">
-             <pixmap resource="../resources.qrc">:/Images/Ui/nodata.jpeg</pixmap>
-            </property>
-            <property name="scaledContents">
-             <bool>false</bool>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -784,8 +778,6 @@
    </property>
   </widget>
  </widget>
- <resources>
-  <include location="../resources.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
