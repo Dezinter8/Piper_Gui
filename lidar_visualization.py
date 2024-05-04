@@ -60,28 +60,25 @@ class LidarVisualizer:
     # Akcelerometry
     def update_pivot(self, msg):
         linear_acceleration = msg.linear_acceleration
-        linear_acc_x = '{:.8f}'.format(linear_acceleration.x)
-        linear_acc_y = '{:.8f}'.format(linear_acceleration.y)
-        linear_acc_z = '{:.8f}'.format(linear_acceleration.z)
-        print(f'Akcelerometr: x={linear_acc_x}, y={linear_acc_y}, z={linear_acc_z}')
+        print(f'Akcelerometr: x={linear_acceleration.x}, y={linear_acceleration.y}, z={linear_acceleration.z}')
 
         angular_velocity = msg.angular_velocity
-        angular_vel_x = '{:.8f}'.format(angular_velocity.x)
-        angular_vel_y = '{:.8f}'.format(angular_velocity.y)
-        angular_vel_z = '{:.8f}'.format(angular_velocity.z)
-        print(f'Żyroskop: x={angular_vel_x}, y={angular_vel_y}, z={angular_vel_z}')
+        print(f'Żyroskop: x={angular_velocity.x}, y={angular_velocity.y}, z={angular_velocity.z}')
 
         print("\n")
 
+
     # Enkodery
     def update_joints(self, name, position, velocity):
-        self.wheelA.append([self.idnr1, name[0], position[0], velocity[0]])
-        self.wheelB.append([self.idnr1, name[1], position[1], velocity[1]])
+        # self.wheelA.append([self.idnr1, name[0], position[0], velocity[0]])
+        # self.wheelB.append([self.idnr1, name[1], position[1], velocity[1]])
         
-        print(self.wheelA[self.idnr1])  # Lewy enkoder - A
-        print(self.wheelB[self.idnr1])  # Prawy enkoder - B
+        # print(self.wheelA[self.idnr1])  # Lewy enkoder - A
+        # print(self.wheelB[self.idnr1])  # Prawy enkoder - B
         
-        self.idnr1 += 1
+        # self.idnr1 += 1
+
+        pass
 
     def update_points(self, ranges, intensities, angle_min, angle_increment):        
         # Aktualizacja punktów na podstawie danych z lidaru
@@ -115,19 +112,6 @@ class LidarVisualizer:
 
             # Dodanie punktu do listy punktów lidaru
             self.lidar_points.append([x, z])
-
-
-            # # Wybór koloru punktu na podstawie kąta
-            # if i >= 0 and i <= 10: # i == 0
-            #     self.colors.InsertNextTuple([0, 255, 0])  # Zielony kolor dla punktu o kącie 360 stopni
-            # elif i >= 162 and i <= 172: # i == 167
-            #     self.colors.InsertNextTuple([255, 0, 255])  # Magenta kolor dla punktu o kącie 270 stopni
-            # elif i >= 328 and i <= 338: # i == 333
-            #     self.colors.InsertNextTuple([0, 255, 255])  # Cyan kolor dla punktu o kącie 180 stopni
-            # elif i >= 495 and i <= 505: # i == 500
-            #     self.colors.InsertNextTuple([255, 255, 0])  # Żółty kolor dla punktu o kącie 90 stopni
-            # else:
-            #     self.colors.InsertNextTuple([255, 0, 0])  # Domyślny kolor czerwony
 
             # Kolorowanie punktów na podstawie intensywności
             color = self.get_color_from_intensity(intensity)

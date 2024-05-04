@@ -5,12 +5,12 @@ from sensor_msgs.msg import CompressedImage , LaserScan, JointState, Imu
 from PyQt5.QtCore import QObject
 
 class RosClient(QObject):
-    def __init__(self, visualizer, image_callback, enkoders, accelerometer):
+    def __init__(self, visualizer, image_callback, enkoders, imu):
         super().__init__()
         self.visualizer = visualizer
         self.image_callback = image_callback
         self.enkoders = enkoders
-        self.accelerometer = accelerometer 
+        self.imu = imu 
 
         self._is_running = Event()
         self._is_running.set()
@@ -46,7 +46,7 @@ class RosClient(QObject):
             #akcelerometr
             self.subscription = self.node.create_subscription(
                 Imu, '/imu_plugin/out', 
-                lambda msg: self.accelerometer.update_pivot(msg), 
+                lambda msg: self.imu.update_pivot(msg), 
                 100)
             
             while rclpy.ok() and self._is_running.is_set():
