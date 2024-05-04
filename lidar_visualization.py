@@ -42,14 +42,101 @@ class LidarVisualizer:
         # Lista punktów lidaru do wyświetlenia w matplotlib
         # self.lidar_points = []
 
-        # Dodanie axes do ułatwienia pracy
-        self.axesActor = vtk.vtkAxesActor()
-        self.axesActor.SetTotalLength(1, 1, 1)  # Ustawia długość każdej osi
-        self.renderer.AddActor(self.axesActor)
+        # Inicjalizacja zmiennej przechowującej offset na osi Z
+        self.z_offset = 0
+
+        # Inicjalizacja zmiennej przechowującej czas ostatniej aktualizacji
+        self.last_update_time = time.time()
+        
+        # Inicjalizacja pozycji poprzednich enkoderów
+        self.prev_positions = [0, 0]  # Zakładamy, że enkodery 1 i 2 kontrolują pozycję kół
+
+        
+        # Lista przechowujaca pozycje punktow
+        self.added_points = {}
+        
+        # Listy przechowujace dane z enkoderow
+        
+        self.wheelA = 0   
+        self.wheelB = 0
+        
+        self.wheelA_old = 0    
+        self.wheelB_old = 0
+        
+        self.toggle_update = True
+        
+    # Akcelerometry
+    def update_pivot(self, orientation):
+        # Wyswietlanie danych z topica akcelerometrow
+        # print(orientation)  # Accelerometer 
+        pass
+
+    # Enkodery
+    def update_joints(self, name, position, velocity):
+
+        """
+        wheels joints ids:
+        0. back_left_wheel_joint
+        1. front_left_wheel_joint
+        2. front_right_wheel_joint
+        3. back_right_wheel_joint
+        """
+        
+        current_time_wheel = time.time()
+        elapsed_time_wheel = current_time_wheel - self.last_update_time
 
 
+        if elapsed_time_wheel >= 0.75:  # Aktualizacja co 0.5 sekundy
+            self.last_update_time = current_time_wheel
+            
+            if self.toggle_update:
+                # Aktualizacja bieżących wartości
+                self.wheelA = round(position[1])
+                self.wheelB = round(position[2])
+                print ('New data', name[1], self.wheelA, name[2], self.wheelB )
+                
+            else:
+                # Aktualizacja starych wartości
+                self.wheelA_old = round(position[1])
+                self.wheelB_old = round(position[2])
+                print ('OLD DATA', name[1], self.wheelA, name[2], self.wheelB )
+                
+ 
+            # Przełączanie flagi
+            self.toggle_update = not self.toggle_update
 
+            
+    def update_points(self, ranges, angle_min, angle_increment):        
+        # Aktualizacja punktów na podstawie danych z lidaru
+        """self.points.Reset()
+        self.vertices.Reset()
+        self.colors.Reset()"""
 
+        current_time = time.time()
+        elapsed_time = current_time - self.last_update_time
+
+        if elapsed_time >= 0.75:  # Aktualizacja co 0.75 sekundy
+            self.last_update_time = current_time
+            self.z_offset += 0.01  # Zwiększanie wartości na osi Z o 0.1 jednostkę
+        
+        for i, range in enumerate(ranges):
+            if range == float('inf') or range == 0.0:
+                continue  # Pomijanie nieprawidłowych danych
+            angle = angle_min + i * angle_increment
+            x = range * math.sin(angle)  
+            y = range * math.cos(angle)  
+            z = - self.z_offset
+            
+            # Sprawdzenie, czy punkt o tych współrzędnych już istnieje
+            point_key = (x, y, z)
+            if point_key in self.added_points:
+                # Aktualizacja koloru punktu
+                self.colors.SetTuple(self.added_points[point_key], [0, 0, 255])  # Aktualizujemy kolor na niebieski
+            else:
+                # Dodanie nowego punktu
+                pt_id = self.points.InsertNextPoint([x, y, z])
+                self.vertices.InsertNextCell(1)
+                self.vertices.InsertCellPoint(pt_id)
 
     def update_visualization(self, lidar_points, color):
         # Wyczyszczenie istniejących punktów
