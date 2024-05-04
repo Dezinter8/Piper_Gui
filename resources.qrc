@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="newPrefix">
+    <file>Ui/Images/nodata.jpeg</file>
+  </qresource>
+</RCC>
