@@ -136,7 +136,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.vtkWidget.GetRenderWindow().Render()
 
         # Aktualizacja wykresu matplotlib
-        lidar_points = self.ros_client.get_lidar_points()
+        lidar_points = self.lidarVisualizer.get_lidar_points()
         self.ax.clear()
         if lidar_points:
             lidar_points = np.array(lidar_points)
@@ -192,6 +192,41 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.image_processor.stop_recording()
             self.record_button.setText("Start Recording")
 
+
+
+
+
+
+
+
+
+    ########## REALTIME ##########
+
+    def init_matplotlib(self):
+        # Tworzenie obiektu figury Matplotlib
+        self.figure = plt.figure()
+
+        # Tworzenie obiektu Canvas z wykorzystaniem FigureCanvas
+        self.canvas = FigureCanvas(self.figure)
+
+        # Dodawanie Canvas do ramki
+        layout = QtWidgets.QVBoxLayout(self.realtime_frame)
+        layout.addWidget(self.canvas)
+
+        # Tworzenie przykładowego wykresu
+        self.ax = self.figure.add_subplot(111)
+        self.ax.set_aspect('equal', adjustable='box')  # Ustawienie proporcji 1:1
+        self.ax.plot([1, 2, 3, 4], [10, 20, 25, 30])  # Przykładowy wykres
+
+        # Odświeżanie wyświetlania
+        self.canvas.draw()
+
+
+
+
+
+    ############# APP ############
+
     def keyPressEvent(self, event):
         super(MainWindow, self).keyPressEvent(event)  # Przekaż zdarzenie do bazowej klasy, jeśli nie jest obsługiwane tutaj
         
@@ -222,6 +257,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Wywołanie metody bazowej
         super().closeEvent(event)
+
+
+
+
+
+
 
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
