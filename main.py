@@ -44,7 +44,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             - enkoderow
             - akcelerometru
         '''
-        self.ros_client = RosClient(self.lidarVisualizer, self.image_callback, self.enkoders,  self.imu)
+        self.ros_client = RosClient(self, self.lidarVisualizer, self.image_callback, self.enkoders,  self.imu)
 
         # Timer do odświeżania wizualizacji VTK.
         self.timer = QTimer(self)
