@@ -66,6 +66,28 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.reset_vtk_view_button = self.reset_vtk_view_button
         self.reset_vtk_view_button.clicked.connect(self.resetCamera) # Połączenie przycisku z metodą openVTK
+        
+
+
+    ########### EXPORT CHMURY PUNKTÓW #############
+
+        self.save_pointcloud_button = self.save_pointcloud_button
+        self.save_pointcloud_button.clicked.connect(self.save_pointcloud) # Połączenie przycisku z metodą openVTK
+        
+        self.is_saving_pointcloud = False  # Flaga wskazująca, czy zapisywanie chmury punktów jest w toku
+
+    def save_pointcloud(self):
+        if not self.is_saving_pointcloud:
+            self.is_saving_pointcloud = True
+            self.save_pointcloud_button.setText("Zakończ zapisywanie\nchmury punktów")
+            # Rozpocznij zapisywanie chmury punktów
+            self.lidarVisualizer.export_to_ply()
+        else:
+            self.is_saving_pointcloud = False
+            self.save_pointcloud_button.setText("Rozpocznij zapisywanie\nchmury punktów")
+            # Zakończ zapisywanie chmury punktów
+            
+
 
 
     ########### VTK #############
@@ -213,7 +235,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def closeEvent(self, event):
         self.image_processor.stop_recording()
         #export chmury punktów
-        self.lidarVisualizer.export_to_ply()
+        #self.lidarVisualizer.export_to_ply()
 
         # Zatrzymanie timera
         if self.timer.isActive():

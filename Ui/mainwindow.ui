@@ -546,6 +546,14 @@
            </widget>
           </item>
           <item>
+           <widget class="QPushButton" name="save_pointcloud_button">
+            <property name="text">
+             <string>Rozpocznij zapisywanie
+chmury punktów</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QLabel" name="label_3">
             <property name="text">
              <string>Prędkość pojazdu:</string>
