@@ -86,7 +86,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.is_saving_pointcloud = False
             self.save_pointcloud_button.setText("Rozpocznij zapisywanie\nchmury punktów")
             # Zakończ zapisywanie chmury punktów
-            
+            self.lidarVisualizer.points.Reset()
+            self.lidarVisualizer.vertices.Reset()
+            self.lidarVisualizer.colors.Reset()
 
 
 
