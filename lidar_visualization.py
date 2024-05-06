@@ -35,7 +35,7 @@ class LidarVisualizer:
         # Ustawienia wyglądu punktów
         self.actor.GetProperty().SetPointSize(5)
         self.actor.GetProperty().SetColor(1.0, 0.0, 0.0)  # Czerwone punkty
-
+        
         self.renderer.AddActor(self.actor)
 
         # Inicjalizacja zmiennej przechowującej offset na osi Z
