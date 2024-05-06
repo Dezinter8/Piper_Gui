@@ -44,7 +44,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             - enkoderow
             - akcelerometru
         '''
-        self.ros_client = RosClient(self, self.lidarVisualizer, self.image_callback, self.enkoders,  self.imu)
+        self.ros_client = RosClient(self.lidarVisualizer, self.image_callback, self.enkoders,  self.accelerometer)
 
         # Timer do odświeżania wizualizacji VTK.
         self.timer = QTimer(self)
@@ -86,9 +86,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.is_saving_pointcloud = False
             self.save_pointcloud_button.setText("Rozpocznij zapisywanie\nchmury punktów")
             # Zakończ zapisywanie chmury punktów
-            self.lidarVisualizer.points.Reset()
-            self.lidarVisualizer.vertices.Reset()
-            self.lidarVisualizer.colors.Reset()
+            
 
 
 
@@ -110,7 +108,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.enkoders = LidarVisualizer(self.renderer)
         
         # Utworzenie i skonfigurowanie poloczenia akcelerometrow.
-        self.imu = LidarVisualizer(self.renderer)
+        self.accelerometer = LidarVisualizer(self.renderer)
         
         # Inicjalizacja widżetu VTK.
         self.vtkWidget.Initialize()
@@ -119,7 +117,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         camera = self.renderer.GetActiveCamera()
         camera.Zoom(2)
         camera.SetPosition(5, -5, 3)
-        camera.SetFocalPoint(0, 0, 0.3)
         camera.SetViewUp(0, 0, 1)
 
         # Ustawienie stylu interakcji na TrackballCamera.
@@ -147,10 +144,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def resetCamera(self):
         if self.renderer:
             camera = self.renderer.GetActiveCamera()
-            camera.SetPosition(5, -5, 3)
-            camera.SetFocalPoint(0, 0, 0.3)
-            camera.SetViewUp(0, 0, 1)
-            # self.vtkWidget.GetRenderWindow().Render()
+            camera.SetPosition(0, 0, 2)
+            camera.SetFocalPoint(0, 0, 0)
+            camera.SetViewUp(0, 1, 0)
+            self.vtkWidget.GetRenderWindow().Render()
 
 
 
@@ -227,6 +224,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
     ############# APP ############
+
+    def keyPressEvent(self, event):
+        super(MainWindow, self).keyPressEvent(event)  # Przekaż zdarzenie do bazowej klasy, jeśli nie jest obsługiwane tutaj
+        
+        if event.key() == QtCore.Qt.Key_R:  # Sprawdź, czy naciśnięto klawisz 'r'
+            self.resetCamera()
+
 
     def closeEvent(self, event):
         self.image_processor.stop_recording()
