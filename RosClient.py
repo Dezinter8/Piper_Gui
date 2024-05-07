@@ -4,7 +4,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import CompressedImage , LaserScan, JointState, Imu
 from PyQt5.QtCore import QObject
 import math
-from datetime import datetime
+from datetime import datetime, timedelta
 
 class RosClient(QObject):
     def __init__(self, main_window, visualizer, image_callback, enkoders, imu):
@@ -53,7 +53,7 @@ class RosClient(QObject):
             #enkodery
             self.subscription = self.node.create_subscription(
                 JointState, '/joint_states', 
-                lambda msg: self.enkoders.update_joints(msg.name, msg.position, msg.velocity), 
+                lambda msg: self.update_joints(msg), 
                 10)
             
             #akcelerometr
@@ -78,9 +78,16 @@ class RosClient(QObject):
             if self.thread.is_alive():
                 print("ROS thread did not terminate gracefully.")
 
+
+
+
+
+
+
+
     def update_points(self, ranges, intensities, angle_min, angle_increment):
-        # Wyczyszczenie listy punktów
         self.lidar_points = []
+        color = []
 
         for i, (range, intensity) in enumerate(zip(ranges, intensities)):
             if range == float('nan') or range == 0.0 or range == float('inf'):
@@ -89,10 +96,36 @@ class RosClient(QObject):
             x = (range * math.sin(angle)) * -1
             y = 0
             z = (range * math.cos(angle)) * -1
+
             self.lidar_points.append([x, y, z])
 
-        # Wywołanie funkcji aktualizacji wizualizacji po aktualizacji punktów
-        self.visualizer.update_visualization(self.lidar_points)
+            # Kolorowanie punktów na podstawie intensywności
+            color.append(self.get_color_from_intensity(intensity))
+
+        self.transform_points(color)
+
+
+    def get_color_from_intensity(self, intensity):
+        if math.isnan(intensity):  # Sprawdzenie czy intensywność jest NaN
+            return [0, 0, 0]
+        else:
+            color_value = int(intensity)  # Skalowanie intensywności do wartości koloru (0-255)
+            color = [color_value, 0, 0]  # Ustawienie RGB koloru
+            return color
+
+
+    def transform_points(self, color):
+        transformed_points = []
+
+        for point in self.lidar_points:
+            transformation_distance = point[0] * math.radians(self.vel_angle_z)
+            transformed_y = point[1] + transformation_distance
+            transformed_points.append([point[0], transformed_y, point[2]])
+
+        self.visualizer.update_visualization(transformed_points, color)
+
+
+
 
     def update_pivot(self, msg):
         linear_acceleration = msg.linear_acceleration
@@ -106,7 +139,10 @@ class RosClient(QObject):
             'angular_vel_y': angular_velocity.y,
             'angular_vel_z': angular_velocity.z
         }
-
+        
+        
+        if datetime.now() - self.last_updated_time > timedelta(seconds=1):
+            self.last_updated_time = datetime.now()
         # Obliczanie kąta pochylenia
         dt = (datetime.now() - self.last_updated_time).total_seconds()
 
@@ -121,9 +157,20 @@ class RosClient(QObject):
 
 
         # self.main_window.vel_z_angle_label.setText(f"{self.vel_angle_z:.2f}°")
-
         # self.main_window.acc_x_angle_label.setText(f"{self.acc_angle_x:.2f}°")
         # self.main_window.acc_y_angle_label.setText(f"{self.acc_angle_y:.2f}°")
         # self.main_window.acc_z_angle_label.setText(f"{self.acc_angle_z:.2f}°")
 
         # print(f"vel_z: {self.vel_angle_z} acc_x: {self.acc_angle_x} acc_y: {self.acc_angle_y} acc_z: {self.acc_angle_z}")
+
+
+
+
+
+
+
+
+
+    # Enkodery
+    def update_joints(self, msg):
+        pass

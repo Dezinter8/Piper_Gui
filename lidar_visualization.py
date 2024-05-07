@@ -39,11 +39,6 @@ class LidarVisualizer:
 
         self.renderer.AddActor(self.actor)
                 
-        # Listy przechowujce dane z enkoderow
-        self.idnr1 = 0
-        self.wheelA = []    
-        self.wheelB = []
-
         # Lista punktów lidaru do wyświetlenia w matplotlib
         # self.lidar_points = []
 
@@ -53,47 +48,29 @@ class LidarVisualizer:
         self.renderer.AddActor(self.axesActor)
 
 
-    # Enkodery
-    def update_joints(self, name, position, velocity):
-        # self.wheelA.append([self.idnr1, name[0], position[0], velocity[0]])
-        # self.wheelB.append([self.idnr1, name[1], position[1], velocity[1]])
-        
-        # print(self.wheelA[self.idnr1])  # Lewy enkoder - A
-        # print(self.wheelB[self.idnr1])  # Prawy enkoder - B
-        
-        # self.idnr1 += 1
-
-        pass
 
 
-    def update_visualization(self, lidar_points):
+
+    def update_visualization(self, lidar_points, color):
         # Wyczyszczenie istniejących punktów
         self.points.Reset()
         self.vertices.Reset()
         self.colors.Reset()
 
         # Dodanie wszystkich punktów do wizualizacji
-        for point in lidar_points:
+        for point, color in zip(lidar_points, color):
             pt_id = self.points.InsertNextPoint(point)
             self.vertices.InsertNextCell(1)
             self.vertices.InsertCellPoint(pt_id)
-            self.colors.InsertNextTuple([255, 0, 0])  # Domyślny kolor czerwony
+            self.colors.InsertNextTuple(color)
 
         # Oznaczanie zmian w danych, aby odświeżyć wizualizację
         self.points.Modified()
         self.vertices.Modified()
+        self.colors.Modified()
         self.polyData.Modified()
 
 
-
-
-    def get_color_from_intensity(self, intensity):
-        if math.isnan(intensity):  # Sprawdzenie czy intensywność jest NaN
-            return [0, 0, 0]
-        else:
-            color_value = int(intensity)  # Skalowanie intensywności do wartości koloru (0-255)
-            color = [color_value, 0, 0]  # Ustawienie RGB koloru
-            return color
 
 
     def export_to_ply(self):
