@@ -3,6 +3,7 @@
 Na początku należy zainstalować wymagane programy (Ros2 humble itd.).
 
 Następnie należy pobrać repozytorium:
+
 ```
 cd Desktop/
 
@@ -29,4 +30,18 @@ Aby uruchomić program należy użyć komendy:
 
 ```
 python main.py
+```
+
+# Building Ui
+
+mainwindow ui - Można go odpalić w Qt Designerze i edytować bezpośrednio w nim. Po edycji należy wykonać komendę:
+
+```
+pyuic5 mainwindow.ui -o MainWindow.py
+```
+
+resources qrc - Jest to plik zawierający zasoby takie jak ikony czy zdjęcia. Aby go przekonwertować na plik py należy użyć komendy:
+
+```
+pyrcc5 resources.qrc -o resources_rc.py
 ```
