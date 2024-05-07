@@ -86,6 +86,4 @@ class LidarVisualizer:
         writer.SetArrayName("Colors")
         writer.Write()
 
-    def get_lidar_points(self):
-        # return self.lidar_points
-        pass
+

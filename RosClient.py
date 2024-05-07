@@ -16,6 +16,8 @@ class RosClient(QObject):
         self.imu = imu 
 
         self.lidar_points = []
+        self.matplotlib_lidar_points = []
+        
         self.wheelL = 0.0
         self.wheelR = 0.0
         self.wheelAvg = 0.0
@@ -98,6 +100,8 @@ class RosClient(QObject):
             # print("Robot się nie poruszył, pomijam aktualizację punktów lidaru")
             return  # Pominięcie aktualizacji punktów lidaru
 
+        self.matplotlib_lidar_points = []
+
         for i, (range, intensity) in enumerate(zip(ranges, intensities)):
             if range == float('nan') or range == 0.0 or range == float('inf'):
                 continue  # Pomijanie nieprawidłowych danych
@@ -107,9 +111,12 @@ class RosClient(QObject):
             z = (range * math.cos(angle)) * -1
 
             self.lidar_points.append([x, y, z])
+            # Dodanie punktu do listy punktów lidaru
+            self.matplotlib_lidar_points.append([x, z])
 
             # Kolorowanie punktów na podstawie intensywności
             color.append(self.get_color_from_intensity(intensity))
+
 
         self.transform_points(color)
 
@@ -122,6 +129,9 @@ class RosClient(QObject):
             color = [color_value, 0, 0]  # Ustawienie RGB koloru
             return color
 
+    def get_lidar_points(self):
+        # print(self.lidar_points)
+        return self.matplotlib_lidar_points
 
     def transform_points(self, color):
         transformed_points = []

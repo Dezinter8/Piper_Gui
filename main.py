@@ -86,7 +86,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.is_saving_pointcloud = False
             self.save_pointcloud_button.setText("Rozpocznij zapisywanie\nchmury punktów")
             # Zakończ zapisywanie chmury punktów
-            
+            self.lidarVisualizer.points.Reset()
+            self.lidarVisualizer.vertices.Reset()
+            self.lidarVisualizer.colors.Reset()
 
 
 
@@ -134,7 +136,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.vtkWidget.GetRenderWindow().Render()
 
         # Aktualizacja wykresu matplotlib
-        lidar_points = self.lidarVisualizer.get_lidar_points()
+        lidar_points = self.ros_client.get_lidar_points()
         self.ax.clear()
         if lidar_points:
             lidar_points = np.array(lidar_points)
