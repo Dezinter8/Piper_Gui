@@ -16,6 +16,11 @@ class RosClient(QObject):
         self.imu = imu 
 
         self.lidar_points = []
+        self.wheelL = 0.0
+        self.wheelR = 0.0
+        self.wheelAvg = 0.0
+        self.last_wheelL = 0.0
+        self.last_wheelR = 0.0
 
         self.last_updated_time = datetime.now()
         self.vel_angle_z = 0.0
@@ -88,13 +93,17 @@ class RosClient(QObject):
     def update_points(self, ranges, intensities, angle_min, angle_increment):
         self.lidar_points = []
         color = []
+        # Sprawdzenie, czy robot się porusza
+        if self.wheelL == self.last_wheelL and self.wheelR == self.last_wheelR:
+            # print("Robot się nie poruszył, pomijam aktualizację punktów lidaru")
+            return  # Pominięcie aktualizacji punktów lidaru
 
         for i, (range, intensity) in enumerate(zip(ranges, intensities)):
             if range == float('nan') or range == 0.0 or range == float('inf'):
                 continue  # Pomijanie nieprawidłowych danych
             angle = angle_min + i * angle_increment
             x = (range * math.sin(angle)) * -1
-            y = 0
+            y = self.wheelAvg * 0.03      # Obliczenie y na podstawie liczby obrotów i promienia koła za pomocą wzory 2pi*r
             z = (range * math.cos(angle)) * -1
 
             self.lidar_points.append([x, y, z])
@@ -118,12 +127,12 @@ class RosClient(QObject):
         transformed_points = []
 
         for point in self.lidar_points:
-            transformation_distance = point[0] * math.radians(self.vel_angle_z)
+            # print(point)
+            transformation_distance = point[0] * math.radians(self.vel_angle_z)     # mierzenie długości przyprostokątnej b znając kąt alpha i długość przeciwprostokątnej c
             transformed_y = point[1] + transformation_distance
             transformed_points.append([point[0], transformed_y, point[2]])
-
+            
         self.visualizer.update_visualization(transformed_points, color)
-
 
 
 
@@ -150,6 +159,13 @@ class RosClient(QObject):
         self.vel_angle_z += (self.vel_last_angle_z + data['angular_vel_z'] * dt) * dt / 2
         self.vel_last_angle_z = data['angular_vel_z']
 
+        # Kontrola zakresu kąta pochylenia
+        if self.vel_angle_z > 180:
+            self.vel_angle_z -= 360
+        elif self.vel_angle_z < -180:
+            self.vel_angle_z += 360
+
+        
         # obliczanie pochylenia robota na osiach x y oraz z
         self.acc_angle_x = math.degrees(math.atan2(linear_acceleration.y, linear_acceleration.z))
         self.acc_angle_y = math.degrees(math.atan2(-linear_acceleration.x, linear_acceleration.z))
@@ -173,4 +189,22 @@ class RosClient(QObject):
 
     # Enkodery
     def update_joints(self, msg):
-        pass
+        if not hasattr(self, 'start_wheelL') or not hasattr(self, 'start_wheelR'):
+            # Ustawienie początkowych wartości tylko raz, gdy nie zostały jeszcze ustawione
+            self.start_wheelL = msg.position[1]
+            self.start_wheelR = msg.position[2]
+        
+        self.last_wheelL = self.wheelL
+        self.last_wheelR = self.wheelR
+
+        # Obliczenie różnicy pozycji aktualnej i startowej dla każdego koła
+        wheelL_diff = round(msg.position[1] - self.start_wheelL, 3)
+        wheelR_diff = round(msg.position[2] - self.start_wheelR, 3)
+
+        self.wheelL = wheelL_diff
+        self.wheelR = wheelR_diff
+        self.wheelAvg = (self.wheelL + self.wheelR) / 2 
+
+        # print(f'lewy: {self.wheelL} prawy: {self.wheelR} średnia: {self.wheelAvg}')
+        # print(f'lewy: {self.last_wheelL} prawy: {self.last_wheelR}')
+
