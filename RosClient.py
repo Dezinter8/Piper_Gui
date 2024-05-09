@@ -138,12 +138,11 @@ class RosClient(QObject):
 
         for point in self.lidar_points:
             # print(point)
-            transformation_distance = point[0] * math.radians(self.vel_angle_z)     # mierzenie długości przyprostokątnej b znając kąt alpha i długość przeciwprostokątnej c
+            transformation_distance = point[0] * math.tan(math.radians(self.vel_angle_z))    # mierzenie długości przyprostokątnej a znając kąt alpha i długość przyprostokątnej b
             transformed_y = point[1] + transformation_distance
             transformed_points.append([point[0], transformed_y, point[2]])
             
         self.visualizer.update_visualization(transformed_points, color)
-
 
 
     def update_pivot(self, msg):
