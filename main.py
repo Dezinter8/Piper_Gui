@@ -44,8 +44,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             - enkoderow
             - akcelerometru
         '''
-        
-        self.ros_client = RosClient(self.lidarVisualizer, self.image_callback, self.enkoders,  self.accelerometer)
+        self.ros_client = RosClient(self, self.lidarVisualizer, self.image_callback, self.enkoders,  self.imu)
 
         # Timer do odświeżania wizualizacji VTK.
         self.timer = QTimer(self)
@@ -92,7 +91,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.lidarVisualizer.colors.Reset()
 
 
-  
+
     ########### VTK #############
 
     def addVTKWidget(self):
@@ -243,9 +242,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Zatrzymanie timera
         if self.timer.isActive():
             self.timer.stop()
-
-        # Zamkniecie poloczenia z baza danych
-        self.conn.close()
 
         # Zamknięcie i czyszczenie klienta ROS
         self.ros_client.shutdown()
