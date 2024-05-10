@@ -554,9 +554,9 @@ chmury punktów</string>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="reset_wheel_button">
+           <widget class="QPushButton" name="reset_visualization_button">
             <property name="text">
-             <string>Reset pozycji kół</string>
+             <string>Reset wizualizacji</string>
             </property>
            </widget>
           </item>
