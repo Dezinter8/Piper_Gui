@@ -5,6 +5,8 @@ from sensor_msgs.msg import CompressedImage , LaserScan, JointState, Imu
 from PyQt5.QtCore import QObject, pyqtSignal
 import math
 from datetime import datetime, timedelta
+from filterpy.kalman import KalmanFilter
+import numpy as np
 
 class RosClient(QObject):
     data_updated = pyqtSignal(dict)
@@ -34,6 +36,15 @@ class RosClient(QObject):
         self.acc_angle_x = 0.0
         self.acc_angle_y = 0.0
         self.acc_angle_z = 0.0
+
+        # Inicjalizacja filtru Kalmana dla pomiaru kąta obrotu na osi z
+        self.kf = KalmanFilter(dim_x=2, dim_z=1)
+        self.kf.x = np.array([[0.], [0.]])  # początkowa wartość i prędkość kątowa
+        self.kf.F = np.array([[1., 1.], [0., 1.]])  # macierz stanu
+        self.kf.H = np.array([[1., 0.]])  # macierz obserwacji
+        self.kf.P *= 1000.  # macierz kowariancji
+        self.kf.R = 0.01  # macierz kowariancji pomiaru
+
 
         self._is_running = Event()
         self._is_running.set()
@@ -164,38 +175,37 @@ class RosClient(QObject):
             'angular_vel_z': angular_velocity.z
         }
         
-        
-        if datetime.now() - self.last_updated_time > timedelta(seconds=1):
-            self.last_updated_time = datetime.now()
-        # Obliczanie kąta pochylenia
-        dt = (datetime.now() - self.last_updated_time).total_seconds()
+        # Obliczanie czasu, który minął od ostatniej aktualizacji
+        current_time = datetime.now()
+        dt = (current_time - self.last_updated_time).total_seconds()
+        self.last_updated_time = current_time
 
-        # szacowanie obrotu robota na osi z
-        self.vel_angle_z += (self.vel_last_angle_z + data['angular_vel_z'] * dt) * dt / 2       # Ten fragment kodu odnosi się do metody trapezów
-        self.vel_last_angle_z = data['angular_vel_z']
+        if abs(data['angular_vel_z']) > 0.01:  # aktualizuj tylko gdy prędkość kątowa jest znacząca
+            # Przewidywanie stanu filtru Kalmana
+            self.kf.F[0, 1] = dt  # aktualizacja macierzy stanu
+            self.kf.predict()
 
-        # Kontrola zakresu kąta pochylenia
-        if self.vel_angle_z > 180:
-            self.vel_angle_z -= 360
-        elif self.vel_angle_z < -180:
-            self.vel_angle_z += 360
+            # Aktualizacja pomiaru kąta obrotu z żyroskopu
+            self.kf.update(data['angular_vel_z'])
 
+        # Odczytanie oszacowanej wartości kąta obrotu z filtru Kalmana
+        angle_z = self.kf.x[0, 0]
 
-        # obliczanie pochylenia robota na osiach x y oraz z
+        # Aktualizacja danych obrotu
+        self.vel_angle_z = angle_z
+
+        # Obliczanie pochylenia robota na osiach x, y oraz z
         self.acc_angle_x = math.degrees(math.atan2(linear_acceleration.y, linear_acceleration.z))
         self.acc_angle_y = math.degrees(math.atan2(-linear_acceleration.x, linear_acceleration.z))
         self.acc_angle_z = math.degrees(math.atan2(linear_acceleration.x, linear_acceleration.y))
 
-
+        # Emitowanie zaktualizowanych danych
         self.data_updated.emit({
             'vel_angle_z': self.vel_angle_z,
             'acc_angle_x': self.acc_angle_x,
             'acc_angle_y': self.acc_angle_y,
             'acc_angle_z': self.acc_angle_z
         })
-
-        # print(f"vel_z: {self.vel_angle_z} acc_x: {self.acc_angle_x} acc_y: {self.acc_angle_y} acc_z: {self.acc_angle_z}")
-
 
 
 
