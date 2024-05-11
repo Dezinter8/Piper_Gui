@@ -2,11 +2,13 @@ from threading import Thread, Event
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import CompressedImage , LaserScan, JointState, Imu
-from PyQt5.QtCore import QObject
+from PyQt5.QtCore import QObject, pyqtSignal
 import math
 from datetime import datetime, timedelta
 
 class RosClient(QObject):
+    data_updated = pyqtSignal(dict)
+
     def __init__(self, main_window, visualizer, image_callback, enkoders, imu):
         super().__init__()
         self.main_window = main_window
@@ -144,6 +146,9 @@ class RosClient(QObject):
             
         self.visualizer.update_visualization(transformed_points, color)
 
+        # print(f'angle:  {self.vel_angle_z}      tan_angle:  {math.tan(math.radians(self.vel_angle_z))}')
+        # print(f'wynik: {math.cos(math.radians(self.acc_angle_x)) * (self.wheelAvg * 0.03)}      acc_angle_x: {self.acc_angle_x}')
+
 
     def update_pivot(self, msg):
         linear_acceleration = msg.linear_acceleration
@@ -174,17 +179,19 @@ class RosClient(QObject):
         elif self.vel_angle_z < -180:
             self.vel_angle_z += 360
 
-        
+
         # obliczanie pochylenia robota na osiach x y oraz z
         self.acc_angle_x = math.degrees(math.atan2(linear_acceleration.y, linear_acceleration.z))
         self.acc_angle_y = math.degrees(math.atan2(-linear_acceleration.x, linear_acceleration.z))
         self.acc_angle_z = math.degrees(math.atan2(linear_acceleration.x, linear_acceleration.y))
 
 
-        # self.main_window.vel_z_angle_label.setText(f"{self.vel_angle_z:.2f}°")
-        # self.main_window.acc_x_angle_label.setText(f"{self.acc_angle_x:.2f}°")
-        # self.main_window.acc_y_angle_label.setText(f"{self.acc_angle_y:.2f}°")
-        # self.main_window.acc_z_angle_label.setText(f"{self.acc_angle_z:.2f}°")
+        self.data_updated.emit({
+            'vel_angle_z': self.vel_angle_z,
+            'acc_angle_x': self.acc_angle_x,
+            'acc_angle_y': self.acc_angle_y,
+            'acc_angle_z': self.acc_angle_z
+        })
 
         # print(f"vel_z: {self.vel_angle_z} acc_x: {self.acc_angle_x} acc_y: {self.acc_angle_y} acc_z: {self.acc_angle_z}")
 
