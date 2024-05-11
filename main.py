@@ -53,7 +53,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Setup QLabel for displaying images
         self.image_label = QtWidgets.QLabel(self.camera_frame)
-        self.image_label.resize(self.camera_frame.size())
+        self.image_label.setMinimumSize(531,372)
 
         # QTimer for delayed resizing
         self.resize_timer = QTimer(self)
@@ -201,6 +201,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def resize_image_label(self):
         # Resize image_label after delay
         self.image_label.resize(self.camera_frame.size())
+
 
 
     def image_callback(self, msg):
