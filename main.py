@@ -68,7 +68,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.reset_vtk_view_button.clicked.connect(self.resetCamera) # Połączenie przycisku z metodą openVTK
         
 
-        self.ros_client.data_updated.connect(self.update_ui)
+        self.ros_client.data_updated.connect(self.update_pivot_ui)
+        self.ros_client.joints_updated.connect(self.update_joints_ui)
 
 
     ########### EXPORT CHMURY PUNKTÓW #############
@@ -261,12 +262,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         super().closeEvent(event)
 
 
-    def update_ui(self, data):
+    def update_pivot_ui(self, data):
         self.vel_z_angle_label.setText(f"{data['vel_angle_z']:.2f}°")
         self.acc_x_angle_label.setText(f"{data['acc_angle_x']:.2f}°")
         self.acc_y_angle_label.setText(f"{data['acc_angle_y']:.2f}°")
         self.acc_z_angle_label.setText(f"{data['acc_angle_z']:.2f}°")
 
+    def update_joints_ui(self, data):
+        self.wheel_z_angle_label.setText(f"{round(data['wheel_angle_z'], 2)}°")
 
 
 

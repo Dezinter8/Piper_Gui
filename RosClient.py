@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 
 class RosClient(QObject):
     data_updated = pyqtSignal(dict)
+    joints_updated = pyqtSignal(dict)
 
     def __init__(self, main_window, visualizer, image_callback, enkoders, imu):
         super().__init__()
@@ -170,7 +171,7 @@ class RosClient(QObject):
         dt = (datetime.now() - self.last_updated_time).total_seconds()
 
         # szacowanie obrotu robota na osi z
-        self.vel_angle_z += (self.vel_last_angle_z + data['angular_vel_z'] * dt) * dt / 2
+        self.vel_angle_z += (self.vel_last_angle_z + data['angular_vel_z'] * dt) * dt / 2       # Ten fragment kodu odnosi się do metody trapezów
         self.vel_last_angle_z = data['angular_vel_z']
 
         # Kontrola zakresu kąta pochylenia
@@ -220,6 +221,16 @@ class RosClient(QObject):
         self.wheelL = wheelL_diff
         self.wheelR = wheelR_diff
         self.wheelAvg = (self.wheelL + self.wheelR) / 2 
+
+        WHEEL_RADIUS = 0.04  # promień koła w metrach
+        DISTANCE_BETWEEN_WHEELS = 0.42  # odległość między kołami w metrach
+
+        # Skalowanie kąta obrotu koła na kąt obrotu robota na osi z
+        self.wheel_angle_z = (wheelR_diff - wheelL_diff) * WHEEL_RADIUS / DISTANCE_BETWEEN_WHEELS
+
+        self.joints_updated.emit({
+            'wheel_angle_z': math.degrees(self.wheel_angle_z)
+        })
 
         # print(f'lewy: {self.wheelL} prawy: {self.wheelR} średnia: {self.wheelAvg}')
         # print(f'lewy: {self.last_wheelL} prawy: {self.last_wheelR}')
