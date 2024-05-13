@@ -188,16 +188,18 @@ class RosClient(QObject):
             # Aktualizacja pomiaru kąta obrotu z żyroskopu
             self.kf.update(data['angular_vel_z'])
 
-        # Odczytanie oszacowanej wartości kąta obrotu z filtru Kalmana
-        angle_z = self.kf.x[0, 0]
+            # Odczytanie oszacowanej wartości kąta obrotu z filtru Kalmana
+            angle_change = self.kf.x[0, 0]  # Zmiana kąta obrotu od ostatniej aktualizacji
+
+            # Dodanie bieżącej zmiany kąta do łącznej wartości obrotu
+            if abs(data['angular_vel_z']) > 0.01:  # Jeśli robot się obraca
+                self.vel_angle_z += angle_change / 2
 
         # Aktualizacja danych obrotu
-        self.vel_angle_z = angle_z
-
-        # Obliczanie pochylenia robota na osiach x, y oraz z
         self.acc_angle_x = math.degrees(math.atan2(linear_acceleration.y, linear_acceleration.z))
         self.acc_angle_y = math.degrees(math.atan2(-linear_acceleration.x, linear_acceleration.z))
         self.acc_angle_z = math.degrees(math.atan2(linear_acceleration.x, linear_acceleration.y))
+
 
         # Emitowanie zaktualizowanych danych
         self.data_updated.emit({
