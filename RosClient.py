@@ -305,8 +305,6 @@ class RosClient(QObject):
 
             self.robot_position += displacement
 
-        print(f'start_wheelL: {self.start_wheelL}   start_wheelR: {self.start_wheelR}   last_wheelAvg: {self.last_wheelAvg}     wheelL: {self.wheelL}  wheelR: {self.wheelR}    wheelAvg: {self.wheelAvg}')
-
         self.joints_updated.emit({
             'wheel_angle_z': math.degrees(self.wheel_angle_z)
         })

@@ -164,9 +164,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def resetCamera(self):
         if self.renderer:
             camera = self.renderer.GetActiveCamera()
-            camera.SetPosition(0, 0, 2)
-            camera.SetFocalPoint(0, 0, 0)
-            camera.SetViewUp(0, 1, 0)
+            camera.SetPosition(5, -5, 3)
+            camera.SetFocalPoint(0, 0, 0.3)
+            camera.SetViewUp(0, 0, 1)
             self.vtkWidget.GetRenderWindow().Render()
 
 
