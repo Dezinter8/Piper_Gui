@@ -32,7 +32,6 @@ class RosClient(QObject):
 
         self.last_updated_time = datetime.now()
         self.vel_angle_z = 0.0
-        self.vel_last_angle_z = 0.0
 
         self.acc_angle_x = 0.0
         self.acc_angle_y = 0.0
@@ -42,10 +41,6 @@ class RosClient(QObject):
         self.pitch_accel_weight = 0.02  # Waga dla pomiarów z akcelerometru
         self.roll_gyro_weight = 0.98  # Waga dla pomiarów z żyroskopu
         self.roll_accel_weight = 0.02  # Waga dla pomiarów z akcelerometru
-
-        self.last_acc_angle_x = 0.0
-        self.filtered_acc_angle_x = 0.0
-        self.last_filtered_time = datetime.now()
 
         # Inicjalizacja filtru Kalmana dla pomiaru kąta obrotu na osi z
         self.kf = KalmanFilter(dim_x=2, dim_z=1)
@@ -172,9 +167,6 @@ class RosClient(QObject):
             
         self.visualizer.update_visualization(transformed_points, color)
 
-        # print(f'angle:  {self.vel_angle_z}      tan_angle:  {math.tan(math.radians(self.vel_angle_z))}')
-        # print(f'wynik: {math.cos(math.radians(self.acc_angle_x)) * (self.wheelAvg * 0.03)}      acc_angle_x: {self.acc_angle_x}')
-
 
 
 
@@ -255,8 +247,6 @@ class RosClient(QObject):
 
         self.last_wheelL = self.wheelL
         self.last_wheelR = self.wheelR
-        self.last_vel_angle_z = self.vel_angle_z
-        self.last_acc_angle_x = self.acc_angle_x
         self.last_wheelAvg = self.wheelAvg
 
         # Obliczenie różnicy pozycji aktualnej i startowej dla każdego koła
