@@ -28,6 +28,7 @@ class RosClient(QObject):
         self.wheelAvg = 0.0
         self.last_wheelL = 0.0
         self.last_wheelR = 0.0
+        self.robot_position = 0.0
 
         self.last_updated_time = datetime.now()
         self.vel_angle_z = 0.0
@@ -36,6 +37,10 @@ class RosClient(QObject):
         self.acc_angle_x = 0.0
         self.acc_angle_y = 0.0
         self.acc_angle_z = 0.0
+
+        self.last_acc_angle_x = 0.0
+        self.filtered_acc_angle_x = 0.0
+        self.last_filtered_time = datetime.now()
 
         # Inicjalizacja filtru Kalmana dla pomiaru kąta obrotu na osi z
         self.kf = KalmanFilter(dim_x=2, dim_z=1)
@@ -121,7 +126,7 @@ class RosClient(QObject):
                 continue  # Pomijanie nieprawidłowych danych
             angle = angle_min + i * angle_increment
             x = (range * math.sin(angle)) * -1
-            y = self.wheelAvg * 0.03      # Obliczenie y na podstawie liczby obrotów i promienia koła za pomocą wzory 2pi*r
+            y = 0      # Obliczenie y na podstawie liczby obrotów i promienia koła za pomocą wzory 2pi*r
             z = (range * math.cos(angle)) * -1
 
             self.lidar_points.append([x, y, z])
@@ -216,15 +221,17 @@ class RosClient(QObject):
 
 
 
-    # Enkodery
     def update_joints(self, msg):
         if not hasattr(self, 'start_wheelL') or not hasattr(self, 'start_wheelR'):
             # Ustawienie początkowych wartości tylko raz, gdy nie zostały jeszcze ustawione
             self.start_wheelL = msg.position[1]
             self.start_wheelR = msg.position[2]
-        
+
         self.last_wheelL = self.wheelL
         self.last_wheelR = self.wheelR
+        self.last_vel_angle_z = self.vel_angle_z
+        self.last_acc_angle_x = self.acc_angle_x
+        self.last_wheelAvg = self.wheelAvg
 
         # Obliczenie różnicy pozycji aktualnej i startowej dla każdego koła
         wheelL_diff = round(msg.position[1] - self.start_wheelL, 3)
@@ -232,18 +239,36 @@ class RosClient(QObject):
 
         self.wheelL = wheelL_diff
         self.wheelR = wheelR_diff
-        self.wheelAvg = (self.wheelL + self.wheelR) / 2 
+        self.wheelAvg = (self.wheelL + self.wheelR) / 2
 
-        WHEEL_RADIUS = 0.04  # promień koła w metrach
-        DISTANCE_BETWEEN_WHEELS = 0.42  # odległość między kołami w metrach
+        # Mierzenie skrętu na podstawie różnicy w ruchu koła
+        WHEEL_RADIUS = 0.04 
+        DISTANCE_BETWEEN_WHEELS = 0.42 
+        self.wheel_angle_z = (self.wheelR - self.wheelL) * WHEEL_RADIUS / DISTANCE_BETWEEN_WHEELS
 
-        # Skalowanie kąta obrotu koła na kąt obrotu robota na osi z
-        self.wheel_angle_z = (wheelR_diff - wheelL_diff) * WHEEL_RADIUS / DISTANCE_BETWEEN_WHEELS
+        # Aktualizacja pozycji na podstawie przemieszczenia i rotacji
+        rx = np.array([[1, 0, 0],
+                        [0, np.cos(np.radians(self.acc_angle_x)), -np.sin(np.radians(self.acc_angle_x))],
+                          [0, np.sin(np.radians(self.acc_angle_x)), np.cos(np.radians(self.acc_angle_x))]])
+        rz = np.array([[np.cos(np.radians(self.vel_angle_z)), -np.sin(np.radians(self.vel_angle_z)), 0],
+                        [np.sin(np.radians(self.vel_angle_z)), np.cos(np.radians(self.vel_angle_z)), 0],
+                          [0, 0, 1]])
+
+        # Obliczanie przemieszczenia na podstawie różnicy położeń kół i rotacji
+        displacement = np.array([0, (self.wheelAvg - self.last_wheelAvg) * 0.03, 0])  # zakładam, że ruch wzdłuż osi y to przemieszczenie w przód/tył
+
+        # Zastosowanie rotacji do przemieszczenia
+        displacement = np.dot(rz, np.dot(rx, displacement))
+
+        # Aktualizacja pozycji robota tylko gdy się poruszył
+        if self.wheelAvg != self.last_wheelAvg:
+            # Aktualizacja pozycji robota
+            if not hasattr(self, 'robot_position'):
+                self.robot_position = np.zeros(3)  # inicjalizacja pozycji robota
+
+            self.robot_position += displacement
 
         self.joints_updated.emit({
             'wheel_angle_z': math.degrees(self.wheel_angle_z)
         })
-
-        # print(f'lewy: {self.wheelL} prawy: {self.wheelR} średnia: {self.wheelAvg}')
-        # print(f'lewy: {self.last_wheelL} prawy: {self.last_wheelR}')
 
