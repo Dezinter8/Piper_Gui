@@ -38,6 +38,11 @@ class RosClient(QObject):
         self.acc_angle_y = 0.0
         self.acc_angle_z = 0.0
 
+        self.pitch_gyro_weight = 0.98  # Waga dla pomiarów z żyroskopu
+        self.pitch_accel_weight = 0.02  # Waga dla pomiarów z akcelerometru
+        self.roll_gyro_weight = 0.98  # Waga dla pomiarów z żyroskopu
+        self.roll_accel_weight = 0.02  # Waga dla pomiarów z akcelerometru
+
         self.last_acc_angle_x = 0.0
         self.filtered_acc_angle_x = 0.0
         self.last_filtered_time = datetime.now()
@@ -126,7 +131,7 @@ class RosClient(QObject):
                 continue  # Pomijanie nieprawidłowych danych
             angle = angle_min + i * angle_increment
             x = (range * math.sin(angle)) * -1
-            y = 0      # Obliczenie y na podstawie liczby obrotów i promienia koła za pomocą wzory 2pi*r
+            y = 0
             z = (range * math.cos(angle)) * -1
 
             self.lidar_points.append([x, y, z])
@@ -152,6 +157,10 @@ class RosClient(QObject):
         # print(self.lidar_points)
         return self.matplotlib_lidar_points
 
+
+
+
+
     def transform_points(self, color):
         transformed_points = []
 
@@ -165,6 +174,9 @@ class RosClient(QObject):
 
         # print(f'angle:  {self.vel_angle_z}      tan_angle:  {math.tan(math.radians(self.vel_angle_z))}')
         # print(f'wynik: {math.cos(math.radians(self.acc_angle_x)) * (self.wheelAvg * 0.03)}      acc_angle_x: {self.acc_angle_x}')
+
+
+
 
 
     def update_pivot(self, msg):
@@ -198,13 +210,27 @@ class RosClient(QObject):
 
             # Dodanie bieżącej zmiany kąta do łącznej wartości obrotu
             if abs(data['angular_vel_z']) > 0.01:  # Jeśli robot się obraca
-                self.vel_angle_z += angle_change / 2
+                self.vel_angle_z += angle_change / 2    # yaw
+
 
         # Aktualizacja danych obrotu
-        self.acc_angle_x = math.degrees(math.atan2(linear_acceleration.y, linear_acceleration.z))
-        self.acc_angle_y = math.degrees(math.atan2(-linear_acceleration.x, linear_acceleration.z))
-        self.acc_angle_z = math.degrees(math.atan2(linear_acceleration.x, linear_acceleration.y))
 
+        # Obliczanie kąta pitch na podstawie pomiarów z akcelerometru
+        acc_pitch = math.degrees(math.atan2(linear_acceleration.y, math.sqrt(linear_acceleration.x**2 + linear_acceleration.z**2)))
+        # Obliczanie zmiany kąta pitch na podstawie pomiarów z żyroskopu
+        gyro_pitch_change = angular_velocity.z * 0.03  # Czas pomiędzy pomiarami to 0.03s
+        # Połączenie obu pomiarów przy użyciu filtru komplementarnego
+        self.acc_angle_x = self.pitch_gyro_weight * (self.acc_angle_x + gyro_pitch_change) + self.pitch_accel_weight * acc_pitch
+
+
+        # Obliczanie kąta roll na podstawie pomiarów z akcelerometru
+        acc_roll = math.degrees(math.atan2(linear_acceleration.x, linear_acceleration.z))
+        # Obliczanie zmiany kąta roll na podstawie pomiarów z żyroskopu
+        gyro_roll_change = angular_velocity.y * 0.03  # Czas pomiędzy pomiarami to 0.03s
+        # Połączenie obu pomiarów przy użyciu filtru komplementarnego
+        self.acc_angle_y = self.roll_gyro_weight * (self.acc_angle_y + gyro_roll_change) + self.roll_accel_weight * acc_roll
+
+        self.acc_angle_z = math.degrees(math.atan2(linear_acceleration.x, linear_acceleration.y))
 
         # Emitowanie zaktualizowanych danych
         self.data_updated.emit({
@@ -242,7 +268,7 @@ class RosClient(QObject):
         self.wheelAvg = (self.wheelL + self.wheelR) / 2
 
         # Mierzenie skrętu na podstawie różnicy w ruchu koła
-        WHEEL_RADIUS = 0.04 
+        WHEEL_RADIUS = 0.03
         DISTANCE_BETWEEN_WHEELS = 0.42 
         self.wheel_angle_z = (self.wheelR - self.wheelL) * WHEEL_RADIUS / DISTANCE_BETWEEN_WHEELS
 
@@ -255,7 +281,7 @@ class RosClient(QObject):
                           [0, 0, 1]])
 
         # Obliczanie przemieszczenia na podstawie różnicy położeń kół i rotacji
-        displacement = np.array([0, (self.wheelAvg - self.last_wheelAvg) * 0.03, 0])  # zakładam, że ruch wzdłuż osi y to przemieszczenie w przód/tył
+        displacement = np.array([0, (self.wheelAvg - self.last_wheelAvg) * WHEEL_RADIUS, 0])  # zakładam, że ruch wzdłuż osi y to przemieszczenie w przód/tył
 
         # Zastosowanie rotacji do przemieszczenia
         displacement = np.dot(rz, np.dot(rx, displacement))
@@ -267,6 +293,8 @@ class RosClient(QObject):
                 self.robot_position = np.zeros(3)  # inicjalizacja pozycji robota
 
             self.robot_position += displacement
+
+        # print(self.robot_position)
 
         self.joints_updated.emit({
             'wheel_angle_z': math.degrees(self.wheel_angle_z)

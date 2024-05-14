@@ -53,9 +53,9 @@ class LidarVisualizer:
 
     def update_visualization(self, lidar_points, color):
         # Wyczyszczenie istniejących punktów
-        # self.points.Reset()
-        # self.vertices.Reset()
-        # self.colors.Reset()
+        self.points.Reset()
+        self.vertices.Reset()
+        self.colors.Reset()
 
         # Dodanie wszystkich punktów do wizualizacji
         for point, color in zip(lidar_points, color):
