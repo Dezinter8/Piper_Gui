@@ -554,6 +554,13 @@ chmury punktów</string>
            </widget>
           </item>
           <item>
+           <widget class="QPushButton" name="reset_visualization_button">
+            <property name="text">
+             <string>Reset wizualizacji</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QLabel" name="label_3">
             <property name="text">
              <string>Prędkość pojazdu:</string>
@@ -774,8 +781,8 @@ chmury punktów</string>
            <rect>
             <x>10</x>
             <y>10</y>
-            <width>518</width>
-            <height>354</height>
+            <width>481</width>
+            <height>331</height>
            </rect>
           </property>
           <property name="maximumSize">
