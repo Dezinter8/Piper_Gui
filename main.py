@@ -53,7 +53,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Setup QLabel for displaying images
         self.image_label = QtWidgets.QLabel(self.camera_frame)
-        self.image_label.resize(self.camera_frame.size())
+        self.image_label.setMinimumSize(531,372)
 
         # QTimer for delayed resizing
         self.resize_timer = QTimer(self)
@@ -67,15 +67,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.reset_vtk_view_button = self.reset_vtk_view_button
         self.reset_vtk_view_button.clicked.connect(self.resetCamera) # Połączenie przycisku z metodą openVTK
         
+        self.reset_visualization_button = self.reset_visualization_button
+        self.reset_visualization_button.clicked.connect(self.reset_vtk_visualization) # Połączenie przycisku z metodą reset_vtk_visualization
+
+        self.save_pointcloud_button = self.save_pointcloud_button
+        self.save_pointcloud_button.clicked.connect(self.save_pointcloud) # Połączenie przycisku z metodą save_pointcloud
+        self.is_saving_pointcloud = False  # Flaga wskazująca, czy zapisywanie chmury punktów jest w toku
+
 
 
     ########### EXPORT CHMURY PUNKTÓW #############
-
-        self.save_pointcloud_button = self.save_pointcloud_button
-        self.save_pointcloud_button.clicked.connect(self.save_pointcloud) # Połączenie przycisku z metodą openVTK
         
-        self.is_saving_pointcloud = False  # Flaga wskazująca, czy zapisywanie chmury punktów jest w toku
-
     def save_pointcloud(self):
         if not self.is_saving_pointcloud:
             self.is_saving_pointcloud = True
@@ -89,6 +91,41 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.lidarVisualizer.points.Reset()
             self.lidarVisualizer.vertices.Reset()
             self.lidarVisualizer.colors.Reset()
+
+            self.ros_client.wheelL = 0.0
+            self.ros_client.wheelR = 0.0
+            self.ros_client.wheelAvg = 0.0
+            self.ros_client.last_wheelL = 0.0
+            self.ros_client.last_wheelR = 0.0
+
+            # Zresetowanie zmiennych związanych z ruchem kół
+            self.ros_client.vel_angle_z = 0.0
+            self.ros_client.vel_last_angle_z = 0.0
+            self.ros_client.acc_angle_x = 0.0
+            self.ros_client.acc_angle_y = 0.0
+            self.ros_client.acc_angle_z = 0.0
+
+
+
+    ########### RESET POZYCJI KÓŁ #############
+
+    def reset_vtk_visualization(self):
+        self.lidarVisualizer.points.Reset()
+        self.lidarVisualizer.vertices.Reset()
+        self.lidarVisualizer.colors.Reset()
+
+        self.ros_client.wheelL = 0.0
+        self.ros_client.wheelR = 0.0
+        self.ros_client.wheelAvg = 0.0
+        self.ros_client.last_wheelL = 0.0
+        self.ros_client.last_wheelR = 0.0
+
+        # Zresetowanie zmiennych związanych z ruchem kół
+        self.ros_client.vel_angle_z = 0.0
+        self.ros_client.vel_last_angle_z = 0.0
+        self.ros_client.acc_angle_x = 0.0
+        self.ros_client.acc_angle_y = 0.0
+        self.ros_client.acc_angle_z = 0.0
 
 
 
@@ -164,6 +201,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def resize_image_label(self):
         # Resize image_label after delay
         self.image_label.resize(self.camera_frame.size())
+
 
 
     def image_callback(self, msg):
