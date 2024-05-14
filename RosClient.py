@@ -23,12 +23,13 @@ class RosClient(QObject):
         self.lidar_points = []
         self.matplotlib_lidar_points = []
         
+        self.start_wheels = 0
         self.wheelL = 0.0
         self.wheelR = 0.0
         self.wheelAvg = 0.0
         self.last_wheelL = 0.0
         self.last_wheelR = 0.0
-        self.robot_position = 0.0
+        self.robot_position = np.zeros(3)
 
         self.last_updated_time = datetime.now()
         self.vel_angle_z = 0.0
@@ -260,13 +261,13 @@ class RosClient(QObject):
 
 
     def update_joints(self, msg):
-        if not hasattr(self, 'start_wheelL') or not hasattr(self, 'start_wheelR'):
+        if self.start_wheels == 0:
             # Ustawienie początkowych wartości tylko raz, gdy nie zostały jeszcze ustawione
             self.start_wheelL = msg.position[1]
             self.start_wheelR = msg.position[2]
 
-        self.last_wheelL = self.wheelL
-        self.last_wheelR = self.wheelR
+            self.start_wheels += 1
+
         self.last_wheelAvg = self.wheelAvg
 
         # Obliczenie różnicy pozycji aktualnej i startowej dla każdego koła
@@ -304,9 +305,21 @@ class RosClient(QObject):
 
             self.robot_position += displacement
 
-        # print(self.robot_position)
+        print(f'start_wheelL: {self.start_wheelL}   start_wheelR: {self.start_wheelR}   last_wheelAvg: {self.last_wheelAvg}     wheelL: {self.wheelL}  wheelR: {self.wheelR}    wheelAvg: {self.wheelAvg}')
 
         self.joints_updated.emit({
             'wheel_angle_z': math.degrees(self.wheel_angle_z)
         })
 
+
+
+    def reset_visualization(self):
+        self.start_wheels = 0
+        self.wheelL = 0.0
+        self.wheelR = 0.0
+        self.wheelAvg = 0.0
+        self.robot_position = np.zeros(3)
+
+        self.vel_angle_z = 0.0
+        self.acc_angle_x = 0.0
+        self.acc_angle_y = 0.0

@@ -95,17 +95,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.lidarVisualizer.vertices.Reset()
             self.lidarVisualizer.colors.Reset()
 
-            self.ros_client.wheelL = 0.0
-            self.ros_client.wheelR = 0.0
-            self.ros_client.wheelAvg = 0.0
-            self.ros_client.last_wheelL = 0.0
-            self.ros_client.last_wheelR = 0.0
-
-            # Zresetowanie zmiennych związanych z ruchem kół
-            self.ros_client.vel_angle_z = 0.0
-            self.ros_client.acc_angle_x = 0.0
-            self.ros_client.acc_angle_y = 0.0
-            self.ros_client.acc_angle_z = 0.0
+            self.ros_client.reset_visualization()
 
 
 
@@ -116,18 +106,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.lidarVisualizer.vertices.Reset()
         self.lidarVisualizer.colors.Reset()
 
-        self.ros_client.wheelL = 0.0
-        self.ros_client.wheelR = 0.0
-        self.ros_client.wheelAvg = 0.0
-        self.ros_client.last_wheelL = 0.0
-        self.ros_client.last_wheelR = 0.0
 
-        # Zresetowanie zmiennych związanych z ruchem kół
-        self.ros_client.vel_angle_z = 0.0
-        self.ros_client.acc_angle_x = 0.0
-        self.ros_client.acc_angle_y = 0.0
-        self.ros_client.acc_angle_z = 0.0
-
+        self.ros_client.reset_visualization()
 
 
     ########### VTK #############
