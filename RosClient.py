@@ -159,12 +159,32 @@ class RosClient(QObject):
     def transform_points(self, color):
         transformed_points = []
 
+        # Konwersja kątów rotacji na radiany
+        alpha = np.radians(self.acc_angle_x)  # pitch
+        beta = np.radians(self.acc_angle_y)  # roll
+        gamma = np.radians(self.vel_angle_z)  # yaw
+
+        # Macierze rotacji
+        rx = np.array([[1, 0, 0],
+                    [0, np.cos(alpha), -np.sin(alpha)],
+                    [0, np.sin(alpha), np.cos(alpha)]])
+        ry = np.array([[np.cos(beta), 0, np.sin(beta)],
+                    [0, 1, 0],
+                    [-np.sin(beta), 0, np.cos(beta)]])
+        rz = np.array([[np.cos(gamma), -np.sin(gamma), 0],
+                    [np.sin(gamma), np.cos(gamma), 0],
+                    [0, 0, 1]])
+
+        # Wykonanie transformacji dla każdego punktu
         for point in self.lidar_points:
-            # print(point)
-            transformation_distance = point[0] * math.tan(math.radians(self.vel_angle_z))    # mierzenie długości przyprostokątnej a znając kąt alpha i długość przyprostokątnej b
-            transformed_y = point[1] + transformation_distance
-            transformed_points.append([point[0], transformed_y, point[2]])
-            
+            transformed_point = np.array(point)
+            transformed_point = np.dot(rx, transformed_point)
+            transformed_point = np.dot(ry, transformed_point)
+            transformed_point = np.dot(rz, transformed_point)
+            # Dodanie pozycji robota do punktu
+            transformed_point += self.robot_position
+            transformed_points.append(transformed_point)
+
         self.visualizer.update_visualization(transformed_points, color)
 
 
@@ -216,7 +236,7 @@ class RosClient(QObject):
 
 
         # Obliczanie kąta roll na podstawie pomiarów z akcelerometru
-        acc_roll = math.degrees(math.atan2(linear_acceleration.x, linear_acceleration.z))
+        acc_roll = math.degrees(math.atan2(-linear_acceleration.x, linear_acceleration.z))
         # Obliczanie zmiany kąta roll na podstawie pomiarów z żyroskopu
         gyro_roll_change = angular_velocity.y * 0.03  # Czas pomiędzy pomiarami to 0.03s
         # Połączenie obu pomiarów przy użyciu filtru komplementarnego
