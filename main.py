@@ -103,7 +103,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
             # Zresetowanie zmiennych związanych z ruchem kół
             self.ros_client.vel_angle_z = 0.0
-            self.ros_client.vel_last_angle_z = 0.0
             self.ros_client.acc_angle_x = 0.0
             self.ros_client.acc_angle_y = 0.0
             self.ros_client.acc_angle_z = 0.0
@@ -125,7 +124,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Zresetowanie zmiennych związanych z ruchem kół
         self.ros_client.vel_angle_z = 0.0
-        self.ros_client.vel_last_angle_z = 0.0
         self.ros_client.acc_angle_x = 0.0
         self.ros_client.acc_angle_y = 0.0
         self.ros_client.acc_angle_z = 0.0
