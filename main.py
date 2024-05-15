@@ -54,6 +54,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Setup QLabel for displaying images
         self.image_label = QtWidgets.QLabel(self.camera_frame)
         self.image_label.setMinimumSize(531,372)
+        self.image_label.setAlignment(QtCore.Qt.AlignCenter)
 
         # QTimer for delayed resizing
         self.resize_timer = QTimer(self)
