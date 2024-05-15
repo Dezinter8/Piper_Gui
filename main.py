@@ -90,24 +90,26 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             self.is_saving_pointcloud = False
             self.save_pointcloud_button.setText("Rozpocznij zapisywanie\nchmury punktów")
+
+            self.ros_client.reset_visualization()
+            
             # Zakończ zapisywanie chmury punktów
             self.lidarVisualizer.points.Reset()
             self.lidarVisualizer.vertices.Reset()
             self.lidarVisualizer.colors.Reset()
 
-            self.ros_client.reset_visualization()
 
 
 
     ########### RESET POZYCJI KÓŁ #############
 
     def reset_vtk_visualization(self):
+        self.ros_client.reset_visualization()
+        
         self.lidarVisualizer.points.Reset()
         self.lidarVisualizer.vertices.Reset()
         self.lidarVisualizer.colors.Reset()
 
-
-        self.ros_client.reset_visualization()
 
 
     ########### VTK #############
