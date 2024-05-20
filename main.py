@@ -88,22 +88,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.is_saving_pointcloud = False
             self.save_pointcloud_button.setText("Rozpocznij zapisywanie\nchmury punktów")
             # Zakończ zapisywanie chmury punktów
-            self.lidarVisualizer.points.Reset()
-            self.lidarVisualizer.vertices.Reset()
-            self.lidarVisualizer.colors.Reset()
-
-            self.ros_client.wheelL = 0.0
-            self.ros_client.wheelR = 0.0
-            self.ros_client.wheelAvg = 0.0
-            self.ros_client.last_wheelL = 0.0
-            self.ros_client.last_wheelR = 0.0
-
-            # Zresetowanie zmiennych związanych z ruchem kół
-            self.ros_client.vel_angle_z = 0.0
-            self.ros_client.vel_last_angle_z = 0.0
-            self.ros_client.acc_angle_x = 0.0
-            self.ros_client.acc_angle_y = 0.0
-            self.ros_client.acc_angle_z = 0.0
 
 
 
