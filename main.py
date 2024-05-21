@@ -90,9 +90,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             self.is_saving_pointcloud = False
             self.save_pointcloud_button.setText("Rozpocznij zapisywanie\nchmury punktów")
-
-            self.ros_client.reset_visualization()
-            
             # Zakończ zapisywanie chmury punktów
 
 
