@@ -53,7 +53,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Setup QLabel for displaying images
         self.image_label = QtWidgets.QLabel(self.camera_frame)
-        self.image_label.resize(self.camera_frame.size())
+        self.image_label.setMinimumSize(531,372)
 
         # QTimer for delayed resizing
         self.resize_timer = QTimer(self)
@@ -67,15 +67,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.reset_vtk_view_button = self.reset_vtk_view_button
         self.reset_vtk_view_button.clicked.connect(self.resetCamera) # Połączenie przycisku z metodą openVTK
         
+        self.reset_visualization_button = self.reset_visualization_button
+        self.reset_visualization_button.clicked.connect(self.reset_vtk_visualization) # Połączenie przycisku z metodą reset_vtk_visualization
+
+        self.save_pointcloud_button = self.save_pointcloud_button
+        self.save_pointcloud_button.clicked.connect(self.save_pointcloud) # Połączenie przycisku z metodą save_pointcloud
+        self.is_saving_pointcloud = False  # Flaga wskazująca, czy zapisywanie chmury punktów jest w toku
+
+
+        self.ros_client.data_updated.connect(self.update_pivot_ui)
+        self.ros_client.joints_updated.connect(self.update_joints_ui)
 
 
     ########### EXPORT CHMURY PUNKTÓW #############
-
-        self.save_pointcloud_button = self.save_pointcloud_button
-        self.save_pointcloud_button.clicked.connect(self.save_pointcloud) # Połączenie przycisku z metodą openVTK
         
-        self.is_saving_pointcloud = False  # Flaga wskazująca, czy zapisywanie chmury punktów jest w toku
-
     def save_pointcloud(self):
         if not self.is_saving_pointcloud:
             self.is_saving_pointcloud = True
@@ -85,10 +90,25 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             self.is_saving_pointcloud = False
             self.save_pointcloud_button.setText("Rozpocznij zapisywanie\nchmury punktów")
+
+            self.ros_client.reset_visualization()
+            
             # Zakończ zapisywanie chmury punktów
             self.lidarVisualizer.points.Reset()
             self.lidarVisualizer.vertices.Reset()
             self.lidarVisualizer.colors.Reset()
+
+
+
+
+    ########### RESET POZYCJI KÓŁ #############
+
+    def reset_vtk_visualization(self):
+        self.ros_client.reset_visualization()
+        
+        self.lidarVisualizer.points.Reset()
+        self.lidarVisualizer.vertices.Reset()
+        self.lidarVisualizer.colors.Reset()
 
 
 
@@ -146,9 +166,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def resetCamera(self):
         if self.renderer:
             camera = self.renderer.GetActiveCamera()
-            camera.SetPosition(0, 0, 2)
-            camera.SetFocalPoint(0, 0, 0)
-            camera.SetViewUp(0, 1, 0)
+            camera.SetPosition(5, -5, 3)
+            camera.SetFocalPoint(0, 0, 0.3)
+            camera.SetViewUp(0, 0, 1)
             self.vtkWidget.GetRenderWindow().Render()
 
 
@@ -164,6 +184,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def resize_image_label(self):
         # Resize image_label after delay
         self.image_label.resize(self.camera_frame.size())
+
 
 
     def image_callback(self, msg):
@@ -259,7 +280,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         super().closeEvent(event)
 
 
+    def update_pivot_ui(self, data):
+        self.vel_z_angle_label.setText(f"{data['vel_angle_z']:.2f}°")
+        self.acc_x_angle_label.setText(f"{data['acc_angle_x']:.2f}°")
+        self.acc_y_angle_label.setText(f"{data['acc_angle_y']:.2f}°")
+        self.acc_z_angle_label.setText(f"{data['acc_angle_z']:.2f}°")
 
+    def update_joints_ui(self, data):
+        self.wheel_z_angle_label.setText(f"{round(data['wheel_angle_z'], 2)}°")
 
 
 
