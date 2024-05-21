@@ -1,11 +1,11 @@
 from threading import Thread, Event
 import rclpy
 from rclpy.node import Node
-from sensor_msgs.msg import CompressedImage , LaserScan, JointState, Imu
+from rclpy.qos import QoSProfile, QoSHistoryPolicy, QoSReliabilityPolicy
+from sensor_msgs.msg import CompressedImage , LaserScan, JointState
+from geometry_msgs.msg import Point32
 from PyQt5.QtCore import QObject, pyqtSignal
 import math
-from datetime import datetime, timedelta
-from filterpy.kalman import KalmanFilter
 import numpy as np
 
 class RosClient(QObject):
@@ -31,26 +31,9 @@ class RosClient(QObject):
         self.last_wheelR = 0.0
         self.robot_position = np.zeros(3)
 
-        self.last_updated_time = datetime.now()
         self.vel_angle_z = 0.0
-
         self.acc_angle_x = 0.0
         self.acc_angle_y = 0.0
-        self.acc_angle_z = 0.0
-
-        self.pitch_gyro_weight = 0.98  # Waga dla pomiarów z żyroskopu
-        self.pitch_accel_weight = 0.02  # Waga dla pomiarów z akcelerometru
-        self.roll_gyro_weight = 0.98  # Waga dla pomiarów z żyroskopu
-        self.roll_accel_weight = 0.02  # Waga dla pomiarów z akcelerometru
-
-        # Inicjalizacja filtru Kalmana dla pomiaru kąta obrotu na osi z
-        self.kf = KalmanFilter(dim_x=2, dim_z=1)
-        self.kf.x = np.array([[0.], [0.]])  # początkowa wartość i prędkość kątowa
-        self.kf.F = np.array([[1., 1.], [0., 1.]])  # macierz stanu
-        self.kf.H = np.array([[1., 0.]])  # macierz obserwacji
-        self.kf.P *= 1000.  # macierz kowariancji
-        self.kf.R = 0.01  # macierz kowariancji pomiaru
-
 
         self._is_running = Event()
         self._is_running.set()
@@ -64,7 +47,13 @@ class RosClient(QObject):
         try:
             rclpy.init()
             self.node = Node("ros_client_node")
-            
+
+            qos_profile = QoSProfile(
+                reliability=QoSReliabilityPolicy.RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,
+                history=QoSHistoryPolicy.RMW_QOS_POLICY_HISTORY_KEEP_LAST,
+                depth=100
+            )
+
             #kamerka
             self.image_subscription = self.node.create_subscription(
                 CompressedImage, '/image_raw/compressed', 
@@ -85,9 +74,9 @@ class RosClient(QObject):
             
             #akcelerometr
             self.subscription = self.node.create_subscription(
-                Imu, '/imu_plugin/out', 
+                Point32, '/imu_data', 
                 lambda msg: self.update_pivot(msg), 
-                100)
+                qos_profile)
             
             while rclpy.ok() and self._is_running.is_set():
                 rclpy.spin_once(self.node)
@@ -101,7 +90,7 @@ class RosClient(QObject):
     def shutdown(self):
         self._is_running.clear()
         if self.thread.is_alive():
-            self.thread.join(timeout=2)  # Oczekuje do 5 sekund na zakończenie wątku
+            self.thread.join(timeout=2)  # Oczekuje do 2 sekund na zakończenie wątku
             if self.thread.is_alive():
                 print("ROS thread did not terminate gracefully.")
 
@@ -193,57 +182,11 @@ class RosClient(QObject):
 
 
     def update_pivot(self, msg):
-        linear_acceleration = msg.linear_acceleration
-        angular_velocity = msg.angular_velocity
+        self.acc_angle_x = msg.x
+        self.acc_angle_y = msg.y
+        self.vel_angle_z = msg.z
 
-        data = {
-            'linear_acc_x': linear_acceleration.x,
-            'linear_acc_y': linear_acceleration.y,
-            'linear_acc_z': linear_acceleration.z,
-            'angular_vel_x': angular_velocity.x,
-            'angular_vel_y': angular_velocity.y,
-            'angular_vel_z': angular_velocity.z
-        }
-        
-        # Obliczanie czasu, który minął od ostatniej aktualizacji
-        current_time = datetime.now()
-        dt = (current_time - self.last_updated_time).total_seconds()
-        self.last_updated_time = current_time
-
-        if abs(data['angular_vel_z']) > 0.01:  # aktualizuj tylko gdy prędkość kątowa jest znacząca
-            # Przewidywanie stanu filtru Kalmana
-            self.kf.F[0, 1] = dt  # aktualizacja macierzy stanu
-            self.kf.predict()
-
-            # Aktualizacja pomiaru kąta obrotu z żyroskopu
-            self.kf.update(data['angular_vel_z'])
-
-            # Odczytanie oszacowanej wartości kąta obrotu z filtru Kalmana
-            angle_change = self.kf.x[0, 0]  # Zmiana kąta obrotu od ostatniej aktualizacji
-
-            # Dodanie bieżącej zmiany kąta do łącznej wartości obrotu
-            if abs(data['angular_vel_z']) > 0.01:  # Jeśli robot się obraca
-                self.vel_angle_z += angle_change / 2    # yaw
-
-
-        # Aktualizacja danych obrotu
-
-        # Obliczanie kąta pitch na podstawie pomiarów z akcelerometru
-        acc_pitch = math.degrees(math.atan2(linear_acceleration.y, math.sqrt(linear_acceleration.x**2 + linear_acceleration.z**2)))
-        # Obliczanie zmiany kąta pitch na podstawie pomiarów z żyroskopu
-        gyro_pitch_change = angular_velocity.z * 0.03  # Czas pomiędzy pomiarami to 0.03s
-        # Połączenie obu pomiarów przy użyciu filtru komplementarnego
-        self.acc_angle_x = self.pitch_gyro_weight * (self.acc_angle_x + gyro_pitch_change) + self.pitch_accel_weight * acc_pitch
-
-
-        # Obliczanie kąta roll na podstawie pomiarów z akcelerometru
-        acc_roll = math.degrees(math.atan2(-linear_acceleration.x, linear_acceleration.z))
-        # Obliczanie zmiany kąta roll na podstawie pomiarów z żyroskopu
-        gyro_roll_change = angular_velocity.y * 0.03  # Czas pomiędzy pomiarami to 0.03s
-        # Połączenie obu pomiarów przy użyciu filtru komplementarnego
-        self.acc_angle_y = self.roll_gyro_weight * (self.acc_angle_y + gyro_roll_change) + self.roll_accel_weight * acc_roll
-
-        self.acc_angle_z = math.degrees(math.atan2(linear_acceleration.x, linear_acceleration.y))
+        self.acc_angle_z = 0
 
         # Emitowanie zaktualizowanych danych
         self.data_updated.emit({
@@ -252,6 +195,9 @@ class RosClient(QObject):
             'acc_angle_y': self.acc_angle_y,
             'acc_angle_z': self.acc_angle_z
         })
+
+        # TODO: Resetowanie kątów po kliknięciu przycisku resetu wizualizacji.
+        # Najłatwiej będzie po prostu wrzucić aktualny odczyt do zmiennej i od nowych odczytów odejmować tą zmienną
 
 
 
