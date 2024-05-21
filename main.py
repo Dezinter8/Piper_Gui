@@ -75,6 +75,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.is_saving_pointcloud = False  # Flaga wskazująca, czy zapisywanie chmury punktów jest w toku
 
 
+        self.ros_client.data_updated.connect(self.update_pivot_ui)
+        self.ros_client.joints_updated.connect(self.update_joints_ui)
+
 
     ########### EXPORT CHMURY PUNKTÓW #############
         
@@ -87,6 +90,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         else:
             self.is_saving_pointcloud = False
             self.save_pointcloud_button.setText("Rozpocznij zapisywanie\nchmury punktów")
+
+            self.ros_client.reset_visualization()
+            
             # Zakończ zapisywanie chmury punktów
 
 
@@ -94,22 +100,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     ########### RESET POZYCJI KÓŁ #############
 
     def reset_vtk_visualization(self):
+        self.ros_client.reset_visualization()
+        
         self.lidarVisualizer.points.Reset()
         self.lidarVisualizer.vertices.Reset()
         self.lidarVisualizer.colors.Reset()
-
-        self.ros_client.wheelL = 0.0
-        self.ros_client.wheelR = 0.0
-        self.ros_client.wheelAvg = 0.0
-        self.ros_client.last_wheelL = 0.0
-        self.ros_client.last_wheelR = 0.0
-
-        # Zresetowanie zmiennych związanych z ruchem kół
-        self.ros_client.vel_angle_z = 0.0
-        self.ros_client.vel_last_angle_z = 0.0
-        self.ros_client.acc_angle_x = 0.0
-        self.ros_client.acc_angle_y = 0.0
-        self.ros_client.acc_angle_z = 0.0
 
 
 
@@ -167,9 +162,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def resetCamera(self):
         if self.renderer:
             camera = self.renderer.GetActiveCamera()
-            camera.SetPosition(0, 0, 2)
-            camera.SetFocalPoint(0, 0, 0)
-            camera.SetViewUp(0, 1, 0)
+            camera.SetPosition(5, -5, 3)
+            camera.SetFocalPoint(0, 0, 0.3)
+            camera.SetViewUp(0, 0, 1)
             self.vtkWidget.GetRenderWindow().Render()
 
 
@@ -281,7 +276,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         super().closeEvent(event)
 
 
+    def update_pivot_ui(self, data):
+        self.vel_z_angle_label.setText(f"{data['vel_angle_z']:.2f}°")
+        self.acc_x_angle_label.setText(f"{data['acc_angle_x']:.2f}°")
+        self.acc_y_angle_label.setText(f"{data['acc_angle_y']:.2f}°")
+        self.acc_z_angle_label.setText(f"{data['acc_angle_z']:.2f}°")
 
+    def update_joints_ui(self, data):
+        self.wheel_z_angle_label.setText(f"{round(data['wheel_angle_z'], 2)}°")
 
 
 
