@@ -275,6 +275,50 @@ snap interface serial-port
 ```
 snap connect micro-ros-agent:serial-port snapd:pico
 ```
+### PiPER STARTUP SERVICE
+
+1. Create a service file
+```
+sudo nano /etc/systemd/system/ros2_launch.service
+```
+
+2. File `ros2_launch.service`
+
+```
+[Unit]
+Description=Uruchamia skrypt ROS 2 launch przy starcie systemu
+
+[Service]
+Type=simple
+ExecStart=/bin/bash -c '. /opt/ros/humble/setup.bash; ros2 launch /home/bot/piper_ws/src/piper_bot/LaunchPiper/MasterLaunch.py'
+
+
+[Install]
+WantedBy=multi-user.target
+```
+
+This file contains the definition of the service that runs the ROS 2 launch MasterLaunch.py script after system startup. Make sure the paths are correct and match your configuration.
+
+3. Enabling the startup service for PiPER
+
+```
+sudo systemctl daemon-reload
+```
+* This command performs a reload of the systemd configuration, which is needed after adding a new service file.
+
+```
+sudo systemctl enable ros2_launch.service
+```
+* This command enables the ros2_launch service so that it starts automatically when the system boots.
+
+```
+sudo systemctl start ros2_launch.service
+```
+* This command immediately starts the ros2_launch service, without rebooting the system.
+```
+journalctl -u ros2_launch.service
+```
+* This command will display all entries related to the `ros2_launch.service` service.
 
 ## PART 2 - DEV
 
