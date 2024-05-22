@@ -74,7 +74,7 @@ class RosClient(QObject):
             #lidar
             self.scan_subscription = self.node.create_subscription(
                 LaserScan, 'scan', 
-                lambda msg: self.visualizer.update_points(msg.ranges, msg.intensities, msg.angle_min, msg.angle_increment), 
+                lambda msg: self.update_points(msg.ranges, msg.intensities, msg.angle_min, msg.angle_increment), 
                 10)
             
             #enkodery

@@ -22,7 +22,6 @@ from RosClient import RosClient
 from ImageProcessor import ImageProcessor
 from lidar_visualization import LidarVisualizer
 
-import subprocess
 
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, *args, obj=None, **kwargs):
@@ -78,94 +77,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.ros_client.data_updated.connect(self.update_pivot_ui)
         self.ros_client.joints_updated.connect(self.update_joints_ui)
-
-
-    ########### STEROWANIE #############
-
-        # COFANIE
-        self.cofaj_button = self.cofaj_button
-        self.cofaj_button.clicked.connect(self.cofaj) # Połączenie przycisku z metodą openVTK
-        
-        # DIODA
-        self.dioda_button = self.dioda_button
-        self.dioda_button.clicked.connect(self.dioda) # Połączenie przycisku z metodą openVTK
-        self.dioda_is_on = False  # Flaga wskazująca, czy dida jest uruchomiona
-        
-        # NAPRZÓD
-        self.naprzod_button = self.naprzod_button
-        self.naprzod_button.clicked.connect(self.naprzod) # Połączenie przycisku z metodą openVTK
-        
-        # STOP
-        self.stop_button = self.stop_button
-        self.stop_button.clicked.connect(self.stop) # Połączenie przycisku z metodą openVTK
-        
-        # W LEWO
-        self.w_lewo_button = self.w_lewo_button
-        self.w_lewo_button.clicked.connect(self.w_lewo) # Połączenie przycisku z metodą openVTK
-        
-        # W PRAWO
-        self.w_prawo_button = self.w_prawo_button
-        self.w_prawo_button.clicked.connect(self.w_prawo) # Połączenie przycisku z metodą openVTK
-        
-        # Tik W LEWO
-        self.t_w_lewo_button = self.t_w_lewo_button
-        self.t_w_lewo_button.clicked.connect(self.t_w_lewo) # Połączenie przycisku z metodą openVTK
-        
-        # Tik W PRAWO
-        self.t_w_prawo_button = self.t_w_prawo_button
-        self.t_w_prawo_button.clicked.connect(self.t_w_prawo) # Połączenie przycisku z metodą openVTK
-         
-       
-    def cofaj(self): 
-        command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 22222}' -1"
-        subprocess.Popen(command, shell=True)
-        self.command_running = False
-
-    def dioda(self): 
-        if not self.dida_is_on:
-            self.dioda_is_on = True
-            self.dioda_button.setText("[L] Dioda ON ")
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 16}' -1"
-            subprocess.Popen(command, shell=True)
-            # self.button_text.set("Dioda-ON[T]")
-            self.command_running = False
-        else:
-            self.dioda_is_on = False
-            self.dioda_button.setText("[L] Dioda OFF")
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 17}' -1"
-            subprocess.Popen(command, shell=True)
-            # self.button_text.set("Dioda-OFF[T]")
-            self.command_running = False    
-        
-    def naprzod(self): 
-        command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 11111}' -1"
-        subprocess.Popen(command, shell=True)
-        self.command_running = False
-
-    def stop(self): 
-        command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 0}' -1"
-        subprocess.Popen(command, shell=True)
-        self.command_running = False
-
-    def w_lewo(self): 
-        command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 33333}' -1"
-        subprocess.Popen(command, shell=True)
-        self.command_running = False
-
-    def w_prawo(self): 
-        command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 44444}' -1"
-        subprocess.Popen(command, shell=True)
-        self.command_running = False
-        
-    def t_w_lewo(self): 
-        command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 333330}' -1"
-        subprocess.Popen(command, shell=True)
-        self.command_running = False
-        
-    def t_w_prawo(self): 
-        command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 444440}' -1"
-        subprocess.Popen(command, shell=True)
-        self.command_running = False
 
 
     ########### EXPORT CHMURY PUNKTÓW #############
@@ -238,7 +149,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.vtkWidget.GetRenderWindow().Render()
 
         # Aktualizacja wykresu matplotlib
-        lidar_points = self.lidarVisualizer.get_lidar_points()
+        lidar_points = self.ros_client.get_lidar_points()
         self.ax.clear()
         if lidar_points:
             lidar_points = np.array(lidar_points)
@@ -335,31 +246,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
         if event.key() == QtCore.Qt.Key_R:  # Sprawdź, czy naciśnięto klawisz 'r'
             self.resetCamera()
-            
-        elif event.key() == QtCore.Qt.Key_N:   # Sprawdź, czy naciśnięto klawisz 'n'
-            self.cofaj()
-            
-        elif event.key() == QtCore.Qt.Key_L:   # Sprawdź, czy naciśnięto klawisz 'l'
-            self.dioda()
-            
-        elif event.key() == QtCore.Qt.Key_Y:   # Sprawdź, czy naciśnięto klawisz 'y'
-            self.naprzod()
-            
-        elif event.key() == QtCore.Qt.Key_H:   # Sprawdź, czy naciśnięto klawisz 'h'
-            self.stop()
-            
-        elif event.key() == QtCore.Qt.Key_G:   # Sprawdź, czy naciśnięto klawisz 'g'
-            self.w_lewo()
-            
-        elif event.key() == QtCore.Qt.Key_J:   # Sprawdź, czy naciśnięto klawisz 'j'
-            self.w_prawo()
-            
-        elif event.key() == QtCore.Qt.Key_T:   # Sprawdź, czy naciśnięto klawisz 't'
-            self.t_w_lewo()
-            
-        elif event.key() == QtCore.Qt.Key_U:   # Sprawdź, czy naciśnięto klawisz 'u'
-            self.t_w_prawo()
-            
 
 
     def closeEvent(self, event):

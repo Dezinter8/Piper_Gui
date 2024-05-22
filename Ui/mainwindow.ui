@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1349</width>
-    <height>767</height>
+    <width>1266</width>
+    <height>790</height>
    </rect>
   </property>
   <property name="palette">
@@ -756,50 +756,6 @@ chmury punktów</string>
        <property name="bottomMargin">
         <number>0</number>
        </property>
-       <item row="0" column="1">
-        <widget class="QFrame" name="vtk_frame">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>320</width>
-           <height>180</height>
-          </size>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::NoFrame</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0">
-        <widget class="QFrame" name="realtime_frame">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>320</width>
-           <height>180</height>
-          </size>
-         </property>
-         <property name="frameShape">
-          <enum>QFrame::NoFrame</enum>
-         </property>
-         <property name="frameShadow">
-          <enum>QFrame::Raised</enum>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="0">
         <widget class="QFrame" name="camera_frame">
          <property name="sizePolicy">
@@ -823,10 +779,10 @@ chmury punktów</string>
          <widget class="QLabel" name="label_8">
           <property name="geometry">
            <rect>
-            <x>20</x>
-            <y>20</y>
-            <width>518</width>
-            <height>354</height>
+            <x>10</x>
+            <y>10</y>
+            <width>481</width>
+            <height>331</height>
            </rect>
           </property>
           <property name="maximumSize">
@@ -923,14 +879,11 @@ chmury punktów</string>
           <property name="alignment">
            <set>Qt::AlignCenter</set>
           </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
          </widget>
         </widget>
        </item>
-       <item row="1" column="1">
-        <widget class="QFrame" name="steering_frame">
+       <item row="0" column="1">
+        <widget class="QFrame" name="vtk_frame">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
            <horstretch>0</horstretch>
@@ -943,67 +896,156 @@ chmury punktów</string>
            <height>180</height>
           </size>
          </property>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="2" column="3" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-           <widget class="QPushButton" name="w_prawo_button">
-            <property name="text">
-             <string>[L] W Prawo</string>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="1">
+        <widget class="QFrame" name="map_frame">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>320</width>
+           <height>180</height>
+          </size>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
+          <item>
+           <widget class="QLabel" name="label_6">
+            <property name="maximumSize">
+             <size>
+              <width>518</width>
+              <height>354</height>
+             </size>
             </property>
-           </widget>
-          </item>
-          <item row="2" column="0" alignment="Qt::AlignHCenter">
-           <widget class="QPushButton" name="w_lewo_button">
-            <property name="text">
-             <string>[G] W Lewo</string>
+            <property name="palette">
+             <palette>
+              <active>
+               <colorrole role="Base">
+                <brush brushstyle="SolidPattern">
+                 <color alpha="255">
+                  <red>255</red>
+                  <green>255</green>
+                  <blue>255</blue>
+                 </color>
+                </brush>
+               </colorrole>
+               <colorrole role="Window">
+                <brush brushstyle="SolidPattern">
+                 <color alpha="255">
+                  <red>153</red>
+                  <green>193</green>
+                  <blue>241</blue>
+                 </color>
+                </brush>
+               </colorrole>
+              </active>
+              <inactive>
+               <colorrole role="Base">
+                <brush brushstyle="SolidPattern">
+                 <color alpha="255">
+                  <red>255</red>
+                  <green>255</green>
+                  <blue>255</blue>
+                 </color>
+                </brush>
+               </colorrole>
+               <colorrole role="Window">
+                <brush brushstyle="SolidPattern">
+                 <color alpha="255">
+                  <red>153</red>
+                  <green>193</green>
+                  <blue>241</blue>
+                 </color>
+                </brush>
+               </colorrole>
+              </inactive>
+              <disabled>
+               <colorrole role="Base">
+                <brush brushstyle="SolidPattern">
+                 <color alpha="255">
+                  <red>153</red>
+                  <green>193</green>
+                  <blue>241</blue>
+                 </color>
+                </brush>
+               </colorrole>
+               <colorrole role="Window">
+                <brush brushstyle="SolidPattern">
+                 <color alpha="255">
+                  <red>153</red>
+                  <green>193</green>
+                  <blue>241</blue>
+                 </color>
+                </brush>
+               </colorrole>
+              </disabled>
+             </palette>
             </property>
-           </widget>
-          </item>
-          <item row="2" column="1" colspan="2">
-           <widget class="QPushButton" name="stop_button">
-            <property name="text">
-             <string>[H] STOP</string>
+            <property name="layoutDirection">
+             <enum>Qt::LeftToRight</enum>
             </property>
-           </widget>
-          </item>
-          <item row="1" column="0" alignment="Qt::AlignHCenter">
-           <widget class="QPushButton" name="t_w_lewo_button">
-            <property name="text">
-             <string>[T] T. w Lewo</string>
-            </property>
-            <property name="flat">
+            <property name="autoFillBackground">
              <bool>false</bool>
             </property>
-           </widget>
-          </item>
-          <item row="1" column="3" alignment="Qt::AlignHCenter">
-           <widget class="QPushButton" name="t_w_prawo_button">
-            <property name="text">
-             <string>[U] T. w Prawo</string>
+            <property name="styleSheet">
+             <string notr="true">background-image: url(:/newPrefix/Ui/Images/nodata.jpeg);</string>
             </property>
-           </widget>
-          </item>
-          <item row="1" column="1" colspan="2">
-           <widget class="QPushButton" name="naprzod_button">
             <property name="text">
-             <string>[Y] Naprzód</string>
+             <string/>
             </property>
-           </widget>
-          </item>
-          <item row="3" column="1" colspan="2">
-           <widget class="QPushButton" name="cofaj_button">
-            <property name="text">
-             <string>[N] Cofaj</string>
+            <property name="textFormat">
+             <enum>Qt::RichText</enum>
             </property>
-           </widget>
-          </item>
-          <item row="0" column="1" colspan="2">
-           <widget class="QPushButton" name="dioda_button">
-            <property name="text">
-             <string>[L] Dioda ON </string>
+            <property name="pixmap">
+             <pixmap resource="../resources.qrc">:/newPrefix/Ui/Images/nodata.jpeg</pixmap>
+            </property>
+            <property name="scaledContents">
+             <bool>true</bool>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
             </property>
            </widget>
           </item>
          </layout>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QFrame" name="realtime_frame">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>320</width>
+           <height>180</height>
+          </size>
+         </property>
+         <property name="frameShape">
+          <enum>QFrame::NoFrame</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
+         </property>
         </widget>
        </item>
       </layout>
@@ -1016,7 +1058,7 @@ chmury punktów</string>
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1349</width>
+     <width>1266</width>
      <height>22</height>
     </rect>
    </property>
@@ -1024,7 +1066,6 @@ chmury punktów</string>
  </widget>
  <resources>
   <include location="../resources.qrc"/>
-  <include location="../../../.designer/resources.qrc"/>
  </resources>
  <connections/>
 </ui>
