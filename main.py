@@ -238,7 +238,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.vtkWidget.GetRenderWindow().Render()
 
         # Aktualizacja wykresu matplotlib
-        lidar_points = self.lidarVisualizer.get_lidar_points()
+        lidar_points = self.ros_client.get_lidar_points()
         self.ax.clear()
         if lidar_points:
             lidar_points = np.array(lidar_points)
