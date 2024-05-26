@@ -226,8 +226,6 @@ class RosClient(QObject):
 
         # Mierzenie skrętu na podstawie różnicy w ruchu koła
         WHEEL_RADIUS = 0.03
-        DISTANCE_BETWEEN_WHEELS = 0.42 
-        self.wheel_angle_z = (self.wheelR - self.wheelL) * WHEEL_RADIUS / DISTANCE_BETWEEN_WHEELS
 
         # Aktualizacja pozycji na podstawie przemieszczenia i rotacji
         rx = np.array([[1, 0, 0],
