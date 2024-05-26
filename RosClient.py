@@ -3,7 +3,7 @@ import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSHistoryPolicy, QoSReliabilityPolicy
 from sensor_msgs.msg import CompressedImage , LaserScan, JointState
-from geometry_msgs.msg import Point32
+from geometry_msgs.msg import Point32, Quaternion
 from PyQt5.QtCore import QObject, pyqtSignal
 import math
 import numpy as np
@@ -69,7 +69,7 @@ class RosClient(QObject):
             
             #enkodery
             self.subscription = self.node.create_subscription(
-                JointState, '/joint_states', 
+                Quaternion, '/enkoder_publisher', 
                 lambda msg: self.update_joints(msg), 
                 10)
             
@@ -209,16 +209,16 @@ class RosClient(QObject):
     def update_joints(self, msg):
         if self.start_wheels == 0:
             # Ustawienie początkowych wartości tylko raz, gdy nie zostały jeszcze ustawione
-            self.start_wheelL = msg.position[1]
-            self.start_wheelR = msg.position[2]
+            self.start_wheelL = msg.z
+            self.start_wheelR = msg.w
 
             self.start_wheels += 1
 
         self.last_wheelAvg = self.wheelAvg
 
         # Obliczenie różnicy pozycji aktualnej i startowej dla każdego koła
-        wheelL_diff = round(msg.position[1] - self.start_wheelL, 3)
-        wheelR_diff = round(msg.position[2] - self.start_wheelR, 3)
+        wheelL_diff = round(msg.z - self.start_wheelL, 3)
+        wheelR_diff = round(msg.w - self.start_wheelR, 3)
 
         self.wheelL = wheelL_diff
         self.wheelR = wheelR_diff
@@ -248,6 +248,8 @@ class RosClient(QObject):
                 self.robot_position = np.zeros(3)  # inicjalizacja pozycji robota
 
             self.robot_position += displacement
+
+        print(f'L: {self.wheelL}  R: {self.wheelR}')
 
 
 
