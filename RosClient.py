@@ -186,14 +186,11 @@ class RosClient(QObject):
         self.acc_angle_y = msg.y
         self.vel_angle_z = msg.z
 
-        self.acc_angle_z = 0
-
         # Emitowanie zaktualizowanych danych
         self.data_updated.emit({
             'vel_angle_z': self.vel_angle_z,
             'acc_angle_x': self.acc_angle_x,
             'acc_angle_y': self.acc_angle_y,
-            'acc_angle_z': self.acc_angle_z
         })
 
         # TODO: Resetowanie kątów po kliknięciu przycisku resetu wizualizacji.
@@ -250,10 +247,6 @@ class RosClient(QObject):
                 self.robot_position = np.zeros(3)  # inicjalizacja pozycji robota
 
             self.robot_position += displacement
-
-        self.joints_updated.emit({
-            'wheel_angle_z': math.degrees(self.wheel_angle_z)
-        })
 
 
 
