@@ -10,7 +10,6 @@ import numpy as np
 
 class RosClient(QObject):
     data_updated = pyqtSignal(dict)
-    joints_updated = pyqtSignal(dict)
 
     def __init__(self, main_window, visualizer, image_callback, enkoders, imu):
         super().__init__()
@@ -36,7 +35,6 @@ class RosClient(QObject):
 
         self.acc_angle_x = 0.0
         self.acc_angle_y = 0.0
-        self.acc_angle_z = 0.0
 
         self.pitch_gyro_weight = 0.98  # Waga dla pomiarów z żyroskopu
         self.pitch_accel_weight = 0.02  # Waga dla pomiarów z akcelerometru
@@ -243,14 +241,11 @@ class RosClient(QObject):
         # Połączenie obu pomiarów przy użyciu filtru komplementarnego
         self.acc_angle_y = self.roll_gyro_weight * (self.acc_angle_y + gyro_roll_change) + self.roll_accel_weight * acc_roll
 
-        self.acc_angle_z = math.degrees(math.atan2(linear_acceleration.x, linear_acceleration.y))
-
         # Emitowanie zaktualizowanych danych
         self.data_updated.emit({
             'vel_angle_z': self.vel_angle_z,
             'acc_angle_x': self.acc_angle_x,
             'acc_angle_y': self.acc_angle_y,
-            'acc_angle_z': self.acc_angle_z
         })
 
 
@@ -280,8 +275,6 @@ class RosClient(QObject):
 
         # Mierzenie skrętu na podstawie różnicy w ruchu koła
         WHEEL_RADIUS = 0.03
-        DISTANCE_BETWEEN_WHEELS = 0.42 
-        self.wheel_angle_z = (self.wheelR - self.wheelL) * WHEEL_RADIUS / DISTANCE_BETWEEN_WHEELS
 
         # Aktualizacja pozycji na podstawie przemieszczenia i rotacji
         rx = np.array([[1, 0, 0],
@@ -304,10 +297,6 @@ class RosClient(QObject):
                 self.robot_position = np.zeros(3)  # inicjalizacja pozycji robota
 
             self.robot_position += displacement
-
-        self.joints_updated.emit({
-            'wheel_angle_z': math.degrees(self.wheel_angle_z)
-        })
 
 
 
