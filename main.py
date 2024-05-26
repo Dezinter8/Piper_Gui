@@ -89,7 +89,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # DIODA
         self.dioda_button = self.dioda_button
         self.dioda_button.clicked.connect(self.dioda) # Połączenie przycisku z metodą openVTK
-        self.dioda_is_on = True  # Flaga wskazująca, czy dioda jest uruchomiona
+        self.dioda_is_on = False  # Flaga wskazująca, czy dioda jest uruchomiona
         
         # NAPRZÓD
         self.naprzod_button = self.naprzod_button
@@ -361,25 +361,25 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.t_w_prawo()
             
             
-    def keyReleaseEvent(self, event): # Zadania do wykonania przy puszczeniu klawisza
-        super(MainWindow, self).keyReleaseEvent(event)  
+    # def keyReleaseEvent(self, event): # Zadania do wykonania przy puszczeniu klawisza
+    #     super(MainWindow, self).keyReleaseEvent(event)  
         
-        key_stop_list = [
-            QtCore.Qt.Key_N, # Sprawdźenie klawisza 'n' - cofaj
+    #     key_stop_list = [
+    #         QtCore.Qt.Key_N, # Sprawdźenie klawisza 'n' - cofaj
             
-            QtCore.Qt.Key_Y, # Sprawdźenie klawisza 'y' - naprzod
+    #         QtCore.Qt.Key_Y, # Sprawdźenie klawisza 'y' - naprzod
             
-            QtCore.Qt.Key_G, # Sprawdźenie klawisza 'g' - w_lewo
+    #         QtCore.Qt.Key_G, # Sprawdźenie klawisza 'g' - w_lewo
             
-            QtCore.Qt.Key_J, # Sprawdźenie klawisza 'j' - w_prawo
+    #         QtCore.Qt.Key_J, # Sprawdźenie klawisza 'j' - w_prawo
             
-            QtCore.Qt.Key_T, # Sprawdźenie klawisza 't' - t_w_lewo
+    #         QtCore.Qt.Key_T, # Sprawdźenie klawisza 't' - t_w_lewo
             
-            QtCore.Qt.Key_U  # Sprawdźenie klawisza 'u' - t_w_prawo
-        ]
+    #         QtCore.Qt.Key_U  # Sprawdźenie klawisza 'u' - t_w_prawo
+    #     ]
         
-        if event.key() in key_stop_list:
-            self.stop() # wykonanie polecenia stop przy puszczeniu klawisza
+    #     if event.key() in key_stop_list:
+    #         self.stop() # wykonanie polecenia stop przy puszczeniu klawisza
 
     def closeEvent(self, event):
         self.image_processor.stop_recording()
