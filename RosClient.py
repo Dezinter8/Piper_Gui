@@ -10,7 +10,6 @@ import numpy as np
 
 class RosClient(QObject):
     data_updated = pyqtSignal(dict)
-    joints_updated = pyqtSignal(dict)
 
     def __init__(self, main_window, visualizer, image_callback, enkoders, imu):
         super().__init__()
@@ -35,6 +34,8 @@ class RosClient(QObject):
         self.acc_angle_x = 0.0
         self.acc_angle_y = 0.0
 
+        self.vel_angle_z_reset = 0.0  # dodana zmienna do przechowywania wartości resetu
+        
         self._is_running = Event()
         self._is_running.set()
         self.init_ros()
@@ -184,7 +185,11 @@ class RosClient(QObject):
     def update_pivot(self, msg):
         self.acc_angle_x = msg.x
         self.acc_angle_y = msg.y
-        self.vel_angle_z = msg.z
+
+
+        # Odejmowanie wartości resetu przed aktualizacją kąta
+        adjusted_angle = msg.z - self.vel_angle_z_reset
+        self.vel_angle_z = adjusted_angle
 
         # Emitowanie zaktualizowanych danych
         self.data_updated.emit({
@@ -257,6 +262,5 @@ class RosClient(QObject):
         self.wheelAvg = 0.0
         self.robot_position = np.zeros(3)
 
-        self.vel_angle_z = 0.0
-        self.acc_angle_x = 0.0
-        self.acc_angle_y = 0.0
+        # Zapisywanie aktualnego kąta jako wartość resetu
+        self.vel_angle_z_reset += self.vel_angle_z
