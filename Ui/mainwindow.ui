@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1349</width>
-    <height>767</height>
+    <height>882</height>
    </rect>
   </property>
   <property name="palette">
@@ -613,15 +613,8 @@ chmury punktów</string>
           <property name="spacing">
            <number>0</number>
           </property>
-          <item row="2" column="0">
-           <widget class="QLabel" name="label_21">
-            <property name="text">
-             <string>Y:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLabel" name="vel_z_angle_label">
+          <item row="2" column="1">
+           <widget class="QLabel" name="acc_y_angle_label">
             <property name="text">
              <string>00</string>
             </property>
@@ -637,6 +630,23 @@ chmury punktów</string>
             </property>
            </widget>
           </item>
+          <item row="0" column="0" colspan="2">
+           <widget class="QLabel" name="label_15">
+            <property name="text">
+             <string>Pozycja:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLabel" name="vel_z_angle_label">
+            <property name="text">
+             <string>00</string>
+            </property>
+            <property name="textInteractionFlags">
+             <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+            </property>
+           </widget>
+          </item>
           <item row="1" column="1">
            <widget class="QLabel" name="acc_x_angle_label">
             <property name="text">
@@ -647,23 +657,6 @@ chmury punktów</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
-           <widget class="QLabel" name="acc_y_angle_label">
-            <property name="text">
-             <string>00</string>
-            </property>
-            <property name="textInteractionFlags">
-             <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="0">
-           <widget class="QLabel" name="label_34">
-            <property name="text">
-             <string>Z:</string>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="0">
            <widget class="QLabel" name="label_20">
             <property name="text">
@@ -671,48 +664,10 @@ chmury punktów</string>
             </property>
            </widget>
           </item>
-          <item row="7" column="0">
-           <widget class="QLabel" name="label_7">
+          <item row="2" column="0">
+           <widget class="QLabel" name="label_21">
             <property name="text">
-             <string>Z:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="5" column="1">
-           <widget class="QLabel" name="acc_z_angle_label">
-            <property name="text">
-             <string>00</string>
-            </property>
-            <property name="textInteractionFlags">
-             <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0" colspan="2">
-           <widget class="QLabel" name="label_15">
-            <property name="text">
-             <string>Pozycja:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0" colspan="2">
-           <widget class="QLabel" name="label_5">
-            <property name="text">
-             <string>Acc:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="7" column="1">
-           <widget class="QLabel" name="wheel_z_angle_label">
-            <property name="text">
-             <string>00</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="0" colspan="2">
-           <widget class="QLabel" name="label_9">
-            <property name="text">
-             <string>Koła:</string>
+             <string>Y:</string>
             </property>
            </widget>
           </item>
@@ -820,113 +775,109 @@ chmury punktów</string>
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
-         <widget class="QLabel" name="label_8">
-          <property name="geometry">
-           <rect>
-            <x>20</x>
-            <y>20</y>
-            <width>518</width>
-            <height>354</height>
-           </rect>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>518</width>
-            <height>354</height>
-           </size>
-          </property>
-          <property name="palette">
-           <palette>
-            <active>
-             <colorrole role="Base">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>255</red>
-                <green>255</green>
-                <blue>255</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Window">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>153</red>
-                <green>193</green>
-                <blue>241</blue>
-               </color>
-              </brush>
-             </colorrole>
-            </active>
-            <inactive>
-             <colorrole role="Base">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>255</red>
-                <green>255</green>
-                <blue>255</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Window">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>153</red>
-                <green>193</green>
-                <blue>241</blue>
-               </color>
-              </brush>
-             </colorrole>
-            </inactive>
-            <disabled>
-             <colorrole role="Base">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>153</red>
-                <green>193</green>
-                <blue>241</blue>
-               </color>
-              </brush>
-             </colorrole>
-             <colorrole role="Window">
-              <brush brushstyle="SolidPattern">
-               <color alpha="255">
-                <red>153</red>
-                <green>193</green>
-                <blue>241</blue>
-               </color>
-              </brush>
-             </colorrole>
-            </disabled>
-           </palette>
-          </property>
-          <property name="layoutDirection">
-           <enum>Qt::LeftToRight</enum>
-          </property>
-          <property name="autoFillBackground">
-           <bool>false</bool>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">background-image: url(:/newPrefix/Ui/Images/nodata.jpeg);</string>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-          <property name="textFormat">
-           <enum>Qt::RichText</enum>
-          </property>
-          <property name="pixmap">
-           <pixmap resource="../resources.qrc">:/newPrefix/Ui/Images/nodata.jpeg</pixmap>
-          </property>
-          <property name="scaledContents">
-           <bool>true</bool>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
-          </property>
-          <property name="wordWrap">
-           <bool>true</bool>
-          </property>
-         </widget>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QLabel" name="label_8">
+            <property name="maximumSize">
+             <size>
+              <width>418</width>
+              <height>254</height>
+             </size>
+            </property>
+            <property name="palette">
+             <palette>
+              <active>
+               <colorrole role="Base">
+                <brush brushstyle="SolidPattern">
+                 <color alpha="255">
+                  <red>255</red>
+                  <green>255</green>
+                  <blue>255</blue>
+                 </color>
+                </brush>
+               </colorrole>
+               <colorrole role="Window">
+                <brush brushstyle="SolidPattern">
+                 <color alpha="255">
+                  <red>153</red>
+                  <green>193</green>
+                  <blue>241</blue>
+                 </color>
+                </brush>
+               </colorrole>
+              </active>
+              <inactive>
+               <colorrole role="Base">
+                <brush brushstyle="SolidPattern">
+                 <color alpha="255">
+                  <red>255</red>
+                  <green>255</green>
+                  <blue>255</blue>
+                 </color>
+                </brush>
+               </colorrole>
+               <colorrole role="Window">
+                <brush brushstyle="SolidPattern">
+                 <color alpha="255">
+                  <red>153</red>
+                  <green>193</green>
+                  <blue>241</blue>
+                 </color>
+                </brush>
+               </colorrole>
+              </inactive>
+              <disabled>
+               <colorrole role="Base">
+                <brush brushstyle="SolidPattern">
+                 <color alpha="255">
+                  <red>153</red>
+                  <green>193</green>
+                  <blue>241</blue>
+                 </color>
+                </brush>
+               </colorrole>
+               <colorrole role="Window">
+                <brush brushstyle="SolidPattern">
+                 <color alpha="255">
+                  <red>153</red>
+                  <green>193</green>
+                  <blue>241</blue>
+                 </color>
+                </brush>
+               </colorrole>
+              </disabled>
+             </palette>
+            </property>
+            <property name="layoutDirection">
+             <enum>Qt::LeftToRight</enum>
+            </property>
+            <property name="autoFillBackground">
+             <bool>false</bool>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-image: url(:/newPrefix/Ui/Images/nodata.jpeg);</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="textFormat">
+             <enum>Qt::RichText</enum>
+            </property>
+            <property name="pixmap">
+             <pixmap resource="../resources.qrc">:/newPrefix/Ui/Images/nodata.jpeg</pixmap>
+            </property>
+            <property name="scaledContents">
+             <bool>true</bool>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </widget>
        </item>
        <item row="1" column="1">
@@ -944,10 +895,10 @@ chmury punktów</string>
           </size>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
-          <item row="2" column="3" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-           <widget class="QPushButton" name="w_prawo_button">
+          <item row="1" column="1" colspan="2">
+           <widget class="QPushButton" name="naprzod_button">
             <property name="text">
-             <string>[L] W Prawo</string>
+             <string>[Y] Naprzód</string>
             </property>
            </widget>
           </item>
@@ -958,20 +909,10 @@ chmury punktów</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="1" colspan="2">
-           <widget class="QPushButton" name="stop_button">
+          <item row="0" column="1" colspan="2">
+           <widget class="QPushButton" name="dioda_button">
             <property name="text">
-             <string>[H] STOP</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" alignment="Qt::AlignHCenter">
-           <widget class="QPushButton" name="t_w_lewo_button">
-            <property name="text">
-             <string>[T] T. w Lewo</string>
-            </property>
-            <property name="flat">
-             <bool>false</bool>
+             <string>[L] Dioda ON </string>
             </property>
            </widget>
           </item>
@@ -982,10 +923,17 @@ chmury punktów</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1" colspan="2">
-           <widget class="QPushButton" name="naprzod_button">
+          <item row="2" column="3" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+           <widget class="QPushButton" name="w_prawo_button">
             <property name="text">
-             <string>[Y] Naprzód</string>
+             <string>[J] W Prawo</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" colspan="2">
+           <widget class="QPushButton" name="stop_button">
+            <property name="text">
+             <string>[H] STOP</string>
             </property>
            </widget>
           </item>
@@ -996,10 +944,13 @@ chmury punktów</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="1" colspan="2">
-           <widget class="QPushButton" name="dioda_button">
+          <item row="1" column="0">
+           <widget class="QPushButton" name="t_w_lewo_button">
             <property name="text">
-             <string>[L] Dioda ON </string>
+             <string>[T] T. w Lewo</string>
+            </property>
+            <property name="flat">
+             <bool>false</bool>
             </property>
            </widget>
           </item>
@@ -1024,7 +975,7 @@ chmury punktów</string>
  </widget>
  <resources>
   <include location="../resources.qrc"/>
-  <include location="../../../.designer/resources.qrc"/>
+  <include location="../resources.qrc"/>
  </resources>
  <connections/>
 </ui>
