@@ -198,8 +198,6 @@ class RosClient(QObject):
             'acc_angle_y': self.acc_angle_y,
         })
 
-        # TODO: Resetowanie kątów po kliknięciu przycisku resetu wizualizacji.
-        # Najłatwiej będzie po prostu wrzucić aktualny odczyt do zmiennej i od nowych odczytów odejmować tą zmienną
 
 
 
