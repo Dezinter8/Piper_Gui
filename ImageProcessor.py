@@ -20,7 +20,7 @@ class ImageProcessor:
         output_directory = os.path.expanduser("~/piper_output") # uzyskanie ścieżka do katalogu domowego użytkownika
         filename = os.path.join(output_directory, now.strftime("%Y-%m-%d_%H-%M-%S_Kamera.avi"))
         os.makedirs(output_directory, exist_ok=True) # spr czy dany folder istnieje
-        self.video_writer = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc(*'MJPG'), 20, (640, 480))
+        self.video_writer = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc(*'MJPG'), 15, (640, 480))
         self.recording = True
 
 
