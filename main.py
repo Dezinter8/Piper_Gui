@@ -55,6 +55,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Setup QLabel for displaying images
         self.image_label = QtWidgets.QLabel(self.camera_frame)
         self.image_label.setMinimumSize(531,372)
+        self.image_label.setAlignment(QtCore.Qt.AlignCenter)
 
         # QTimer for delayed resizing
         self.resize_timer = QTimer(self)
@@ -77,7 +78,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
         self.ros_client.data_updated.connect(self.update_pivot_ui)
-        self.ros_client.joints_updated.connect(self.update_joints_ui)
 
 
     ########### STEROWANIE #############
@@ -410,10 +410,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.vel_z_angle_label.setText(f"{data['vel_angle_z']:.2f}°")
         self.acc_x_angle_label.setText(f"{data['acc_angle_x']:.2f}°")
         self.acc_y_angle_label.setText(f"{data['acc_angle_y']:.2f}°")
-        self.acc_z_angle_label.setText(f"{data['acc_angle_z']:.2f}°")
-
-    def update_joints_ui(self, data):
-        self.wheel_z_angle_label.setText(f"{round(data['wheel_angle_z'], 2)}°")
 
 
 
