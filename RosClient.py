@@ -10,6 +10,7 @@ import numpy as np
 
 class RosClient(QObject):
     data_updated = pyqtSignal(dict)
+    joints_updated = pyqtSignal(dict)
 
     def __init__(self, main_window, visualizer, image_callback, enkoders, imu):
         super().__init__()
@@ -249,7 +250,19 @@ class RosClient(QObject):
 
             self.robot_position += displacement
 
-        print(f'L: {self.wheelL}  R: {self.wheelR}')
+        # print(f'L: {self.wheelL}  R: {self.wheelR}')
+
+        # Obliczenie prędkości liniowej dla obu kół
+        left_wheel_speed = WHEEL_RADIUS * msg.x  # msg.x - prędkość lewego koła w rad/s
+        right_wheel_speed = WHEEL_RADIUS * msg.y  # msg.y - prędkość prawego koła w rad/s
+
+        # Średnia prędkość dla lepszego odzwierciedlenia prędkości robota
+        average_speed = (left_wheel_speed + right_wheel_speed) / 2
+
+        # Emitowanie sygnału z danymi, który zawiera także prędkości w m/s
+        self.joints_updated.emit({
+            'average_speed_mps': average_speed
+        })
 
 
 

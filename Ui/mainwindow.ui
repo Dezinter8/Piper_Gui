@@ -568,7 +568,7 @@ chmury punktów</string>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="label_4">
+           <widget class="QLabel" name="speed_label">
             <property name="text">
              <string>135 km/h</string>
             </property>
@@ -895,52 +895,10 @@ chmury punktów</string>
           </size>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
-          <item row="1" column="1" colspan="2">
-           <widget class="QPushButton" name="naprzod_button">
-            <property name="text">
-             <string>[Y] Naprzód</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0" alignment="Qt::AlignHCenter">
-           <widget class="QPushButton" name="w_lewo_button">
-            <property name="text">
-             <string>[G] W Lewo</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1" colspan="2">
-           <widget class="QPushButton" name="dioda_button">
-            <property name="text">
-             <string>[L] Dioda ON </string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="3" alignment="Qt::AlignHCenter">
-           <widget class="QPushButton" name="t_w_prawo_button">
-            <property name="text">
-             <string>[U] T. w Prawo</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="3" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-           <widget class="QPushButton" name="w_prawo_button">
-            <property name="text">
-             <string>[J] W Prawo</string>
-            </property>
-           </widget>
-          </item>
           <item row="2" column="1" colspan="2">
            <widget class="QPushButton" name="stop_button">
             <property name="text">
              <string>[H] STOP</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1" colspan="2">
-           <widget class="QPushButton" name="cofaj_button">
-            <property name="text">
-             <string>[N] Cofaj</string>
             </property>
            </widget>
           </item>
@@ -951,6 +909,61 @@ chmury punktów</string>
             </property>
             <property name="flat">
              <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1" colspan="2">
+           <widget class="QPushButton" name="cofaj_button">
+            <property name="text">
+             <string>[N] Cofaj</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="3" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+           <widget class="QPushButton" name="w_prawo_button">
+            <property name="text">
+             <string>[J] W Prawo</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QSpinBox" name="speed_value">
+            <property name="prefix">
+             <string>Prędkość: </string>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>4</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" colspan="2">
+           <widget class="QPushButton" name="naprzod_button">
+            <property name="text">
+             <string>[Y] Naprzód</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3" alignment="Qt::AlignHCenter">
+           <widget class="QPushButton" name="t_w_prawo_button">
+            <property name="text">
+             <string>[U] T. w Prawo</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" colspan="2">
+           <widget class="QPushButton" name="dioda_button">
+            <property name="text">
+             <string>[L] Dioda ON </string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0" alignment="Qt::AlignHCenter">
+           <widget class="QPushButton" name="w_lewo_button">
+            <property name="text">
+             <string>[G] W Lewo</string>
             </property>
            </widget>
           </item>
