@@ -116,8 +116,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.t_w_prawo_button.clicked.connect(self.t_w_prawo) # Połączenie przycisku z metodą openVTK
          
        
+       
     def cofaj(self): 
-        command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 22222}' -1"
+        speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
+        
+        # Ustalanie komendy na podstawie wartości 'speed'
+        if speed == 1:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 22222}' -1"
+        elif speed == 2:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 222222}' -1"
+        elif speed == 3:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 2222222}' -1"
+        elif speed == 4:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 22222222}' -1"
+        else:
+            return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
+
         subprocess.Popen(command, shell=True)
         self.command_running = False
 
@@ -138,7 +152,20 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.command_running = False    
         
     def naprzod(self): 
-        command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 11111}' -1"
+        speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
+        
+        # Ustalanie komendy na podstawie wartości 'speed'
+        if speed == 1:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 11111}' -1"
+        elif speed == 2:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 111111}' -1"
+        elif speed == 3:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 1111111}' -1"
+        elif speed == 4:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 11111111}' -1"
+        else:
+            return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
+
         subprocess.Popen(command, shell=True)
         self.command_running = False
 
@@ -148,22 +175,73 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.command_running = False
 
     def w_lewo(self): 
-        command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 33333}' -1"
+        speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
+        
+        # Ustalanie komendy na podstawie wartości 'speed'
+        if speed == 1:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 33333}' -1"
+        elif speed == 2:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 333333}' -1"
+        elif speed == 3:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 3333333}' -1"
+        elif speed == 4:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 33333333}' -1"
+        else:
+            return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
+
         subprocess.Popen(command, shell=True)
         self.command_running = False
 
     def w_prawo(self): 
-        command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 44444}' -1"
+        speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
+        
+        # Ustalanie komendy na podstawie wartości 'speed'
+        if speed == 1:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 44444}' -1"
+        elif speed == 2:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 444444}' -1"
+        elif speed == 3:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 4444444}' -1"
+        elif speed == 4:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 44444444}' -1"
+        else:
+            return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
         subprocess.Popen(command, shell=True)
         self.command_running = False
         
     def t_w_lewo(self): 
-        command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 333330}' -1"
+        speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
+        
+        # Ustalanie komendy na podstawie wartości 'speed'
+        if speed == 1:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 333330}' -1"
+        elif speed == 2:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 3333330}' -1"
+        elif speed == 3:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 33333330}' -1"
+        elif speed == 4:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 333333330}' -1"
+        else:
+            return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
+
         subprocess.Popen(command, shell=True)
         self.command_running = False
         
     def t_w_prawo(self): 
-        command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 444440}' -1"
+        speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
+        
+        # Ustalanie komendy na podstawie wartości 'speed'
+        if speed == 1:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 444440}' -1"
+        elif speed == 2:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 4444440}' -1"
+        elif speed == 3:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 44444440}' -1"
+        elif speed == 4:
+            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 444444440}' -1"
+        else:
+            return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
+
         subprocess.Popen(command, shell=True)
         self.command_running = False
 
