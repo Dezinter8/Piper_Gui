@@ -106,10 +106,6 @@ class RosClient(QObject):
     def update_points(self, ranges, intensities, angle_min, angle_increment):
         self.lidar_points = []
         color = []
-        # Sprawdzenie, czy robot się porusza
-        if self.wheelL == self.last_wheelL and self.wheelR == self.last_wheelR:
-            # print("Robot się nie poruszył, pomijam aktualizację punktów lidaru")
-            return  # Pominięcie aktualizacji punktów lidaru
 
         self.matplotlib_lidar_points = []
 
@@ -128,6 +124,10 @@ class RosClient(QObject):
             # Kolorowanie punktów na podstawie intensywności
             color.append(self.get_color_from_intensity(intensity))
 
+        # Sprawdzenie, czy robot się porusza
+        if self.wheelL == self.last_wheelL and self.wheelR == self.last_wheelR:
+            # print("Robot się nie poruszył, pomijam aktualizację punktów lidaru")
+            return  # Pominięcie aktualizacji punktów lidaru
 
         self.transform_points(color)
 
