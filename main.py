@@ -117,6 +117,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.t_w_prawo_button.clicked.connect(self.t_w_prawo) # Połączenie przycisku z metodą openVTK
          
        
+       
     def cofaj(self): 
         speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
         
