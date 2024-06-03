@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 
 
-from PyQt5 import QtWidgets, QtCore, uic
+from PyQt5 import QtWidgets, QtCore, uic, QtGui
 from PyQt5.QtCore import QTimer
 
 from Ui.MainWindow import Ui_MainWindow
@@ -45,7 +45,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             - enkoderow
             - akcelerometru
         '''
-        self.ros_client = RosClient(self, self.lidarVisualizer, self.image_callback, self.enkoders,  self.imu)
+        self.ros_client = RosClient(self, self.lidarVisualizer, self.image_callback, self.enkoders,  self.imu, self.update_status_labels)
 
         # Timer do odświeżania wizualizacji VTK.
         self.timer = QTimer(self)
@@ -488,6 +488,54 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.vel_z_angle_label.setText(f"{data['vel_angle_z']:.2f}°")
         self.acc_x_angle_label.setText(f"{data['acc_angle_x']:.2f}°")
         self.acc_y_angle_label.setText(f"{data['acc_angle_y']:.2f}°")
+
+
+
+    ########### STATUS ###########
+
+    def update_status_labels(self, camera_status, lidar_status, motors_status, imu_status):
+
+        # Utworzenie paletek dla stanu "OK" (zielony) i "Failed" (czerwony)
+        palette_green = QtGui.QPalette()
+        brush_green = QtGui.QBrush(QtGui.QColor(38, 162, 105))  # Zielony
+        brush_green.setStyle(QtCore.Qt.SolidPattern)
+        palette_green.setBrush(QtGui.QPalette.Active, QtGui.QPalette.WindowText, brush_green)
+        palette_green.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.WindowText, brush_green)
+        
+        palette_red = QtGui.QPalette()
+        brush_red = QtGui.QBrush(QtGui.QColor(224, 27, 36))  # Czerwony
+        brush_red.setStyle(QtCore.Qt.SolidPattern)
+        palette_red.setBrush(QtGui.QPalette.Active, QtGui.QPalette.WindowText, brush_red)
+        palette_red.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.WindowText, brush_red)
+
+
+        # Aktualizacja etykiet dla kamery
+        if camera_status == "OK":
+            self.Camera_status_label.setPalette(palette_green)
+        else:
+            self.Camera_status_label.setPalette(palette_red)
+        self.Camera_status_label.setText(camera_status)
+
+        # Aktualizacja etykiet dla lidaru
+        if lidar_status == "OK":
+            self.Lidar_status_label.setPalette(palette_green)
+        else:
+            self.Lidar_status_label.setPalette(palette_red)
+        self.Lidar_status_label.setText(lidar_status)
+
+        # Aktualizacja etykiet dla IMU
+        if imu_status == "OK":
+            self.Imu_status_label.setPalette(palette_green)
+        else:
+            self.Imu_status_label.setPalette(palette_red)
+        self.Imu_status_label.setText(imu_status)
+
+        # Aktualizacja etykiet dla silników
+        if motors_status == "OK":
+            self.Motors_status_label.setPalette(palette_green)
+        else:
+            self.Motors_status_label.setPalette(palette_red)
+        self.Motors_status_label.setText(motors_status)
 
 
 
