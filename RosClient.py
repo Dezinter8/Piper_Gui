@@ -4,21 +4,29 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSHistoryPolicy, QoSReliabilityPolicy
 from sensor_msgs.msg import CompressedImage , LaserScan, JointState
 from geometry_msgs.msg import Point32, Quaternion
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import QObject, pyqtSignal, QTimer
 import math
 import numpy as np
+import time
 
 class RosClient(QObject):
     data_updated = pyqtSignal(dict)
     joints_updated = pyqtSignal(dict)
 
-    def __init__(self, main_window, visualizer, image_callback, enkoders, imu):
+    def __init__(self, main_window, visualizer, image_callback, enkoders, imu, update_status_callback):
         super().__init__()
         self.main_window = main_window
         self.visualizer = visualizer
         self.image_callback = image_callback
         self.enkoders = enkoders
         self.imu = imu 
+        self.update_status_callback = update_status_callback
+
+        self.last_image_time = 0
+        self.last_lidar_time = 0
+        self.last_motors_time = 0
+        self.last_imu_time = 0
+
 
         self.lidar_points = []
         self.matplotlib_lidar_points = []
@@ -41,6 +49,11 @@ class RosClient(QObject):
         self._is_running.set()
         self.init_ros()
 
+        self.check_data_timer = QTimer()
+        self.check_data_timer.timeout.connect(self.verify_data_reception)
+        self.check_data_timer.start(1000)
+
+
     def init_ros(self):
         self.thread = Thread(target=self.ros_thread_function, daemon=True)
         self.thread.start()
@@ -59,7 +72,7 @@ class RosClient(QObject):
             #kamerka
             self.image_subscription = self.node.create_subscription(
                 CompressedImage, '/image_raw/compressed', 
-                self.image_callback, 
+                self.image_callback_wrapper, 
                 10)
             
             #lidar
@@ -67,7 +80,7 @@ class RosClient(QObject):
                 LaserScan, 'scan', 
                 lambda msg: self.update_points(msg.ranges, msg.intensities, msg.angle_min, msg.angle_increment), 
                 10)
-            
+
             #enkodery
             self.subscription = self.node.create_subscription(
                 Quaternion, '/enkoder_publisher', 
@@ -79,7 +92,7 @@ class RosClient(QObject):
                 Point32, '/imu_data', 
                 lambda msg: self.update_pivot(msg), 
                 qos_profile)
-            
+
             while rclpy.ok() and self._is_running.is_set():
                 rclpy.spin_once(self.node)
         except Exception as e:
@@ -104,6 +117,8 @@ class RosClient(QObject):
 
 
     def update_points(self, ranges, intensities, angle_min, angle_increment):
+        self.last_lidar_time = time.time()
+
         self.lidar_points = []
         color = []
 
@@ -184,6 +199,8 @@ class RosClient(QObject):
 
 
     def update_pivot(self, msg):
+        self.last_imu_time = time.time()
+
         self.acc_angle_x = msg.x
         self.acc_angle_y = msg.y
 
@@ -208,6 +225,8 @@ class RosClient(QObject):
 
 
     def update_joints(self, msg):
+        self.last_motors_time = time.time()
+
         if self.start_wheels == 0:
             # Ustawienie początkowych wartości tylko raz, gdy nie zostały jeszcze ustawione
             self.start_wheelL = msg.z
@@ -275,3 +294,23 @@ class RosClient(QObject):
 
         # Zapisywanie aktualnego kąta jako wartość resetu
         self.vel_angle_z_reset += self.vel_angle_z
+
+
+
+
+    def image_callback_wrapper(self, msg):
+        self.last_image_time = time.time()
+
+        self.image_callback(msg)  # Wywołanie oryginalnego callbacka
+
+
+
+
+    def verify_data_reception(self):
+        current_time = time.time()
+        camera_status = "OK" if current_time - self.last_image_time < 2 else "Błąd"  # 2 sekund timeout
+        lidar_status = "OK" if current_time - self.last_lidar_time < 2 else "Błąd"
+        motors_status = "OK" if current_time - self.last_motors_time < 2 else "Błąd"
+        imu_status = "OK" if current_time - self.last_imu_time < 2 else "Błąd"
+
+        self.update_status_callback(camera_status, lidar_status, motors_status, imu_status)
