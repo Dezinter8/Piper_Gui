@@ -1,8 +1,8 @@
 # Download
 
-Na początku należy zainstalować wymagane programy (Ros2 humble itd.).
+First, install the required programs (Ros2 humble, etc.).
 
-Następnie należy pobrać repozytorium:
+Then download the repository:
 
 ```
 cd Desktop/
@@ -10,7 +10,7 @@ cd Desktop/
 git clone https://github.com/Dezinter8/Piper_Gui.git
 ```
 
-Aby zainstalować aplikację, najlepiej stworzyć środowisko wirtualne (venv) przy użyciu programów takich jak pycharm lub bezpośrednio z konsoli powershell przy pomocy komendy:
+To install the application, it is best to create a virtual environment (venv) using programs such as pycharm or directly from the console using the command:
 
 ```
 cd Piper_Gui/
@@ -20,27 +20,37 @@ virtualenv venv
 source venv/bin/activate
 ```
 
-Aby Pobrać wymagane biblioteki należy użyć komendy:
+To download the required libraries, use the command:
 
 ```
 pip install PyQt5 vtk opencv-python-headless
 ```
 
-Aby uruchomić program należy użyć komendy:
+To run the program, use the command:
 
 ```
 python main.py
 ```
 
+# Branches
+
+Branch main is for simulation support
+
+Branch Piper_bot is for handling the physical robot
+
+```
+git checkout Piper_bot
+```
+
 # Building Ui
 
-mainwindow ui - Można go odpalić w Qt Designerze i edytować bezpośrednio w nim. Po edycji należy wykonać komendę:
+mainwindow ui - You can run it in Qt Designer and edit it directly there. After editing, execute the command:
 
 ```
 pyuic5 mainwindow.ui -o MainWindow.py
 ```
 
-resources qrc - Jest to plik zawierający zasoby takie jak ikony czy zdjęcia. Aby go przekonwertować na plik py należy użyć komendy:
+resources qrc - This is a file containing resources such as icons or photos. To convert it to a py file, use the command:
 
 ```
 pyrcc5 resources.qrc -o resources_rc.py
