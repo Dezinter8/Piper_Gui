@@ -1,3 +1,7 @@
+# Preview
+
+![App preview](./src/Gui.png "App preview")
+
 # Download
 
 First, install the required programs (Ros2 humble, etc.).
