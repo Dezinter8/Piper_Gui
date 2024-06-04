@@ -142,9 +142,13 @@ class RosClient(QObject):
         # Sprawdzenie, czy robot się porusza
         if self.wheelL == self.last_wheelL and self.wheelR == self.last_wheelR:
             # print("Robot się nie poruszył, pomijam aktualizację punktów lidaru")
+            self.last_wheelL = self.wheelL
+            self.last_wheelR = self.wheelR
             return  # Pominięcie aktualizacji punktów lidaru
-
-        self.transform_points(color)
+        else:
+            self.last_wheelL = self.wheelL
+            self.last_wheelR = self.wheelR
+            self.transform_points(color)
 
 
     def get_color_from_intensity(self, intensity):
