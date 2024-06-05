@@ -200,19 +200,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif speed == 2:
             self.ros_client.publish_command(3.0, 1.25, 0.0)
         elif speed == 3:
-            self.ros_client.publish_command(3.0, 1.5, 0.0)
+            self.ros_client.publish_command(3.0, 1.35, 0.0)
         elif speed == 4:
-            self.ros_client.publish_command(3.0, 1.75, 0.0)
+            self.ros_client.publish_command(3.0, 1.5, 0.0)
         elif speed == 5:
-            self.ros_client.publish_command(3.0, 2.0, 0.0)
+            self.ros_client.publish_command(3.0, 1.65, 0.0)
         elif speed == 6:
-            self.ros_client.publish_command(3.0, 2.25, 0.0)
+            self.ros_client.publish_command(3.0, 1.75, 0.0)
         elif speed == 7:
-            self.ros_client.publish_command(3.0, 2.5, 0.0)
+            self.ros_client.publish_command(3.0, 1.85, 0.0)
         elif speed == 8:
-            self.ros_client.publish_command(3.0, 2.75, 0.0)
+            self.ros_client.publish_command(3.0, 2.0, 0.0)
         elif speed == 9:
-            self.ros_client.publish_command(3.0, 3.0, 0.0)
+            self.ros_client.publish_command(3.0, 2.25, 0.0)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
 
@@ -225,19 +225,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif speed == 2:
             self.ros_client.publish_command(4.0, 1.25, 0.0)
         elif speed == 3:
-            self.ros_client.publish_command(4.0, 1.5, 0.0)
+            self.ros_client.publish_command(4.0, 1.35, 0.0)
         elif speed == 4:
-            self.ros_client.publish_command(4.0, 1.75, 0.0)
+            self.ros_client.publish_command(4.0, 1.5, 0.0)
         elif speed == 5:
-            self.ros_client.publish_command(4.0, 2.0, 0.0)
+            self.ros_client.publish_command(4.0, 1.65, 0.0)
         elif speed == 6:
-            self.ros_client.publish_command(4.0, 2.25, 0.0)
+            self.ros_client.publish_command(4.0, 1.75, 0.0)
         elif speed == 7:
-            self.ros_client.publish_command(4.0, 2.5, 0.0)
+            self.ros_client.publish_command(4.0, 1.85, 0.0)
         elif speed == 8:
-            self.ros_client.publish_command(4.0, 2.75, 0.0)
+            self.ros_client.publish_command(4.0, 2.0, 0.0)
         elif speed == 9:
-            self.ros_client.publish_command(4.0, 3.0, 0.0)
+            self.ros_client.publish_command(4.0, 2.25, 0.0)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
         
@@ -250,19 +250,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif speed == 2:
             self.ros_client.publish_command(5.0, 1.25, 0.0)
         elif speed == 3:
-            self.ros_client.publish_command(5.0, 1.5, 0.0)
+            self.ros_client.publish_command(5.0, 1.35, 0.0)
         elif speed == 4:
-            self.ros_client.publish_command(5.0, 1.75, 0.0)
+            self.ros_client.publish_command(5.0, 1.5, 0.0)
         elif speed == 5:
-            self.ros_client.publish_command(5.0, 2.0, 0.0)
+            self.ros_client.publish_command(5.0, 1.65, 0.0)
         elif speed == 6:
-            self.ros_client.publish_command(5.0, 2.25, 0.0)
+            self.ros_client.publish_command(5.0, 1.75, 0.0)
         elif speed == 7:
-            self.ros_client.publish_command(5.0, 2.5, 0.0)
+            self.ros_client.publish_command(5.0, 1.85, 0.0)
         elif speed == 8:
-            self.ros_client.publish_command(5.0, 2.75, 0.0)
+            self.ros_client.publish_command(5.0, 2.0, 0.0)
         elif speed == 9:
-            self.ros_client.publish_command(5.0, 3.0, 0.0)
+            self.ros_client.publish_command(5.0, 2.25, 0.0)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
 
@@ -275,19 +275,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif speed == 2:
             self.ros_client.publish_command(6.0, 1.25, 0.0)
         elif speed == 3:
-            self.ros_client.publish_command(6.0, 1.5, 0.0)
+            self.ros_client.publish_command(6.0, 1.35, 0.0)
         elif speed == 4:
-            self.ros_client.publish_command(6.0, 1.75, 0.0)
+            self.ros_client.publish_command(6.0, 1.5, 0.0)
         elif speed == 5:
-            self.ros_client.publish_command(6.0, 2.0, 0.0)
+            self.ros_client.publish_command(6.0, 1.65, 0.0)
         elif speed == 6:
-            self.ros_client.publish_command(6.0, 2.25, 0.0)
+            self.ros_client.publish_command(6.0, 1.75, 0.0)
         elif speed == 7:
-            self.ros_client.publish_command(6.0, 2.5, 0.0)
+            self.ros_client.publish_command(6.0, 1.85, 0.0)
         elif speed == 8:
-            self.ros_client.publish_command(6.0, 2.75, 0.0)
+            self.ros_client.publish_command(6.0, 2.0, 0.0)
         elif speed == 9:
-            self.ros_client.publish_command(6.0, 3.0, 0.0)
+            self.ros_client.publish_command(6.0, 2.25, 0.0)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
 
@@ -300,19 +300,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif speed == 2:
             self.ros_client.publish_command(7.0, 1.25, 0.0)
         elif speed == 3:
-            self.ros_client.publish_command(7.0, 1.5, 0.0)
+            self.ros_client.publish_command(7.0, 1.35, 0.0)
         elif speed == 4:
-            self.ros_client.publish_command(7.0, 1.75, 0.0)
+            self.ros_client.publish_command(7.0, 1.5, 0.0)
         elif speed == 5:
-            self.ros_client.publish_command(7.0, 2.0, 0.0)
+            self.ros_client.publish_command(7.0, 1.65, 0.0)
         elif speed == 6:
-            self.ros_client.publish_command(7.0, 2.25, 0.0)
+            self.ros_client.publish_command(7.0, 1.75, 0.0)
         elif speed == 7:
-            self.ros_client.publish_command(7.0, 2.5, 0.0)
+            self.ros_client.publish_command(7.0, 1.85, 0.0)
         elif speed == 8:
-            self.ros_client.publish_command(7.0, 2.75, 0.0)
+            self.ros_client.publish_command(7.0, 2.0, 0.0)
         elif speed == 9:
-            self.ros_client.publish_command(7.0, 3.0, 0.0)
+            self.ros_client.publish_command(7.0, 2.25, 0.0)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
 
@@ -325,19 +325,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif speed == 2:
             self.ros_client.publish_command(8.0, 1.25, 0.0)
         elif speed == 3:
-            self.ros_client.publish_command(8.0, 1.5, 0.0)
+            self.ros_client.publish_command(8.0, 1.35, 0.0)
         elif speed == 4:
-            self.ros_client.publish_command(8.0, 1.75, 0.0)
+            self.ros_client.publish_command(8.0, 1.5, 0.0)
         elif speed == 5:
-            self.ros_client.publish_command(8.0, 2.0, 0.0)
+            self.ros_client.publish_command(8.0, 1.65, 0.0)
         elif speed == 6:
-            self.ros_client.publish_command(8.0, 2.25, 0.0)
+            self.ros_client.publish_command(8.0, 1.75, 0.0)
         elif speed == 7:
-            self.ros_client.publish_command(8.0, 2.5, 0.0)
+            self.ros_client.publish_command(8.0, 1.85, 0.0)
         elif speed == 8:
-            self.ros_client.publish_command(8.0, 2.75, 0.0)
+            self.ros_client.publish_command(8.0, 2.0, 0.0)
         elif speed == 9:
-            self.ros_client.publish_command(8.0, 3.0, 0.0)
+            self.ros_client.publish_command(8.0, 2.25, 0.0)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
 
