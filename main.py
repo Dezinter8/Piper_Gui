@@ -412,6 +412,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         interactor_style = vtk.vtkInteractorStyleTrackballCamera()
         self.vtkWidget.SetInteractorStyle(interactor_style)
 
+        self.vtkWidget.setFocusPolicy(QtCore.Qt.NoFocus)
+
         # Dodanie widżetu VTK bezpośrednio do vtk_frame
         layout = QtWidgets.QVBoxLayout(self.vtk_frame)
         layout.addWidget(self.vtkWidget)
