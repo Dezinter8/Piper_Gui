@@ -4,6 +4,7 @@ from rclpy.node import Node
 from rclpy.qos import QoSProfile, QoSHistoryPolicy, QoSReliabilityPolicy
 from sensor_msgs.msg import CompressedImage , LaserScan, JointState
 from geometry_msgs.msg import Point32, Quaternion
+from std_msgs.msg import Int32
 from PyQt5.QtCore import QObject, pyqtSignal, QTimer
 import math
 import numpy as np
@@ -63,6 +64,9 @@ class RosClient(QObject):
             rclpy.init()
             self.node = Node("ros_client_node")
 
+            # Dodajemy publikator
+            self.cmd_publisher = self.node.create_publisher(Int32, '/pico_subscription', 10)
+
             qos_profile = QoSProfile(
                 reliability=QoSReliabilityPolicy.RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,
                 history=QoSHistoryPolicy.RMW_QOS_POLICY_HISTORY_KEEP_LAST,
@@ -110,6 +114,10 @@ class RosClient(QObject):
                 print("ROS thread did not terminate gracefully.")
 
 
+    def publish_command(self, data):
+        msg = Int32()
+        msg.data = data
+        self.cmd_publisher.publish(msg)
 
 
 

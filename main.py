@@ -123,128 +123,104 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
         # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 22222}' -1"
+            self.ros_client.publish_command(22222)
         elif speed == 2:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 222222}' -1"
+            self.ros_client.publish_command(222222)
         elif speed == 3:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 2222222}' -1"
+            self.ros_client.publish_command(2222222)
         elif speed == 4:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 22222222}' -1"
+            self.ros_client.publish_command(22222222)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
-
-        subprocess.Popen(command, shell=True)
-        self.command_running = False
 
     def dioda(self): 
         if not self.dioda_is_on:
             self.dioda_is_on = True
             self.dioda_button.setText("[L] Dioda ON ")
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 16}' -1"
-            subprocess.Popen(command, shell=True)
-            # self.button_text.set("Dioda-ON[T]")
-            self.command_running = False
+            self.ros_client.publish_command(16)
         else:
             self.dioda_is_on = False
             self.dioda_button.setText("[L] Dioda OFF")
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 17}' -1"
-            subprocess.Popen(command, shell=True)
-            # self.button_text.set("Dioda-OFF[T]")
-            self.command_running = False    
+            self.ros_client.publish_command(17)
         
     def naprzod(self): 
         speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
         
         # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 11111}' -1"
+            self.ros_client.publish_command(11111)
         elif speed == 2:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 111111}' -1"
+            self.ros_client.publish_command(111111)
         elif speed == 3:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 1111111}' -1"
+            self.ros_client.publish_command(1111111)
         elif speed == 4:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 11111111}' -1"
+            self.ros_client.publish_command(11111111)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
-
-        subprocess.Popen(command, shell=True)
-        self.command_running = False
+   
 
     def stop(self): 
-        command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 0}' -1"
-        subprocess.Popen(command, shell=True)
-        self.command_running = False
+        self.ros_client.publish_command(0)
 
     def w_lewo(self): 
         speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
         
         # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 33333}' -1"
+            self.ros_client.publish_command(33333)
         elif speed == 2:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 333333}' -1"
+            self.ros_client.publish_command(333333)
         elif speed == 3:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 3333333}' -1"
+            self.ros_client.publish_command(3333333)
         elif speed == 4:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 33333333}' -1"
+            self.ros_client.publish_command(33333333)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
-
-        subprocess.Popen(command, shell=True)
-        self.command_running = False
 
     def w_prawo(self): 
         speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
         
         # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 44444}' -1"
+            self.ros_client.publish_command(44444)
         elif speed == 2:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 444444}' -1"
+            self.ros_client.publish_command(444444)
         elif speed == 3:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 4444444}' -1"
+            self.ros_client.publish_command(4444444)
         elif speed == 4:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 44444444}' -1"
+            self.ros_client.publish_command(44444444)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
-        subprocess.Popen(command, shell=True)
-        self.command_running = False
         
     def t_w_lewo(self): 
         speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
         
         # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 333330}' -1"
+            self.ros_client.publish_command(333330)
         elif speed == 2:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 3333330}' -1"
+            self.ros_client.publish_command(3333330)
         elif speed == 3:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 33333330}' -1"
+            self.ros_client.publish_command(33333330)
         elif speed == 4:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 333333330}' -1"
+            self.ros_client.publish_command(333333330)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
-
-        subprocess.Popen(command, shell=True)
-        self.command_running = False
         
     def t_w_prawo(self): 
         speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
         
         # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 444440}' -1"
+            self.ros_client.publish_command(444440)
         elif speed == 2:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 4444440}' -1"
+            self.ros_client.publish_command(4444440)
         elif speed == 3:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 44444440}' -1"
+            self.ros_client.publish_command(44444440)
         elif speed == 4:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 444444440}' -1"
+            self.ros_client.publish_command(444444440)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
-
-        subprocess.Popen(command, shell=True)
-        self.command_running = False
 
 
     ########### EXPORT CHMURY PUNKTÓW #############
