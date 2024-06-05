@@ -45,6 +45,9 @@ class RosClient(QObject):
         self.acc_angle_y = 0.0
 
         self.vel_angle_z_reset = 0.0  # dodana zmienna do przechowywania wartości resetu
+        self.acc_angle_x_reset = 0.0
+        self.acc_angle_y_reset = 0.0
+
         
         self._is_running = Event()
         self._is_running.set()
@@ -216,13 +219,19 @@ class RosClient(QObject):
     def update_pivot(self, msg):
         self.last_imu_time = time.time()
 
-        self.acc_angle_x = msg.x
-        self.acc_angle_y = msg.y
+        # self.acc_angle_x = msg.x
+        # self.acc_angle_y = msg.y
 
 
         # Odejmowanie wartości resetu przed aktualizacją kąta
-        adjusted_angle = msg.z - self.vel_angle_z_reset
-        self.vel_angle_z = adjusted_angle
+        adjusted_angle_x = msg.x - self.acc_angle_x_reset
+        self.acc_angle_x = adjusted_angle_x
+
+        adjusted_angle_y = msg.y - self.acc_angle_y_reset
+        self.acc_angle_y = adjusted_angle_y
+
+        adjusted_angle_z = msg.z - self.vel_angle_z_reset
+        self.vel_angle_z = adjusted_angle_z
 
         # Emitowanie zaktualizowanych danych
         self.data_updated.emit({
@@ -309,7 +318,8 @@ class RosClient(QObject):
 
         # Zapisywanie aktualnego kąta jako wartość resetu
         self.vel_angle_z_reset += self.vel_angle_z
-
+        self.acc_angle_x_reset += self.acc_angle_x
+        self.acc_angle_y_reset += self.acc_angle_y
 
 
 
