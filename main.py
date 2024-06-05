@@ -85,37 +85,45 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # COFANIE
         self.cofaj_button = self.cofaj_button
-        self.cofaj_button.clicked.connect(self.cofaj) # Połączenie przycisku z metodą openVTK
+        self.cofaj_button.clicked.connect(self.cofaj)
         
         # DIODA
         self.dioda_button = self.dioda_button
-        self.dioda_button.clicked.connect(self.dioda) # Połączenie przycisku z metodą openVTK
+        self.dioda_button.clicked.connect(self.dioda)
         self.dioda_is_on = False  # Flaga wskazująca, czy dioda jest uruchomiona
         
         # NAPRZÓD
         self.naprzod_button = self.naprzod_button
-        self.naprzod_button.clicked.connect(self.naprzod) # Połączenie przycisku z metodą openVTK
+        self.naprzod_button.clicked.connect(self.naprzod)
         
         # STOP
         self.stop_button = self.stop_button
-        self.stop_button.clicked.connect(self.stop) # Połączenie przycisku z metodą openVTK
+        self.stop_button.clicked.connect(self.stop)
         
         # W LEWO
         self.w_lewo_button = self.w_lewo_button
-        self.w_lewo_button.clicked.connect(self.w_lewo) # Połączenie przycisku z metodą openVTK
+        self.w_lewo_button.clicked.connect(self.w_lewo)
         
         # W PRAWO
         self.w_prawo_button = self.w_prawo_button
-        self.w_prawo_button.clicked.connect(self.w_prawo) # Połączenie przycisku z metodą openVTK
+        self.w_prawo_button.clicked.connect(self.w_prawo)
         
-        # Tik W LEWO
-        self.t_w_lewo_button = self.t_w_lewo_button
-        self.t_w_lewo_button.clicked.connect(self.t_w_lewo) # Połączenie przycisku z metodą openVTK
+        # W LEWO POD KATEM DO PRZODU
+        self.w_lewo_pod_katem_do_przodu_button = self.w_lewo_pod_katem_do_przodu_button
+        self.w_lewo_pod_katem_do_przodu_button.clicked.connect(self.L_pod_katem_przod)
         
-        # Tik W PRAWO
-        self.t_w_prawo_button = self.t_w_prawo_button
-        self.t_w_prawo_button.clicked.connect(self.t_w_prawo) # Połączenie przycisku z metodą openVTK
+        # W LEWO POD KATEM DO TYLU
+        self.w_lewo_pod_katem_do_tylu_button = self.w_lewo_pod_katem_do_tylu_button
+        self.w_lewo_pod_katem_do_tylu_button.clicked.connect(self.L_pod_katem_tyl)
+
+        # W PRAWO POD KATEM DO PRZODU
+        self.w_prawo_pod_katem_do_przodu_button = self.w_prawo_pod_katem_do_przodu_button
+        self.w_prawo_pod_katem_do_przodu_button.clicked.connect(self.P_pod_katem_przod)
          
+        # W PRAWO POD KATEM DO TYLU
+        self.w_prawo_pod_katem_do_tylu_button = self.w_prawo_pod_katem_do_tylu_button
+        self.w_prawo_pod_katem_do_tylu_button.clicked.connect(self.P_pod_katem_tyl)
+
        
        
     def cofaj(self): 
@@ -123,13 +131,23 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
         # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
-            self.ros_client.publish_command(22222)
+            self.ros_client.publish_command(2.0, 1.0, 0.0)
         elif speed == 2:
-            self.ros_client.publish_command(222222)
+            self.ros_client.publish_command(2.0, 1.25, 0.0)
         elif speed == 3:
-            self.ros_client.publish_command(2222222)
+            self.ros_client.publish_command(2.0, 1.5, 0.0)
         elif speed == 4:
-            self.ros_client.publish_command(22222222)
+            self.ros_client.publish_command(2.0, 1.75, 0.0)
+        elif speed == 5:
+            self.ros_client.publish_command(2.0, 2.0, 0.0)
+        elif speed == 6:
+            self.ros_client.publish_command(2.0, 2.25, 0.0)
+        elif speed == 7:
+            self.ros_client.publish_command(2.0, 2.5, 0.0)
+        elif speed == 8:
+            self.ros_client.publish_command(2.0, 2.75, 0.0)
+        elif speed == 9:
+            self.ros_client.publish_command(2.0, 3.0, 0.0)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
 
@@ -137,43 +155,62 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if not self.dioda_is_on:
             self.dioda_is_on = True
             self.dioda_button.setText("[L] Dioda ON ")
-            self.ros_client.publish_command(16)
+            self.ros_client.publish_command(16.0, 0.0, 0.0)
         else:
             self.dioda_is_on = False
             self.dioda_button.setText("[L] Dioda OFF")
-            self.ros_client.publish_command(17)
+            self.ros_client.publish_command(17.0, 0.0, 0.0)
         
     def naprzod(self): 
         speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
         
         # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
-            self.ros_client.publish_command(11111)
+            self.ros_client.publish_command(1.0, 1.0, 0.0)
         elif speed == 2:
-            self.ros_client.publish_command(111111)
+            self.ros_client.publish_command(1.0, 1.25, 0.0)
         elif speed == 3:
-            self.ros_client.publish_command(1111111)
+            self.ros_client.publish_command(1.0, 1.5, 0.0)
         elif speed == 4:
-            self.ros_client.publish_command(11111111)
+            self.ros_client.publish_command(1.0, 1.75, 0.0)
+        elif speed == 5:
+            self.ros_client.publish_command(1.0, 2.0, 0.0)
+        elif speed == 6:
+            self.ros_client.publish_command(1.0, 2.25, 0.0)
+        elif speed == 7:
+            self.ros_client.publish_command(1.0, 2.5, 0.0)
+        elif speed == 8:
+            self.ros_client.publish_command(1.0, 2.75, 0.0)
+        elif speed == 9:
+            self.ros_client.publish_command(1.0, 3.0, 0.0)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
    
-
     def stop(self): 
-        self.ros_client.publish_command(0)
+        self.ros_client.publish_command(0.0, 0.0, 0.0)
 
     def w_lewo(self): 
         speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
         
         # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
-            self.ros_client.publish_command(33333)
+            self.ros_client.publish_command(3.0, 1.0, 0.0)
         elif speed == 2:
-            self.ros_client.publish_command(333333)
+            self.ros_client.publish_command(3.0, 1.25, 0.0)
         elif speed == 3:
-            self.ros_client.publish_command(3333333)
+            self.ros_client.publish_command(3.0, 1.5, 0.0)
         elif speed == 4:
-            self.ros_client.publish_command(33333333)
+            self.ros_client.publish_command(3.0, 1.75, 0.0)
+        elif speed == 5:
+            self.ros_client.publish_command(3.0, 2.0, 0.0)
+        elif speed == 6:
+            self.ros_client.publish_command(3.0, 2.25, 0.0)
+        elif speed == 7:
+            self.ros_client.publish_command(3.0, 2.5, 0.0)
+        elif speed == 8:
+            self.ros_client.publish_command(3.0, 2.75, 0.0)
+        elif speed == 9:
+            self.ros_client.publish_command(3.0, 3.0, 0.0)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
 
@@ -182,45 +219,138 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
         # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
-            self.ros_client.publish_command(44444)
+            self.ros_client.publish_command(4.0, 1.0, 0.0)
         elif speed == 2:
-            self.ros_client.publish_command(444444)
+            self.ros_client.publish_command(4.0, 1.25, 0.0)
         elif speed == 3:
-            self.ros_client.publish_command(4444444)
+            self.ros_client.publish_command(4.0, 1.5, 0.0)
         elif speed == 4:
-            self.ros_client.publish_command(44444444)
+            self.ros_client.publish_command(4.0, 1.75, 0.0)
+        elif speed == 5:
+            self.ros_client.publish_command(4.0, 2.0, 0.0)
+        elif speed == 6:
+            self.ros_client.publish_command(4.0, 2.25, 0.0)
+        elif speed == 7:
+            self.ros_client.publish_command(4.0, 2.5, 0.0)
+        elif speed == 8:
+            self.ros_client.publish_command(4.0, 2.75, 0.0)
+        elif speed == 9:
+            self.ros_client.publish_command(4.0, 3.0, 0.0)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
         
-    def t_w_lewo(self): 
+    def L_pod_katem_przod(self): 
         speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
         
         # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
-            self.ros_client.publish_command(333330)
+            self.ros_client.publish_command(5.0, 1.0, 0.0)
         elif speed == 2:
-            self.ros_client.publish_command(3333330)
+            self.ros_client.publish_command(5.0, 1.25, 0.0)
         elif speed == 3:
-            self.ros_client.publish_command(33333330)
+            self.ros_client.publish_command(5.0, 1.5, 0.0)
         elif speed == 4:
-            self.ros_client.publish_command(333333330)
+            self.ros_client.publish_command(5.0, 1.75, 0.0)
+        elif speed == 5:
+            self.ros_client.publish_command(5.0, 2.0, 0.0)
+        elif speed == 6:
+            self.ros_client.publish_command(5.0, 2.25, 0.0)
+        elif speed == 7:
+            self.ros_client.publish_command(5.0, 2.5, 0.0)
+        elif speed == 8:
+            self.ros_client.publish_command(5.0, 2.75, 0.0)
+        elif speed == 9:
+            self.ros_client.publish_command(5.0, 3.0, 0.0)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
-        
-    def t_w_prawo(self): 
+
+    def P_pod_katem_przod(self): 
         speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
         
         # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
-            self.ros_client.publish_command(444440)
+            self.ros_client.publish_command(6.0, 1.0, 0.0)
         elif speed == 2:
-            self.ros_client.publish_command(4444440)
+            self.ros_client.publish_command(6.0, 1.25, 0.0)
         elif speed == 3:
-            self.ros_client.publish_command(44444440)
+            self.ros_client.publish_command(6.0, 1.5, 0.0)
         elif speed == 4:
-            self.ros_client.publish_command(444444440)
+            self.ros_client.publish_command(6.0, 1.75, 0.0)
+        elif speed == 5:
+            self.ros_client.publish_command(6.0, 2.0, 0.0)
+        elif speed == 6:
+            self.ros_client.publish_command(6.0, 2.25, 0.0)
+        elif speed == 7:
+            self.ros_client.publish_command(6.0, 2.5, 0.0)
+        elif speed == 8:
+            self.ros_client.publish_command(6.0, 2.75, 0.0)
+        elif speed == 9:
+            self.ros_client.publish_command(6.0, 3.0, 0.0)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
+
+    def L_pod_katem_tyl(self): 
+        speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
+        
+        # Ustalanie komendy na podstawie wartości 'speed'
+        if speed == 1:
+            self.ros_client.publish_command(7.0, 1.0, 0.0)
+        elif speed == 2:
+            self.ros_client.publish_command(7.0, 1.25, 0.0)
+        elif speed == 3:
+            self.ros_client.publish_command(7.0, 1.5, 0.0)
+        elif speed == 4:
+            self.ros_client.publish_command(7.0, 1.75, 0.0)
+        elif speed == 5:
+            self.ros_client.publish_command(7.0, 2.0, 0.0)
+        elif speed == 6:
+            self.ros_client.publish_command(7.0, 2.25, 0.0)
+        elif speed == 7:
+            self.ros_client.publish_command(7.0, 2.5, 0.0)
+        elif speed == 8:
+            self.ros_client.publish_command(7.0, 2.75, 0.0)
+        elif speed == 9:
+            self.ros_client.publish_command(7.0, 3.0, 0.0)
+        else:
+            return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
+
+    def P_pod_katem_tyl(self): 
+        speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
+        
+        # Ustalanie komendy na podstawie wartości 'speed'
+        if speed == 1:
+            self.ros_client.publish_command(8.0, 1.0, 0.0)
+        elif speed == 2:
+            self.ros_client.publish_command(8.0, 1.25, 0.0)
+        elif speed == 3:
+            self.ros_client.publish_command(8.0, 1.5, 0.0)
+        elif speed == 4:
+            self.ros_client.publish_command(8.0, 1.75, 0.0)
+        elif speed == 5:
+            self.ros_client.publish_command(8.0, 2.0, 0.0)
+        elif speed == 6:
+            self.ros_client.publish_command(8.0, 2.25, 0.0)
+        elif speed == 7:
+            self.ros_client.publish_command(8.0, 2.5, 0.0)
+        elif speed == 8:
+            self.ros_client.publish_command(8.0, 2.75, 0.0)
+        elif speed == 9:
+            self.ros_client.publish_command(8.0, 3.0, 0.0)
+        else:
+            return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
+
+    def increaseSpeedValue(self):
+        # Zwiększanie wartości o 1
+        current_value = self.speed_value.value()
+        new_value = min(current_value + 1, 9)  # Zapobieganie przekroczeniu maksymalnej wartości
+        self.speed_value.setValue(new_value)
+
+    def decreaseSpeedValue(self):
+        # Obniżanie wartości o 1, ale nie poniżej minimalnej wartości
+        current_value = self.speed_value.value()
+        if current_value > 1:
+            new_value = max(current_value - 1, 1)  # Zapobieganie spadnięciu poniżej minimalnej wartości
+            self.speed_value.setValue(new_value)
 
 
     ########### EXPORT CHMURY PUNKTÓW #############
@@ -410,11 +540,23 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.w_prawo()
             
         elif event.key() == QtCore.Qt.Key_T:   # Sprawdź, czy naciśnięto klawisz 't'
-            self.t_w_lewo()
+            self.L_pod_katem_przod()
             
         elif event.key() == QtCore.Qt.Key_U:   # Sprawdź, czy naciśnięto klawisz 'u'
-            self.t_w_prawo()
+            self.P_pod_katem_przod()
             
+        elif event.key() == QtCore.Qt.Key_B:   # Sprawdź, czy naciśnięto klawisz 't'
+            self.L_pod_katem_tyl()
+            
+        elif event.key() == QtCore.Qt.Key_M:   # Sprawdź, czy naciśnięto klawisz 'u'
+            self.P_pod_katem_tyl()
+
+        elif event.key() == QtCore.Qt.Key_I:   # Sprawdź, czy naciśnięto klawisz 'u'
+            self.increaseSpeedValue()
+
+        elif event.key() == QtCore.Qt.Key_K:   # Sprawdź, czy naciśnięto klawisz 'u'
+            self.decreaseSpeedValue()
+
             
     # def keyReleaseEvent(self, event): # Zadania do wykonania przy puszczeniu klawisza
     #     super(MainWindow, self).keyReleaseEvent(event)  

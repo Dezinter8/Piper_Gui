@@ -65,7 +65,7 @@ class RosClient(QObject):
             self.node = Node("ros_client_node")
 
             # Dodajemy publikator
-            self.cmd_publisher = self.node.create_publisher(Int32, '/pico_subscription', 10)
+            self.cmd_publisher = self.node.create_publisher(Point32, '/pico_subscription', 10)
 
             qos_profile = QoSProfile(
                 reliability=QoSReliabilityPolicy.RMW_QOS_POLICY_RELIABILITY_BEST_EFFORT,
@@ -114,10 +114,13 @@ class RosClient(QObject):
                 print("ROS thread did not terminate gracefully.")
 
 
-    def publish_command(self, data):
-        msg = Int32()
-        msg.data = data
+    def publish_command(self, x, y, z):
+        msg = Point32()
+        msg.x = x
+        msg.y = y
+        msg.z = z
         self.cmd_publisher.publish(msg)
+
 
 
 
