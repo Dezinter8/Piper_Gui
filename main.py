@@ -85,36 +85,44 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # COFANIE
         self.cofaj_button = self.cofaj_button
-        self.cofaj_button.clicked.connect(self.cofaj) # Połączenie przycisku z metodą openVTK
+        self.cofaj_button.clicked.connect(self.cofaj)
         
         # DIODA
         self.dioda_button = self.dioda_button
-        self.dioda_button.clicked.connect(self.dioda) # Połączenie przycisku z metodą openVTK
+        self.dioda_button.clicked.connect(self.dioda)
         self.dioda_is_on = False  # Flaga wskazująca, czy dioda jest uruchomiona
         
         # NAPRZÓD
         self.naprzod_button = self.naprzod_button
-        self.naprzod_button.clicked.connect(self.naprzod) # Połączenie przycisku z metodą openVTK
+        self.naprzod_button.clicked.connect(self.naprzod)
         
         # STOP
         self.stop_button = self.stop_button
-        self.stop_button.clicked.connect(self.stop) # Połączenie przycisku z metodą openVTK
+        self.stop_button.clicked.connect(self.stop)
         
         # W LEWO
         self.w_lewo_button = self.w_lewo_button
-        self.w_lewo_button.clicked.connect(self.w_lewo) # Połączenie przycisku z metodą openVTK
+        self.w_lewo_button.clicked.connect(self.w_lewo)
         
         # W PRAWO
         self.w_prawo_button = self.w_prawo_button
-        self.w_prawo_button.clicked.connect(self.w_prawo) # Połączenie przycisku z metodą openVTK
+        self.w_prawo_button.clicked.connect(self.w_prawo)
         
-        # Tik W LEWO
-        self.t_w_lewo_button = self.t_w_lewo_button
-        self.t_w_lewo_button.clicked.connect(self.t_w_lewo) # Połączenie przycisku z metodą openVTK
+        # W LEWO POD KATEM DO PRZODU
+        self.w_lewo_pod_katem_do_przodu_button = self.w_lewo_pod_katem_do_przodu_button
+        self.w_lewo_pod_katem_do_przodu_button.clicked.connect(self.L_pod_katem_przod)
         
-        # Tik W PRAWO
-        self.t_w_prawo_button = self.t_w_prawo_button
-        self.t_w_prawo_button.clicked.connect(self.t_w_prawo) # Połączenie przycisku z metodą openVTK
+        # W LEWO POD KATEM DO TYLU
+        self.w_lewo_pod_katem_do_tylu_button = self.w_lewo_pod_katem_do_tylu_button
+        self.w_lewo_pod_katem_do_tylu_button.clicked.connect(self.L_pod_katem_tyl)
+
+        # W PRAWO POD KATEM DO PRZODU
+        self.w_prawo_pod_katem_do_przodu_button = self.w_prawo_pod_katem_do_przodu_button
+        self.w_prawo_pod_katem_do_przodu_button.clicked.connect(self.P_pod_katem_przod)
+         
+        # W PRAWO POD KATEM DO TYLU
+        self.w_prawo_pod_katem_do_tylu_button = self.w_prawo_pod_katem_do_tylu_button
+        self.w_prawo_pod_katem_do_tylu_button.clicked.connect(self.P_pod_katem_tyl)
          
        
        
@@ -123,128 +131,226 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         
         # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 22222}' -1"
+            self.ros_client.publish_command(2.0, 1.0, 0.0)
         elif speed == 2:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 222222}' -1"
+            self.ros_client.publish_command(2.0, 1.25, 0.0)
         elif speed == 3:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 2222222}' -1"
+            self.ros_client.publish_command(2.0, 1.5, 0.0)
         elif speed == 4:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 22222222}' -1"
+            self.ros_client.publish_command(2.0, 1.75, 0.0)
+        elif speed == 5:
+            self.ros_client.publish_command(2.0, 2.0, 0.0)
+        elif speed == 6:
+            self.ros_client.publish_command(2.0, 2.25, 0.0)
+        elif speed == 7:
+            self.ros_client.publish_command(2.0, 2.5, 0.0)
+        elif speed == 8:
+            self.ros_client.publish_command(2.0, 2.75, 0.0)
+        elif speed == 9:
+            self.ros_client.publish_command(2.0, 3.0, 0.0)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
-
-        subprocess.Popen(command, shell=True)
-        self.command_running = False
 
     def dioda(self): 
         if not self.dioda_is_on:
             self.dioda_is_on = True
             self.dioda_button.setText("[L] Dioda ON ")
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 16}' -1"
-            subprocess.Popen(command, shell=True)
-            # self.button_text.set("Dioda-ON[T]")
-            self.command_running = False
+            self.ros_client.publish_command(16.0, 0.0, 0.0)
         else:
             self.dioda_is_on = False
             self.dioda_button.setText("[L] Dioda OFF")
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 17}' -1"
-            subprocess.Popen(command, shell=True)
-            # self.button_text.set("Dioda-OFF[T]")
-            self.command_running = False    
+            self.ros_client.publish_command(17.0, 0.0, 0.0)
         
     def naprzod(self): 
         speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
         
         # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 11111}' -1"
+            self.ros_client.publish_command(1.0, 1.0, 0.0)
         elif speed == 2:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 111111}' -1"
+            self.ros_client.publish_command(1.0, 1.25, 0.0)
         elif speed == 3:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 1111111}' -1"
+            self.ros_client.publish_command(1.0, 1.5, 0.0)
         elif speed == 4:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 11111111}' -1"
+            self.ros_client.publish_command(1.0, 1.75, 0.0)
+        elif speed == 5:
+            self.ros_client.publish_command(1.0, 2.0, 0.0)
+        elif speed == 6:
+            self.ros_client.publish_command(1.0, 2.25, 0.0)
+        elif speed == 7:
+            self.ros_client.publish_command(1.0, 2.5, 0.0)
+        elif speed == 8:
+            self.ros_client.publish_command(1.0, 2.75, 0.0)
+        elif speed == 9:
+            self.ros_client.publish_command(1.0, 3.0, 0.0)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
-
-        subprocess.Popen(command, shell=True)
-        self.command_running = False
-
+   
     def stop(self): 
-        command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 0}' -1"
-        subprocess.Popen(command, shell=True)
-        self.command_running = False
+        self.ros_client.publish_command(0.0, 0.0, 0.0)
 
     def w_lewo(self): 
         speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
         
         # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 33333}' -1"
+            self.ros_client.publish_command(3.0, 1.0, 0.0)
         elif speed == 2:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 333333}' -1"
+            self.ros_client.publish_command(3.0, 1.25, 0.0)
         elif speed == 3:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 3333333}' -1"
+            self.ros_client.publish_command(3.0, 1.5, 0.0)
         elif speed == 4:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 33333333}' -1"
+            self.ros_client.publish_command(3.0, 1.75, 0.0)
+        elif speed == 5:
+            self.ros_client.publish_command(3.0, 2.0, 0.0)
+        elif speed == 6:
+            self.ros_client.publish_command(3.0, 2.25, 0.0)
+        elif speed == 7:
+            self.ros_client.publish_command(3.0, 2.5, 0.0)
+        elif speed == 8:
+            self.ros_client.publish_command(3.0, 2.75, 0.0)
+        elif speed == 9:
+            self.ros_client.publish_command(3.0, 3.0, 0.0)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
-
-        subprocess.Popen(command, shell=True)
-        self.command_running = False
 
     def w_prawo(self): 
         speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
         
         # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 44444}' -1"
+            self.ros_client.publish_command(4.0, 1.0, 0.0)
         elif speed == 2:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 444444}' -1"
+            self.ros_client.publish_command(4.0, 1.25, 0.0)
         elif speed == 3:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 4444444}' -1"
+            self.ros_client.publish_command(4.0, 1.5, 0.0)
         elif speed == 4:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 44444444}' -1"
+            self.ros_client.publish_command(4.0, 1.75, 0.0)
+        elif speed == 5:
+            self.ros_client.publish_command(4.0, 2.0, 0.0)
+        elif speed == 6:
+            self.ros_client.publish_command(4.0, 2.25, 0.0)
+        elif speed == 7:
+            self.ros_client.publish_command(4.0, 2.5, 0.0)
+        elif speed == 8:
+            self.ros_client.publish_command(4.0, 2.75, 0.0)
+        elif speed == 9:
+            self.ros_client.publish_command(4.0, 3.0, 0.0)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
-        subprocess.Popen(command, shell=True)
-        self.command_running = False
         
-    def t_w_lewo(self): 
+    def L_pod_katem_przod(self): 
         speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
         
         # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 333330}' -1"
+            self.ros_client.publish_command(5.0, 1.0, 0.0)
         elif speed == 2:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 3333330}' -1"
+            self.ros_client.publish_command(5.0, 1.25, 0.0)
         elif speed == 3:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 33333330}' -1"
+            self.ros_client.publish_command(5.0, 1.5, 0.0)
         elif speed == 4:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 333333330}' -1"
+            self.ros_client.publish_command(5.0, 1.75, 0.0)
+        elif speed == 5:
+            self.ros_client.publish_command(5.0, 2.0, 0.0)
+        elif speed == 6:
+            self.ros_client.publish_command(5.0, 2.25, 0.0)
+        elif speed == 7:
+            self.ros_client.publish_command(5.0, 2.5, 0.0)
+        elif speed == 8:
+            self.ros_client.publish_command(5.0, 2.75, 0.0)
+        elif speed == 9:
+            self.ros_client.publish_command(5.0, 3.0, 0.0)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
 
-        subprocess.Popen(command, shell=True)
-        self.command_running = False
-        
-    def t_w_prawo(self): 
+    def P_pod_katem_przod(self): 
         speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
         
         # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 444440}' -1"
+            self.ros_client.publish_command(6.0, 1.0, 0.0)
         elif speed == 2:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 4444440}' -1"
+            self.ros_client.publish_command(6.0, 1.25, 0.0)
         elif speed == 3:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 44444440}' -1"
+            self.ros_client.publish_command(6.0, 1.5, 0.0)
         elif speed == 4:
-            command = "ros2 topic pub /pico_subscription std_msgs/msg/Int32 '{data: 444444440}' -1"
+            self.ros_client.publish_command(6.0, 1.75, 0.0)
+        elif speed == 5:
+            self.ros_client.publish_command(6.0, 2.0, 0.0)
+        elif speed == 6:
+            self.ros_client.publish_command(6.0, 2.25, 0.0)
+        elif speed == 7:
+            self.ros_client.publish_command(6.0, 2.5, 0.0)
+        elif speed == 8:
+            self.ros_client.publish_command(6.0, 2.75, 0.0)
+        elif speed == 9:
+            self.ros_client.publish_command(6.0, 3.0, 0.0)
         else:
             return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
 
-        subprocess.Popen(command, shell=True)
-        self.command_running = False
+    def L_pod_katem_tyl(self): 
+        speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
+        
+        # Ustalanie komendy na podstawie wartości 'speed'
+        if speed == 1:
+            self.ros_client.publish_command(7.0, 1.0, 0.0)
+        elif speed == 2:
+            self.ros_client.publish_command(7.0, 1.25, 0.0)
+        elif speed == 3:
+            self.ros_client.publish_command(7.0, 1.5, 0.0)
+        elif speed == 4:
+            self.ros_client.publish_command(7.0, 1.75, 0.0)
+        elif speed == 5:
+            self.ros_client.publish_command(7.0, 2.0, 0.0)
+        elif speed == 6:
+            self.ros_client.publish_command(7.0, 2.25, 0.0)
+        elif speed == 7:
+            self.ros_client.publish_command(7.0, 2.5, 0.0)
+        elif speed == 8:
+            self.ros_client.publish_command(7.0, 2.75, 0.0)
+        elif speed == 9:
+            self.ros_client.publish_command(7.0, 3.0, 0.0)
+        else:
+            return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
+
+    def P_pod_katem_tyl(self): 
+        speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
+        
+        # Ustalanie komendy na podstawie wartości 'speed'
+        if speed == 1:
+            self.ros_client.publish_command(8.0, 1.0, 0.0)
+        elif speed == 2:
+            self.ros_client.publish_command(8.0, 1.25, 0.0)
+        elif speed == 3:
+            self.ros_client.publish_command(8.0, 1.5, 0.0)
+        elif speed == 4:
+            self.ros_client.publish_command(8.0, 1.75, 0.0)
+        elif speed == 5:
+            self.ros_client.publish_command(8.0, 2.0, 0.0)
+        elif speed == 6:
+            self.ros_client.publish_command(8.0, 2.25, 0.0)
+        elif speed == 7:
+            self.ros_client.publish_command(8.0, 2.5, 0.0)
+        elif speed == 8:
+            self.ros_client.publish_command(8.0, 2.75, 0.0)
+        elif speed == 9:
+            self.ros_client.publish_command(8.0, 3.0, 0.0)
+        else:
+            return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
+
+    def increaseSpeedValue(self):
+        # Zwiększanie wartości o 1
+        current_value = self.speed_value.value()
+        new_value = min(current_value + 1, 9)  # Zapobieganie przekroczeniu maksymalnej wartości
+        self.speed_value.setValue(new_value)
+
+    def decreaseSpeedValue(self):
+        # Obniżanie wartości o 1, ale nie poniżej minimalnej wartości
+        current_value = self.speed_value.value()
+        if current_value > 1:
+            new_value = max(current_value - 1, 1)  # Zapobieganie spadnięciu poniżej minimalnej wartości
+            self.speed_value.setValue(new_value)
 
 
     ########### EXPORT CHMURY PUNKTÓW #############
@@ -308,6 +414,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # Ustawienie stylu interakcji na TrackballCamera.
         interactor_style = vtk.vtkInteractorStyleTrackballCamera()
         self.vtkWidget.SetInteractorStyle(interactor_style)
+
+        self.vtkWidget.setFocusPolicy(QtCore.Qt.NoFocus)
 
         # Dodanie widżetu VTK bezpośrednio do vtk_frame
         layout = QtWidgets.QVBoxLayout(self.vtk_frame)
@@ -437,11 +545,23 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.w_prawo()
             
         elif event.key() == QtCore.Qt.Key_T:   # Sprawdź, czy naciśnięto klawisz 't'
-            self.t_w_lewo()
+            self.L_pod_katem_przod()
             
         elif event.key() == QtCore.Qt.Key_U:   # Sprawdź, czy naciśnięto klawisz 'u'
-            self.t_w_prawo()
+            self.P_pod_katem_przod()
             
+        elif event.key() == QtCore.Qt.Key_B:   # Sprawdź, czy naciśnięto klawisz 't'
+            self.L_pod_katem_tyl()
+            
+        elif event.key() == QtCore.Qt.Key_M:   # Sprawdź, czy naciśnięto klawisz 'u'
+            self.P_pod_katem_tyl()
+
+        elif event.key() == QtCore.Qt.Key_I:   # Sprawdź, czy naciśnięto klawisz 'u'
+            self.increaseSpeedValue()
+
+        elif event.key() == QtCore.Qt.Key_K:   # Sprawdź, czy naciśnięto klawisz 'u'
+            self.decreaseSpeedValue()
+ 
             
     # def keyReleaseEvent(self, event): # Zadania do wykonania przy puszczeniu klawisza
     #     super(MainWindow, self).keyReleaseEvent(event)  

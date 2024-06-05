@@ -2,6 +2,7 @@ from threading import Thread, Event
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import CompressedImage , LaserScan, JointState, Imu
+from geometry_msgs.msg import Point32
 from PyQt5.QtCore import QObject, pyqtSignal, QTimer
 import math
 from datetime import datetime, timedelta
@@ -77,6 +78,9 @@ class RosClient(QObject):
             rclpy.init()
             self.node = Node("ros_client_node")
             
+            # Dodajemy publikator
+            self.cmd_publisher = self.node.create_publisher(Point32, '/pico_subscription', 10)
+
             #kamerka
             self.image_subscription = self.node.create_subscription(
                 CompressedImage, '/image_raw/compressed', 
@@ -117,7 +121,12 @@ class RosClient(QObject):
             if self.thread.is_alive():
                 print("ROS thread did not terminate gracefully.")
 
-
+    def publish_command(self, x, y, z):
+        msg = Point32()
+        msg.x = x
+        msg.y = y
+        msg.z = z
+        self.cmd_publisher.publish(msg)
 
 
 

@@ -1499,14 +1499,14 @@ chmury punktów</string>
           <item row="0" column="1" colspan="2">
            <widget class="QPushButton" name="dioda_button">
             <property name="text">
-             <string>[L] Dioda ON </string>
+             <string>[L] Dioda OFF</string>
             </property>
            </widget>
           </item>
           <item row="1" column="3" alignment="Qt::AlignHCenter">
-           <widget class="QPushButton" name="t_w_prawo_button">
+           <widget class="QPushButton" name="w_prawo_pod_katem_do_przodu_button">
             <property name="text">
-             <string>[U] T. w Prawo</string>
+             <string>[U] P. pod kątem</string>
             </property>
            </widget>
           </item>
@@ -1532,9 +1532,9 @@ chmury punktów</string>
            </widget>
           </item>
           <item row="1" column="0">
-           <widget class="QPushButton" name="t_w_lewo_button">
+           <widget class="QPushButton" name="w_lewo_pod_katem_do_przodu_button">
             <property name="text">
-             <string>[T] T. w Lewo</string>
+             <string>[T] L. pod kątem</string>
             </property>
             <property name="flat">
              <bool>false</bool>
@@ -1544,13 +1544,27 @@ chmury punktów</string>
           <item row="0" column="3">
            <widget class="QSpinBox" name="speed_value">
             <property name="prefix">
-             <string>Prędkość: </string>
+             <string>[I,K] Prędkość: </string>
             </property>
             <property name="minimum">
              <number>1</number>
             </property>
             <property name="maximum">
-             <number>4</number>
+             <number>9</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QPushButton" name="w_lewo_pod_katem_do_tylu_button">
+            <property name="text">
+             <string>[B] L. pod kątem</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="3">
+           <widget class="QPushButton" name="w_prawo_pod_katem_do_tylu_button">
+            <property name="text">
+             <string>[M] P. pod kątem</string>
             </property>
            </widget>
           </item>
