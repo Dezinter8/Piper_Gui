@@ -11,6 +11,7 @@ import time
 
 class RosClient(QObject):
     data_updated = pyqtSignal(dict)
+    reset_complete = pyqtSignal()
 
     def __init__(self, main_window, visualizer, image_callback, enkoders, imu, update_status_callback):
         super().__init__()
@@ -333,6 +334,9 @@ class RosClient(QObject):
         self.vel_angle_z = 0.0
         self.acc_angle_x = 0.0
         self.acc_angle_y = 0.0
+
+
+        self.reset_complete.emit()  # Emitowanie sygnału po zresetowaniu
 
 
 

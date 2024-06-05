@@ -78,6 +78,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
         self.ros_client.data_updated.connect(self.update_pivot_ui)
+        self.ros_client.reset_complete.connect(self.complete_reset_vtk_visualization)
 
 
     ########### STEROWANIE #############
@@ -265,10 +266,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def reset_vtk_visualization(self):
         self.ros_client.reset_visualization()
-        
+
+    def complete_reset_vtk_visualization(self):
+        # Te czynności zostaną wykonane po zakończeniu resetowania w RosClient
         self.lidarVisualizer.points.Reset()
         self.lidarVisualizer.vertices.Reset()
         self.lidarVisualizer.colors.Reset()
+
 
 
 
