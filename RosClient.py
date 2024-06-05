@@ -13,6 +13,7 @@ import time
 class RosClient(QObject):
     data_updated = pyqtSignal(dict)
     joints_updated = pyqtSignal(dict)
+    reset_complete = pyqtSignal()
 
     def __init__(self, main_window, visualizer, image_callback, enkoders, imu, update_status_callback):
         super().__init__()
@@ -81,6 +82,7 @@ class RosClient(QObject):
                 CompressedImage, '/image_raw/compressed', 
                 self.image_callback_wrapper, 
                 10)
+
             
             #lidar
             self.scan_subscription = self.node.create_subscription(
@@ -123,7 +125,6 @@ class RosClient(QObject):
         msg.y = y
         msg.z = z
         self.cmd_publisher.publish(msg)
-
 
 
 
@@ -320,6 +321,9 @@ class RosClient(QObject):
         self.vel_angle_z_reset += self.vel_angle_z
         self.acc_angle_x_reset += self.acc_angle_x
         self.acc_angle_y_reset += self.acc_angle_y
+
+        self.reset_complete.emit()  # Emitowanie sygnału po zresetowaniu
+
 
 
 

@@ -79,6 +79,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.ros_client.data_updated.connect(self.update_pivot_ui)
         self.ros_client.joints_updated.connect(self.update_joints_ui)
+        self.ros_client.reset_complete.connect(self.complete_reset_vtk_visualization)
 
 
     ########### STEROWANIE #############
@@ -123,6 +124,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # W PRAWO POD KATEM DO TYLU
         self.w_prawo_pod_katem_do_tylu_button = self.w_prawo_pod_katem_do_tylu_button
         self.w_prawo_pod_katem_do_tylu_button.clicked.connect(self.P_pod_katem_tyl)
+        
 
        
        
@@ -372,10 +374,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def reset_vtk_visualization(self):
         self.ros_client.reset_visualization()
-        
+
+    def complete_reset_vtk_visualization(self):
+        # Te czynności zostaną wykonane po zakończeniu resetowania w RosClient
         self.lidarVisualizer.points.Reset()
         self.lidarVisualizer.vertices.Reset()
         self.lidarVisualizer.colors.Reset()
+
 
 
 
@@ -558,7 +563,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         elif event.key() == QtCore.Qt.Key_K:   # Sprawdź, czy naciśnięto klawisz 'u'
             self.decreaseSpeedValue()
-
+            
+            
             
     # def keyReleaseEvent(self, event): # Zadania do wykonania przy puszczeniu klawisza
     #     super(MainWindow, self).keyReleaseEvent(event)  
