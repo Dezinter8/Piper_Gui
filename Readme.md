@@ -27,7 +27,7 @@ source venv/bin/activate
 To download the required libraries, use the command:
 
 ```
-pip install PyQt5 vtk opencv-python-headless
+pip install PyQt5 vtk opencv-python-headless filterpy
 ```
 
 To run the program, use the command:
