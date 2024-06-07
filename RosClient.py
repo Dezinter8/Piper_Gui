@@ -5,7 +5,7 @@ from sensor_msgs.msg import CompressedImage , LaserScan, JointState, Imu
 from geometry_msgs.msg import Point32
 from PyQt5.QtCore import QObject, pyqtSignal, QTimer
 import math
-from datetime import datetime, timedelta
+from datetime import datetime
 from filterpy.kalman import KalmanFilter
 import numpy as np
 import time
@@ -306,7 +306,6 @@ class RosClient(QObject):
         self.wheelR = wheelR_diff
         self.wheelAvg = (self.wheelL + self.wheelR) / 2
 
-        # Mierzenie skrętu na podstawie różnicy w ruchu koła
         WHEEL_RADIUS = 0.03
 
         # Aktualizacja pozycji na podstawie przemieszczenia i rotacji

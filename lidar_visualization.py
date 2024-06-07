@@ -37,10 +37,7 @@ class LidarVisualizer:
         self.actor.GetProperty().SetColor(1.0, 0.0, 0.0)  # Czerwone punkty
 
         self.renderer.AddActor(self.actor)
-                
-        # Lista punktów lidaru do wyświetlenia w matplotlib
-        # self.lidar_points = []
-
+        
         # Dodanie axes do ułatwienia pracy
         self.axesActor = vtk.vtkAxesActor()
         self.axesActor.SetTotalLength(1, 1, 1)  # Ustawia długość każdej osi
