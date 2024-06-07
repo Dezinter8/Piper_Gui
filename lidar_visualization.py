@@ -2,7 +2,6 @@ import math
 import time
 import vtk
 import os
-import threading
 
 class LidarVisualizer:
     def __init__(self, renderer):
@@ -38,10 +37,7 @@ class LidarVisualizer:
         self.actor.GetProperty().SetColor(1.0, 0.0, 0.0)  # Czerwone punkty
 
         self.renderer.AddActor(self.actor)
-                
-        # Lista punktów lidaru do wyświetlenia w matplotlib
-        # self.lidar_points = []
-
+        
         # Dodanie axes do ułatwienia pracy
         self.axesActor = vtk.vtkAxesActor()
         self.axesActor.SetTotalLength(1, 1, 1)  # Ustawia długość każdej osi
@@ -59,10 +55,11 @@ class LidarVisualizer:
 
         # Dodanie wszystkich punktów do wizualizacji
         for point, color in zip(lidar_points, color):
-            pt_id = self.points.InsertNextPoint(point)
-            self.vertices.InsertNextCell(1)
-            self.vertices.InsertCellPoint(pt_id)
-            self.colors.InsertNextTuple(color)
+            if not any(math.isnan(coord) for coord in point):  # Sprawdzenie, czy punkt zawiera wartości NaN
+                pt_id = self.points.InsertNextPoint(point)
+                self.vertices.InsertNextCell(1)
+                self.vertices.InsertCellPoint(pt_id)
+                self.colors.InsertNextTuple(color)
 
         # Oznaczanie zmian w danych, aby odświeżyć wizualizację
         self.points.Modified()

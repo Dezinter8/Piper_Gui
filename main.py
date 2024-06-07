@@ -22,8 +22,6 @@ from RosClient import RosClient
 from ImageProcessor import ImageProcessor
 from lidar_visualization import LidarVisualizer
 
-import subprocess
-
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, *args, obj=None, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
@@ -74,7 +72,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.save_pointcloud_button = self.save_pointcloud_button
         self.save_pointcloud_button.clicked.connect(self.save_pointcloud) # Połączenie przycisku z metodą save_pointcloud
-        self.is_saving_pointcloud = False  # Flaga wskazująca, czy zapisywanie chmury punktów jest w toku
 
 
         self.ros_client.data_updated.connect(self.update_pivot_ui)
@@ -355,18 +352,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.speed_value.setValue(new_value)
 
 
+
     ########### EXPORT CHMURY PUNKTÓW #############
         
     def save_pointcloud(self):
-        if not self.is_saving_pointcloud:
-            self.is_saving_pointcloud = True
-            self.save_pointcloud_button.setText("Zakończ zapisywanie\nchmury punktów")
-            # Rozpocznij zapisywanie chmury punktów
-            self.lidarVisualizer.export_to_ply()
-        else:
-            self.is_saving_pointcloud = False
-            self.save_pointcloud_button.setText("Rozpocznij zapisywanie\nchmury punktów")
-            # Zakończ zapisywanie chmury punktów
+        self.lidarVisualizer.export_to_ply()
 
 
 
@@ -566,30 +556,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             
             
             
-    # def keyReleaseEvent(self, event): # Zadania do wykonania przy puszczeniu klawisza
-    #     super(MainWindow, self).keyReleaseEvent(event)  
-        
-    #     key_stop_list = [
-    #         QtCore.Qt.Key_N, # Sprawdźenie klawisza 'n' - cofaj
-            
-    #         QtCore.Qt.Key_Y, # Sprawdźenie klawisza 'y' - naprzod
-            
-    #         QtCore.Qt.Key_G, # Sprawdźenie klawisza 'g' - w_lewo
-            
-    #         QtCore.Qt.Key_J, # Sprawdźenie klawisza 'j' - w_prawo
-            
-    #         QtCore.Qt.Key_T, # Sprawdźenie klawisza 't' - t_w_lewo
-            
-    #         QtCore.Qt.Key_U  # Sprawdźenie klawisza 'u' - t_w_prawo
-    #     ]
-        
-    #     if event.key() in key_stop_list:
-    #         self.stop() # wykonanie polecenia stop przy puszczeniu klawisza
-
     def closeEvent(self, event):
         self.image_processor.stop_recording()
         #export chmury punktów
-        #self.lidarVisualizer.export_to_ply()
+        self.lidarVisualizer.export_to_ply()
 
         # Zatrzymanie timera
         if self.timer.isActive():

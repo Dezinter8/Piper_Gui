@@ -749,8 +749,7 @@
              </palette>
             </property>
             <property name="text">
-             <string>Rozpocznij zapisywanie
-chmury punktów</string>
+             <string>zapisz chmurę punktów</string>
             </property>
            </widget>
           </item>
