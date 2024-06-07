@@ -586,8 +586,7 @@ class Ui_MainWindow(object):
         self.record_button.setText(_translate("MainWindow", "Start Recording"))
         self.label_2.setText(_translate("MainWindow", "Wizualizacja 3d"))
         self.reset_vtk_view_button.setText(_translate("MainWindow", "Reset kamery (R)"))
-        self.save_pointcloud_button.setText(_translate("MainWindow", "Rozpocznij zapisywanie\n"
-"chmury punktów"))
+        self.save_pointcloud_button.setText(_translate("MainWindow", "zapisz chmurę punktów"))
         self.reset_visualization_button.setText(_translate("MainWindow", "Reset wizualizacji"))
         self.label_3.setText(_translate("MainWindow", "Prędkość pojazdu:"))
         self.speed_label.setText(_translate("MainWindow", "135 km/h"))

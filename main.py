@@ -74,7 +74,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         self.save_pointcloud_button = self.save_pointcloud_button
         self.save_pointcloud_button.clicked.connect(self.save_pointcloud) # Połączenie przycisku z metodą save_pointcloud
-        self.is_saving_pointcloud = False  # Flaga wskazująca, czy zapisywanie chmury punktów jest w toku
 
 
         self.ros_client.data_updated.connect(self.update_pivot_ui)
@@ -356,15 +355,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     ########### EXPORT CHMURY PUNKTÓW #############
         
     def save_pointcloud(self):
-        if not self.is_saving_pointcloud:
-            self.is_saving_pointcloud = True
-            self.save_pointcloud_button.setText("Zakończ zapisywanie\nchmury punktów")
-            # Rozpocznij zapisywanie chmury punktów
-            self.lidarVisualizer.export_to_ply()
-        else:
-            self.is_saving_pointcloud = False
-            self.save_pointcloud_button.setText("Rozpocznij zapisywanie\nchmury punktów")
-            # Zakończ zapisywanie chmury punktów
+        self.lidarVisualizer.export_to_ply()
 
 
 
@@ -586,7 +577,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def closeEvent(self, event):
         self.image_processor.stop_recording()
         #export chmury punktów
-        #self.lidarVisualizer.export_to_ply()
+        self.lidarVisualizer.export_to_ply()
 
         # Zatrzymanie timera
         if self.timer.isActive():

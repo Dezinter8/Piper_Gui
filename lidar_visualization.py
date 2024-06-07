@@ -2,7 +2,6 @@ import math
 import time
 import vtk
 import os
-import threading
 
 class LidarVisualizer:
     def __init__(self, renderer):
@@ -59,10 +58,11 @@ class LidarVisualizer:
 
         # Dodanie wszystkich punktów do wizualizacji
         for point, color in zip(lidar_points, color):
-            pt_id = self.points.InsertNextPoint(point)
-            self.vertices.InsertNextCell(1)
-            self.vertices.InsertCellPoint(pt_id)
-            self.colors.InsertNextTuple(color)
+            if not any(math.isnan(coord) for coord in point):  # Sprawdzenie, czy punkt zawiera wartości NaN
+                pt_id = self.points.InsertNextPoint(point)
+                self.vertices.InsertNextCell(1)
+                self.vertices.InsertCellPoint(pt_id)
+                self.colors.InsertNextTuple(color)
 
         # Oznaczanie zmian w danych, aby odświeżyć wizualizację
         self.points.Modified()
