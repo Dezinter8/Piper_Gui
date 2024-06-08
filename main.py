@@ -26,15 +26,12 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, *args, obj=None, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setupUi(self)
-        # self.lidarVisualizer = LidarVisualizer(self.renderer)
 
         self.image_format = None 
-        self.image_processor = ImageProcessor()  # Asumując, że ImageProcessor został już zaimportowany.
+        self.image_processor = ImageProcessor()
 
-        # Konfiguracja GUI z widżetami.
-        self.addVTKWidget()
-        # Inicjalizacja ramki na wykres matplotlib
-        self.init_matplotlib()
+        self.addVTKWidget()                 # Konfiguracja GUI z widżetami.
+        self.init_matplotlib()              # Inicjalizacja ramki na wykres matplotlib
 
         '''
         Utworzenie RosClient z przekazaniem funkcji:
@@ -57,7 +54,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # QTimer for delayed resizing
         self.resize_timer = QTimer(self)
-        self.resize_timer.setSingleShot(True)  # Ensure timer runs only once per resize event
+        self.resize_timer.setSingleShot(True)       # Ensure timer runs only once per resize event
         self.resize_timer.timeout.connect(self.resize_image_label)
 
 
@@ -65,13 +62,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.record_button.clicked.connect(self.toggle_camera)
 
         self.reset_vtk_view_button = self.reset_vtk_view_button
-        self.reset_vtk_view_button.clicked.connect(self.resetCamera) # Połączenie przycisku z metodą openVTK
+        self.reset_vtk_view_button.clicked.connect(self.resetCamera)                    # Połączenie przycisku z metodą openVTK
         
         self.reset_visualization_button = self.reset_visualization_button
-        self.reset_visualization_button.clicked.connect(self.reset_vtk_visualization) # Połączenie przycisku z metodą reset_vtk_visualization
+        self.reset_visualization_button.clicked.connect(self.reset_vtk_visualization)   # Połączenie przycisku z metodą reset_vtk_visualization
 
         self.save_pointcloud_button = self.save_pointcloud_button
-        self.save_pointcloud_button.clicked.connect(self.save_pointcloud) # Połączenie przycisku z metodą save_pointcloud
+        self.save_pointcloud_button.clicked.connect(self.save_pointcloud)               # Połączenie przycisku z metodą save_pointcloud
 
 
         self.ros_client.data_updated.connect(self.update_pivot_ui)
@@ -87,7 +84,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # DIODA
         self.dioda_button = self.dioda_button
         self.dioda_button.clicked.connect(self.dioda)
-        self.dioda_is_on = False  # Flaga wskazująca, czy dioda jest uruchomiona
+        self.dioda_is_on = False
         
         # NAPRZÓD
         self.naprzod_button = self.naprzod_button
@@ -146,7 +143,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif speed == 9:
             self.ros_client.publish_command(2.0, 3.0, 0.0)
         else:
-            return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
+            return
 
     def dioda(self): 
         if not self.dioda_is_on:
@@ -159,9 +156,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.ros_client.publish_command(17.0, 0.0, 0.0)
         
     def naprzod(self): 
-        speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
+        speed = self.speed_value.value()
         
-        # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
             self.ros_client.publish_command(1.0, 1.0, 0.0)
         elif speed == 2:
@@ -181,15 +177,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif speed == 9:
             self.ros_client.publish_command(1.0, 3.0, 0.0)
         else:
-            return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
+            return
    
     def stop(self): 
         self.ros_client.publish_command(0.0, 0.0, 0.0)
 
     def w_lewo(self): 
-        speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
+        speed = self.speed_value.value()
         
-        # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
             self.ros_client.publish_command(3.0, 1.0, 0.0)
         elif speed == 2:
@@ -209,12 +204,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif speed == 9:
             self.ros_client.publish_command(3.0, 2.25, 0.0)
         else:
-            return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
+            return
 
     def w_prawo(self): 
-        speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
+        speed = self.speed_value.value()
         
-        # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
             self.ros_client.publish_command(4.0, 1.0, 0.0)
         elif speed == 2:
@@ -234,12 +228,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif speed == 9:
             self.ros_client.publish_command(4.0, 2.25, 0.0)
         else:
-            return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
+            return
         
     def L_pod_katem_przod(self): 
-        speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
+        speed = self.speed_value.value()
         
-        # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
             self.ros_client.publish_command(5.0, 1.0, 0.0)
         elif speed == 2:
@@ -259,12 +252,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif speed == 9:
             self.ros_client.publish_command(5.0, 2.25, 0.0)
         else:
-            return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
+            return
 
     def P_pod_katem_przod(self): 
-        speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
+        speed = self.speed_value.value()
         
-        # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
             self.ros_client.publish_command(6.0, 1.0, 0.0)
         elif speed == 2:
@@ -284,12 +276,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif speed == 9:
             self.ros_client.publish_command(6.0, 2.25, 0.0)
         else:
-            return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
+            return
 
     def L_pod_katem_tyl(self): 
-        speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
+        speed = self.speed_value.value()
         
-        # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
             self.ros_client.publish_command(7.0, 1.0, 0.0)
         elif speed == 2:
@@ -309,12 +300,11 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif speed == 9:
             self.ros_client.publish_command(7.0, 2.25, 0.0)
         else:
-            return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
+            return
 
     def P_pod_katem_tyl(self): 
-        speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
+        speed = self.speed_value.value()
         
-        # Ustalanie komendy na podstawie wartości 'speed'
         if speed == 1:
             self.ros_client.publish_command(8.0, 1.0, 0.0)
         elif speed == 2:
@@ -334,19 +324,19 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif speed == 9:
             self.ros_client.publish_command(8.0, 2.25, 0.0)
         else:
-            return  # Zabezpieczenie na wypadek nieoczekiwanej wartości
-
+            return
+        
+    # Zwiększanie wartości o 1
     def increaseSpeedValue(self):
-        # Zwiększanie wartości o 1
         current_value = self.speed_value.value()
-        new_value = min(current_value + 1, 9)  # Zapobieganie przekroczeniu maksymalnej wartości
+        new_value = min(current_value + 1, 9)       # Zapobieganie przekroczeniu maksymalnej wartości
         self.speed_value.setValue(new_value)
 
+    # Obniżanie wartości o 1
     def decreaseSpeedValue(self):
-        # Obniżanie wartości o 1, ale nie poniżej minimalnej wartości
         current_value = self.speed_value.value()
         if current_value > 1:
-            new_value = max(current_value - 1, 1)  # Zapobieganie spadnięciu poniżej minimalnej wartości
+            new_value = max(current_value - 1, 1)   # Zapobieganie spadnięciu poniżej minimalnej wartości
             self.speed_value.setValue(new_value)
 
 
@@ -354,7 +344,23 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     ########### EXPORT CHMURY PUNKTÓW #############
         
     def save_pointcloud(self):
-        self.lidarVisualizer.export_to_ply()
+        success, result = self.lidarVisualizer.export_to_ply()
+        if success:
+            msg_box = QtWidgets.QMessageBox(self)
+            msg_box.setWindowTitle("Zapis pomyślny")
+            msg_box.setText(f"Plik '{result}' został zapisany pomyślnie.")
+            msg_box.setIcon(QtWidgets.QMessageBox.Information)
+            msg_box.addButton(QtWidgets.QMessageBox.Ok)
+            msg_box.exec_()
+        else:
+            # Obsługa błędu zapisu
+            msg_box = QtWidgets.QMessageBox(self)
+            msg_box.setWindowTitle("Błąd zapisu")
+            msg_box.setText(f"Nie udało się zapisać pliku: {result}")   # Wyświetlenie wiadomości o błędzie
+            msg_box.setIcon(QtWidgets.QMessageBox.Critical)
+            msg_box.addButton(QtWidgets.QMessageBox.Ok)
+            msg_box.exec_()
+
 
 
 
@@ -375,54 +381,40 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     ########### VTK #############
 
     def addVTKWidget(self):
-        # Konfiguracja widgetu VTK do wyświetlania wizualizacji.
-        self.vtkWidget = QVTKRenderWindowInteractor(self.vtk_frame)
+        self.vtkWidget = QVTKRenderWindowInteractor(self.vtk_frame)     # Konfiguracja widgetu VTK do wyświetlania wizualizacji.
         self.vtkWidget.setMinimumSize(100, 100)
 
-        # Utworzenie renderera VTK.
-        self.renderer = vtk.vtkRenderer()
+        self.renderer = vtk.vtkRenderer()                               # Utworzenie renderera VTK.
         self.vtkWidget.GetRenderWindow().AddRenderer(self.renderer)
 
-        # Utworzenie i skonfigurowanie wizualizera lidaru.
-        self.lidarVisualizer = LidarVisualizer(self.renderer)
-        
-        # Utworzenie i skonfigurowanie polaczenia enkoderow.
-        self.enkoders = LidarVisualizer(self.renderer)
-        
-        # Utworzenie i skonfigurowanie poloczenia akcelerometrow.
-        self.imu = LidarVisualizer(self.renderer)
-        
-        # Inicjalizacja widżetu VTK.
-        self.vtkWidget.Initialize()
+        self.lidarVisualizer = LidarVisualizer(self.renderer)           # Utworzenie i skonfigurowanie wizualizera lidaru.
+        self.enkoders = LidarVisualizer(self.renderer)                  # Utworzenie i skonfigurowanie polaczenia enkoderow.
+        self.imu = LidarVisualizer(self.renderer)                       # Utworzenie i skonfigurowanie poloczenia akcelerometrow.
 
-        # Ustawienia kamery w scenie VTK.
-        camera = self.renderer.GetActiveCamera()
+        self.vtkWidget.Initialize()                                     # Inicjalizacja widżetu VTK.
+
+        camera = self.renderer.GetActiveCamera()                        # Ustawienia kamery w scenie VTK.
         camera.Zoom(2)
         camera.SetPosition(5, -5, 3)
         camera.SetViewUp(0, 0, 1)
 
-        # Ustawienie stylu interakcji na TrackballCamera.
-        interactor_style = vtk.vtkInteractorStyleTrackballCamera()
+        interactor_style = vtk.vtkInteractorStyleTrackballCamera()      # Ustawienie stylu interakcji na TrackballCamera.
         self.vtkWidget.SetInteractorStyle(interactor_style)
 
-        self.vtkWidget.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.vtkWidget.setFocusPolicy(QtCore.Qt.NoFocus)                # Interakcje z oknem vtk nie odbierają focusu.
 
-        # Dodanie widżetu VTK bezpośrednio do vtk_frame
-        layout = QtWidgets.QVBoxLayout(self.vtk_frame)
+        layout = QtWidgets.QVBoxLayout(self.vtk_frame)                  # Dodanie widżetu VTK bezpośrednio do vtk_frame
         layout.addWidget(self.vtkWidget)
         layout.setContentsMargins(0, 0, 0, 0)
         self.vtk_frame.setLayout(layout)
 
     def updateVTK(self):
-        # Renderowanie sceny VTK.
-        self.vtkWidget.GetRenderWindow().Render()
-
-        # Aktualizacja wykresu matplotlib
-        lidar_points = self.ros_client.get_lidar_points()
+        self.vtkWidget.GetRenderWindow().Render()           # Renderowanie sceny VTK.
+        lidar_points = self.ros_client.get_lidar_points()   # Aktualizacja wykresu matplotlib
         self.ax.clear()
         if lidar_points:
             lidar_points = np.array(lidar_points)
-            self.ax.scatter(lidar_points[:, 0], lidar_points[:, 1], color='r', s=5)  # Wyświetlenie punktów lidaru
+            self.ax.scatter(lidar_points[:, 0], lidar_points[:, 1], color='r', s=5)     # Wyświetlenie punktów lidaru
         self.canvas.draw()
 
     def resetCamera(self):
@@ -444,8 +436,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.resize_timer.start(1)
 
     def resize_image_label(self):
-        # Resize image_label after delay
-        self.image_label.resize(self.camera_frame.size())
+        self.image_label.resize(self.camera_frame.size())       # Resize image_label after delay
 
 
 
@@ -454,12 +445,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         np_arr = np.frombuffer(msg.data, np.uint8)
         cv_image = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
-        # Ustawienie formatu obrazu, jeśli nie jest jeszcze ustawiony
-        if self.image_format is None:
+        if self.image_format is None:                   # Ustawienie formatu obrazu, jeśli nie jest jeszcze ustawiony
             self.image_format = cv_image.shape[2]
 
-        # Konwersja obrazu do QImage i wyświetlenie
-        qt_image = self.image_processor.convert_cv_to_pixmap(cv_image)
+        qt_image = self.image_processor.convert_cv_to_pixmap(cv_image)      # Konwersja obrazu do QImage i wyświetlenie
         self.display_image(qt_image)
         self.image_processor.write_frame(cv_image)
 
@@ -472,13 +461,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.image_processor.start_recording()
             self.record_button.setText("Stop Recording")
         else:
-            self.image_processor.stop_recording()
+            success, result = self.image_processor.stop_recording()
             self.record_button.setText("Start Recording")
-
-
-
-
-
+            if success:
+                msg_box = QtWidgets.QMessageBox(self)
+                msg_box.setWindowTitle("Zapis pomyślny")
+                msg_box.setText(f"Plik został zapisany w folderze: {result}")
+                msg_box.setIcon(QtWidgets.QMessageBox.Information)
+                msg_box.addButton(QtWidgets.QMessageBox.Ok)
+                msg_box.exec_()
+            else:
+                msg_box = QtWidgets.QMessageBox(self)
+                msg_box.setWindowTitle("Błąd zapisu")
+                msg_box.setText(f"Nie udało się zapisać pliku: {result}")
+                msg_box.setIcon(QtWidgets.QMessageBox.Critical)
+                msg_box.addButton(QtWidgets.QMessageBox.Ok)
+                msg_box.exec_()
 
 
 
@@ -486,23 +484,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     ########## REALTIME ##########
 
     def init_matplotlib(self):
-        # Tworzenie obiektu figury Matplotlib
-        self.figure = plt.figure()
-
-        # Tworzenie obiektu Canvas z wykorzystaniem FigureCanvas
-        self.canvas = FigureCanvas(self.figure)
-
-        # Dodawanie Canvas do ramki
-        layout = QtWidgets.QVBoxLayout(self.realtime_frame)
+        self.figure = plt.figure()                              # Tworzenie obiektu figury Matplotlib
+        self.canvas = FigureCanvas(self.figure)                 # Tworzenie obiektu Canvas z wykorzystaniem FigureCanvas
+        layout = QtWidgets.QVBoxLayout(self.realtime_frame)     # Dodawanie Canvas do ramki
         layout.addWidget(self.canvas)
-
-        # Tworzenie przykładowego wykresu
-        self.ax = self.figure.add_subplot(111)
-        self.ax.set_aspect('equal', adjustable='box')  # Ustawienie proporcji 1:1
-        self.ax.plot([1, 2, 3, 4], [10, 20, 25, 30])  # Przykładowy wykres
-
-        # Odświeżanie wyświetlania
-        self.canvas.draw()
+        self.ax = self.figure.add_subplot(111)                  # Tworzenie przykładowego wykresu
+        self.ax.set_aspect('equal', adjustable='box')           # Ustawienie proporcji 1:1
+        self.ax.plot([1, 2, 3, 4], [10, 20, 25, 30])            # Przykładowy wykres
+        self.canvas.draw()                                      # Odświeżanie wyświetlania
 
 
 
@@ -513,69 +502,49 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def keyPressEvent(self, event):
         super(MainWindow, self).keyPressEvent(event)  # Przekaż zdarzenie do bazowej klasy, jeśli nie jest obsługiwane tutaj
         
-        if event.key() == QtCore.Qt.Key_R:  # Sprawdź, czy naciśnięto klawisz 'r'
+        if event.key() == QtCore.Qt.Key_R:      # Sprawdź, czy naciśnięto klawisz 'r'
             self.resetCamera()
-            
-        elif event.key() == QtCore.Qt.Key_N:   # Sprawdź, czy naciśnięto klawisz 'n'
+        elif event.key() == QtCore.Qt.Key_N:    # Sprawdź, czy naciśnięto klawisz 'n'
             self.cofaj()
-            
-        elif event.key() == QtCore.Qt.Key_L:   # Sprawdź, czy naciśnięto klawisz 'l'
+        elif event.key() == QtCore.Qt.Key_L:    # Sprawdź, czy naciśnięto klawisz 'l'
             self.dioda()
-            
-        elif event.key() == QtCore.Qt.Key_Y:   # Sprawdź, czy naciśnięto klawisz 'y'
+        elif event.key() == QtCore.Qt.Key_Y:    # Sprawdź, czy naciśnięto klawisz 'y'
             self.naprzod()
-            
-        elif event.key() == QtCore.Qt.Key_H:   # Sprawdź, czy naciśnięto klawisz 'h'
+        elif event.key() == QtCore.Qt.Key_H:    # Sprawdź, czy naciśnięto klawisz 'h'
             self.stop()
-            
-        elif event.key() == QtCore.Qt.Key_G:   # Sprawdź, czy naciśnięto klawisz 'g'
+        elif event.key() == QtCore.Qt.Key_G:    # Sprawdź, czy naciśnięto klawisz 'g'
             self.w_lewo()
-            
-        elif event.key() == QtCore.Qt.Key_J:   # Sprawdź, czy naciśnięto klawisz 'j'
+        elif event.key() == QtCore.Qt.Key_J:    # Sprawdź, czy naciśnięto klawisz 'j'
             self.w_prawo()
-            
-        elif event.key() == QtCore.Qt.Key_T:   # Sprawdź, czy naciśnięto klawisz 't'
+        elif event.key() == QtCore.Qt.Key_T:    # Sprawdź, czy naciśnięto klawisz 't'
             self.L_pod_katem_przod()
-            
-        elif event.key() == QtCore.Qt.Key_U:   # Sprawdź, czy naciśnięto klawisz 'u'
+        elif event.key() == QtCore.Qt.Key_U:    # Sprawdź, czy naciśnięto klawisz 'u'
             self.P_pod_katem_przod()
-            
-        elif event.key() == QtCore.Qt.Key_B:   # Sprawdź, czy naciśnięto klawisz 't'
+        elif event.key() == QtCore.Qt.Key_B:    # Sprawdź, czy naciśnięto klawisz 't'
             self.L_pod_katem_tyl()
-            
-        elif event.key() == QtCore.Qt.Key_M:   # Sprawdź, czy naciśnięto klawisz 'u'
+        elif event.key() == QtCore.Qt.Key_M:    # Sprawdź, czy naciśnięto klawisz 'u'
             self.P_pod_katem_tyl()
-
-        elif event.key() == QtCore.Qt.Key_I:   # Sprawdź, czy naciśnięto klawisz 'u'
+        elif event.key() == QtCore.Qt.Key_I:    # Sprawdź, czy naciśnięto klawisz 'u'
             self.increaseSpeedValue()
-
-        elif event.key() == QtCore.Qt.Key_K:   # Sprawdź, czy naciśnięto klawisz 'u'
+        elif event.key() == QtCore.Qt.Key_K:    # Sprawdź, czy naciśnięto klawisz 'u'
             self.decreaseSpeedValue()
  
             
     def closeEvent(self, event):
-        self.image_processor.stop_recording()
-        #export chmury punktów
-        self.lidarVisualizer.export_to_ply()
+        self.image_processor.stop_recording()           # Zapis nagrania video
+        self.lidarVisualizer.export_to_ply()            # Export chmury punktów
 
-        # Zatrzymanie timera
-        if self.timer.isActive():
+        if self.timer.isActive():                       # Zatrzymanie timera
             self.timer.stop()
-
-        # Zamknięcie i czyszczenie klienta ROS
-        self.ros_client.shutdown()
-
-        # Czyszczenie widżetów VTK
-        self.vtkWidget.GetRenderWindow().Finalize()  # Zalecane dla czyszczenia zasobów VTK
-        self.renderer.RemoveAllViewProps()  # Usunięcie wszystkich obiektów z renderera
+        self.ros_client.shutdown()                      # Zamknięcie i czyszczenie klienta ROS
+                                                        # Czyszczenie widżetów VTK
+        self.vtkWidget.GetRenderWindow().Finalize()     # Zalecane dla czyszczenia zasobów VTK
+        self.renderer.RemoveAllViewProps()              # Usunięcie wszystkich obiektów z renderera
         self.vtkWidget = None
-
-        # Usunięcie dynamicznie utworzonych widżetów
+                                                        # Usunięcie dynamicznie utworzonych widżetów
         for widget in self.findChildren(QtWidgets.QWidget):
             widget.deleteLater()
-
-        # Wywołanie metody bazowej
-        super().closeEvent(event)
+        super().closeEvent(event)                       # Wywołanie metody bazowej
 
 
     def update_pivot_ui(self, data):
@@ -591,13 +560,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
         # Utworzenie paletek dla stanu "OK" (zielony) i "Failed" (czerwony)
         palette_green = QtGui.QPalette()
-        brush_green = QtGui.QBrush(QtGui.QColor(38, 162, 105))  # Zielony
+        brush_green = QtGui.QBrush(QtGui.QColor(38, 162, 105))      # Zielony
         brush_green.setStyle(QtCore.Qt.SolidPattern)
         palette_green.setBrush(QtGui.QPalette.Active, QtGui.QPalette.WindowText, brush_green)
         palette_green.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.WindowText, brush_green)
         
         palette_red = QtGui.QPalette()
-        brush_red = QtGui.QBrush(QtGui.QColor(224, 27, 36))  # Czerwony
+        brush_red = QtGui.QBrush(QtGui.QColor(224, 27, 36))         # Czerwony
         brush_red.setStyle(QtCore.Qt.SolidPattern)
         palette_red.setBrush(QtGui.QPalette.Active, QtGui.QPalette.WindowText, brush_red)
         palette_red.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.WindowText, brush_red)
