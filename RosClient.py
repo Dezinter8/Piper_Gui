@@ -45,7 +45,7 @@ class RosClient(QObject):
         self.acc_angle_x = 0.0
         self.acc_angle_y = 0.0
 
-        self.vel_angle_z_reset = 0.0  # dodana zmienna do przechowywania wartości resetu
+        self.vel_angle_z_reset = 0.0        # dodane zmienne do przechowywania wartości resetu
         self.acc_angle_x_reset = 0.0
         self.acc_angle_y_reset = 0.0
 
@@ -77,26 +77,26 @@ class RosClient(QObject):
                 depth=100
             )
 
-            #kamerka
+            # Kamerka
             self.image_subscription = self.node.create_subscription(
                 CompressedImage, '/image_raw/compressed', 
                 self.image_callback_wrapper, 
                 10)
 
             
-            #lidar
+            # Lidar
             self.scan_subscription = self.node.create_subscription(
                 LaserScan, 'scan', 
                 lambda msg: self.update_points(msg.ranges, msg.intensities, msg.angle_min, msg.angle_increment), 
                 10)
 
-            #enkodery
+            # Enkodery
             self.subscription = self.node.create_subscription(
                 Quaternion, '/enkoder_publisher', 
                 lambda msg: self.update_joints(msg), 
                 10)
             
-            #akcelerometr
+            # Akcelerometr
             self.subscription = self.node.create_subscription(
                 Point32, '/imu_data', 
                 lambda msg: self.update_pivot(msg), 
@@ -114,7 +114,7 @@ class RosClient(QObject):
     def shutdown(self):
         self._is_running.clear()
         if self.thread.is_alive():
-            self.thread.join(timeout=2)  # Oczekuje do 2 sekund na zakończenie wątku
+            self.thread.join(timeout=2)     # Oczekuje do 2 sekund na zakończenie wątku
             if self.thread.is_alive():
                 print("ROS thread did not terminate gracefully.")
 
@@ -141,25 +141,21 @@ class RosClient(QObject):
 
         for i, (range, intensity) in enumerate(zip(ranges, intensities)):
             if range == float('nan') or range == 0.0 or range == float('inf'):
-                continue  # Pomijanie nieprawidłowych danych
+                continue                                            # Pomijanie nieprawidłowych danych
             angle = angle_min + i * angle_increment
             x = (range * math.sin(angle)) * -1
             y = 0
             z = (range * math.cos(angle)) * -1
 
             self.lidar_points.append([x, y, z])
-            # Dodanie punktu do listy punktów lidaru
-            self.matplotlib_lidar_points.append([x, z])
-
-            # Kolorowanie punktów na podstawie intensywności
-            color.append(self.get_color_from_intensity(intensity))
+            self.matplotlib_lidar_points.append([x, z])             # Dodanie punktu do listy punktów lidaru
+            color.append(self.get_color_from_intensity(intensity))  # Kolorowanie punktów na podstawie intensywności
 
         # Sprawdzenie, czy robot się porusza
         if self.wheelL == self.last_wheelL and self.wheelR == self.last_wheelR:
-            # print("Robot się nie poruszył, pomijam aktualizację punktów lidaru")
             self.last_wheelL = self.wheelL
             self.last_wheelR = self.wheelR
-            return  # Pominięcie aktualizacji punktów lidaru
+            return                                                  # Pominięcie aktualizacji punktów lidaru
         else:
             self.last_wheelL = self.wheelL
             self.last_wheelR = self.wheelR
@@ -167,15 +163,14 @@ class RosClient(QObject):
 
 
     def get_color_from_intensity(self, intensity):
-        if math.isnan(intensity):  # Sprawdzenie czy intensywność jest NaN
+        if math.isnan(intensity):                                   # Sprawdzenie czy intensywność jest NaN
             return [0, 0, 0]
         else:
-            color_value = int(intensity)  # Skalowanie intensywności do wartości koloru (0-255)
-            color = [color_value, 0, 0]  # Ustawienie RGB koloru
+            color_value = int(intensity)                            # Skalowanie intensywności do wartości koloru (0-255)
+            color = [color_value, 0, 0]                             # Ustawienie RGB koloru
             return color
 
     def get_lidar_points(self):
-        # print(self.lidar_points)
         return self.matplotlib_lidar_points
 
 
@@ -186,9 +181,9 @@ class RosClient(QObject):
         transformed_points = []
 
         # Konwersja kątów rotacji na radiany
-        alpha = np.radians(self.acc_angle_x)  # pitch
-        beta = np.radians(self.acc_angle_y)  # roll
-        gamma = np.radians(self.vel_angle_z)  # yaw
+        alpha = np.radians(self.acc_angle_x)    # pitch
+        beta = np.radians(self.acc_angle_y)     # roll
+        gamma = np.radians(self.vel_angle_z)    # yaw
 
         # Macierze rotacji
         rx = np.array([[1, 0, 0],
@@ -207,8 +202,7 @@ class RosClient(QObject):
             transformed_point = np.dot(rx, transformed_point)
             transformed_point = np.dot(ry, transformed_point)
             transformed_point = np.dot(rz, transformed_point)
-            # Dodanie pozycji robota do punktu
-            transformed_point += self.robot_position
+            transformed_point += self.robot_position            # Dodanie pozycji robota do punktu
             transformed_points.append(transformed_point)
 
         self.visualizer.update_visualization(transformed_points, color)
@@ -269,7 +263,6 @@ class RosClient(QObject):
         self.wheelR = wheelR_diff
         self.wheelAvg = (self.wheelL + self.wheelR) / 2
 
-        # Mierzenie skrętu na podstawie różnicy w ruchu koła
         WHEEL_RADIUS = 0.03
 
         # Aktualizacja pozycji na podstawie przemieszczenia i rotacji
@@ -281,27 +274,20 @@ class RosClient(QObject):
                           [0, 0, 1]])
 
         # Obliczanie przemieszczenia na podstawie różnicy położeń kół i rotacji
-        displacement = np.array([0, (self.wheelAvg - self.last_wheelAvg) * WHEEL_RADIUS, 0])  # zakładam, że ruch wzdłuż osi y to przemieszczenie w przód/tył
-
-        # Zastosowanie rotacji do przemieszczenia
-        displacement = np.dot(rz, np.dot(rx, displacement))
+        displacement = np.array([0, (self.wheelAvg - self.last_wheelAvg) * WHEEL_RADIUS, 0])        # zakładam, że ruch wzdłuż osi y to przemieszczenie w przód/tył
+        displacement = np.dot(rz, np.dot(rx, displacement))                                         # Zastosowanie rotacji do przemieszczenia
 
         # Aktualizacja pozycji robota tylko gdy się poruszył
         if self.wheelAvg != self.last_wheelAvg:
             # Aktualizacja pozycji robota
             if not hasattr(self, 'robot_position'):
-                self.robot_position = np.zeros(3)  # inicjalizacja pozycji robota
-
+                self.robot_position = np.zeros(3)                       # inicjalizacja pozycji robota
             self.robot_position += displacement
 
-        # print(f'L: {self.wheelL}  R: {self.wheelR}')
-
         # Obliczenie prędkości liniowej dla obu kół
-        left_wheel_speed = WHEEL_RADIUS * msg.x  # msg.x - prędkość lewego koła w rad/s
-        right_wheel_speed = WHEEL_RADIUS * msg.y  # msg.y - prędkość prawego koła w rad/s
-
-        # Średnia prędkość dla lepszego odzwierciedlenia prędkości robota
-        average_speed = (left_wheel_speed + right_wheel_speed) / 2
+        left_wheel_speed = WHEEL_RADIUS * msg.x                         # msg.x - prędkość lewego koła w rad/s
+        right_wheel_speed = WHEEL_RADIUS * msg.y                        # msg.y - prędkość prawego koła w rad/s
+        average_speed = (left_wheel_speed + right_wheel_speed) / 2      # Średnia prędkość dla lepszego odzwierciedlenia prędkości robota
 
         # Emitowanie sygnału z danymi, który zawiera także prędkości w m/s
         self.joints_updated.emit({
@@ -322,7 +308,7 @@ class RosClient(QObject):
         self.acc_angle_x_reset += self.acc_angle_x
         self.acc_angle_y_reset += self.acc_angle_y
 
-        self.reset_complete.emit()  # Emitowanie sygnału po zresetowaniu
+        self.reset_complete.emit()      # Emitowanie sygnału po zresetowaniu
 
 
 
@@ -330,14 +316,14 @@ class RosClient(QObject):
     def image_callback_wrapper(self, msg):
         self.last_image_time = time.time()
 
-        self.image_callback(msg)  # Wywołanie oryginalnego callbacka
+        self.image_callback(msg)        # Wywołanie oryginalnego callbacka
 
 
 
 
     def verify_data_reception(self):
         current_time = time.time()
-        camera_status = "OK" if current_time - self.last_image_time < 2 else "Błąd"  # 2 sekund timeout
+        camera_status = "OK" if current_time - self.last_image_time < 2 else "Błąd"     # 2 sekund timeout
         lidar_status = "OK" if current_time - self.last_lidar_time < 2 else "Błąd"
         motors_status = "OK" if current_time - self.last_motors_time < 2 else "Błąd"
         imu_status = "OK" if current_time - self.last_imu_time < 2 else "Błąd"
