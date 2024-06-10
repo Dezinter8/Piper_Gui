@@ -117,8 +117,24 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         # W PRAWO POD KATEM DO TYLU
         self.w_prawo_pod_katem_do_tylu_button = self.w_prawo_pod_katem_do_tylu_button
         self.w_prawo_pod_katem_do_tylu_button.clicked.connect(self.P_pod_katem_tyl)
-         
-       
+        
+
+        # Słownik do śledzenia stanów klawiszy
+        self.key_states = {
+            QtCore.Qt.Key_N: False, 
+            QtCore.Qt.Key_Y: False, 
+            QtCore.Qt.Key_G: False, 
+            QtCore.Qt.Key_J: False, 
+            QtCore.Qt.Key_T: False, 
+            QtCore.Qt.Key_U: False, 
+            QtCore.Qt.Key_B: False, 
+            QtCore.Qt.Key_M: False,
+            QtCore.Qt.Key_R: False,
+            QtCore.Qt.Key_L: False,
+            QtCore.Qt.Key_H: False,
+            QtCore.Qt.Key_I: False,
+            QtCore.Qt.Key_K: False
+        }
        
     def cofaj(self): 
         speed = self.speed_value.value()  # Pobranie wartości z QSpinBox o nazwie 'speed_value'
@@ -500,35 +516,57 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     ############# APP ############
 
     def keyPressEvent(self, event):
-        super(MainWindow, self).keyPressEvent(event)  # Przekaż zdarzenie do bazowej klasy, jeśli nie jest obsługiwane tutaj
-        
-        if event.key() == QtCore.Qt.Key_R:      # Sprawdź, czy naciśnięto klawisz 'r'
-            self.resetCamera()
-        elif event.key() == QtCore.Qt.Key_N:    # Sprawdź, czy naciśnięto klawisz 'n'
-            self.cofaj()
-        elif event.key() == QtCore.Qt.Key_L:    # Sprawdź, czy naciśnięto klawisz 'l'
-            self.dioda()
-        elif event.key() == QtCore.Qt.Key_Y:    # Sprawdź, czy naciśnięto klawisz 'y'
-            self.naprzod()
-        elif event.key() == QtCore.Qt.Key_H:    # Sprawdź, czy naciśnięto klawisz 'h'
-            self.stop()
-        elif event.key() == QtCore.Qt.Key_G:    # Sprawdź, czy naciśnięto klawisz 'g'
-            self.w_lewo()
-        elif event.key() == QtCore.Qt.Key_J:    # Sprawdź, czy naciśnięto klawisz 'j'
-            self.w_prawo()
-        elif event.key() == QtCore.Qt.Key_T:    # Sprawdź, czy naciśnięto klawisz 't'
-            self.L_pod_katem_przod()
-        elif event.key() == QtCore.Qt.Key_U:    # Sprawdź, czy naciśnięto klawisz 'u'
-            self.P_pod_katem_przod()
-        elif event.key() == QtCore.Qt.Key_B:    # Sprawdź, czy naciśnięto klawisz 't'
-            self.L_pod_katem_tyl()
-        elif event.key() == QtCore.Qt.Key_M:    # Sprawdź, czy naciśnięto klawisz 'u'
-            self.P_pod_katem_tyl()
-        elif event.key() == QtCore.Qt.Key_I:    # Sprawdź, czy naciśnięto klawisz 'u'
-            self.increaseSpeedValue()
-        elif event.key() == QtCore.Qt.Key_K:    # Sprawdź, czy naciśnięto klawisz 'u'
-            self.decreaseSpeedValue()
- 
+        super(MainWindow, self).keyPressEvent(event)# Przekaż zdarzenie do bazowej klasy, jeśli nie jest obsługiwane tutaj
+
+        if event.isAutoRepeat():                    # Ignoruj zdarzenia z automatycznego powtarzania
+            return
+
+        if event.key() in self.key_states:
+            self.key_states[event.key()] = True
+
+            if event.key() == QtCore.Qt.Key_R:      # Sprawdź, czy naciśnięto klawisz 'r'
+                self.resetCamera()
+            elif event.key() == QtCore.Qt.Key_N:    # Sprawdź, czy naciśnięto klawisz 'n'
+                self.cofaj()
+            elif event.key() == QtCore.Qt.Key_L:    # Sprawdź, czy naciśnięto klawisz 'l'
+                self.dioda()
+            elif event.key() == QtCore.Qt.Key_Y:    # Sprawdź, czy naciśnięto klawisz 'y'
+                self.naprzod()
+            elif event.key() == QtCore.Qt.Key_H:    # Sprawdź, czy naciśnięto klawisz 'h'
+                self.stop()
+            elif event.key() == QtCore.Qt.Key_G:    # Sprawdź, czy naciśnięto klawisz 'g'
+                self.w_lewo()
+            elif event.key() == QtCore.Qt.Key_J:    # Sprawdź, czy naciśnięto klawisz 'j'
+                self.w_prawo()
+            elif event.key() == QtCore.Qt.Key_T:    # Sprawdź, czy naciśnięto klawisz 't'
+                self.L_pod_katem_przod()
+            elif event.key() == QtCore.Qt.Key_U:    # Sprawdź, czy naciśnięto klawisz 'u'
+                self.P_pod_katem_przod()
+            elif event.key() == QtCore.Qt.Key_B:    # Sprawdź, czy naciśnięto klawisz 't'
+                self.L_pod_katem_tyl()
+            elif event.key() == QtCore.Qt.Key_M:    # Sprawdź, czy naciśnięto klawisz 'm'
+                self.P_pod_katem_tyl()
+            elif event.key() == QtCore.Qt.Key_I:    # Sprawdź, czy naciśnięto klawisz 'i'
+                self.increaseSpeedValue()
+            elif event.key() == QtCore.Qt.Key_K:    # Sprawdź, czy naciśnięto klawisz 'k'
+                self.decreaseSpeedValue()
+            
+    def keyReleaseEvent(self, event):
+        super(MainWindow, self).keyReleaseEvent(event)# Przekaż zdarzenie do bazowej klasy, jeśli nie jest obsługiwane tutaj
+
+        if event.isAutoRepeat():                    # Ignoruj zdarzenia z automatycznego powtarzania
+            return
+
+        key = event.key()
+        if key in self.key_states:
+            self.key_states[key] = False
+
+            # Sprawdź, czy klucz zwolniony to klawisze od ruchu
+            if key in (QtCore.Qt.Key_N, QtCore.Qt.Key_Y, QtCore.Qt.Key_G, QtCore.Qt.Key_J, QtCore.Qt.Key_T, QtCore.Qt.Key_U, QtCore.Qt.Key_B, QtCore.Qt.Key_M):
+                # Sprawdzenie, czy inne klucze od ruchu są nadal aktywne
+                if not (self.key_states[QtCore.Qt.Key_N] or self.key_states[QtCore.Qt.Key_Y] or self.key_states[QtCore.Qt.Key_G] or self.key_states[QtCore.Qt.Key_J] or self.key_states[QtCore.Qt.Key_T] or self.key_states[QtCore.Qt.Key_U] or self.key_states[QtCore.Qt.Key_B] or self.key_states[QtCore.Qt.Key_M]):
+                    self.stop()
+
             
     def closeEvent(self, event):
         self.image_processor.stop_recording()           # Zapis nagrania video
